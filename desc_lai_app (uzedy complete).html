@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DESC LAI Medication Standing Order Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #2c5aa0;
+        }
+
+        .app-title {
+            color: #1e3a8a;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .app-subtitle {
+            color: #666;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border-left: 4px solid #2c5aa0;
+        }
+
+        .section-title {
+            color: #1e3a8a;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .required {
+            color: #dc2626;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2c5aa0;
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+        }
+
+        .date-input {
+            max-width: 200px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(44, 90, 160, 0.3);
+        }
+
+        .desc-branding {
+            background: #1e3a8a;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .disclaimer {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #92400e;
+        }
+
+        .guidance-section {
+            margin-bottom: 30px;
+        }
+
+        .medication-info {
+            background: #eff6ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #bfdbfe;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            align-items: center;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #1e40af;
+            min-width: 150px;
+        }
+
+        .info-value {
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .guidance-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #059669;
+        }
+
+        .guidance-heading {
+            color: #1e3a8a;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .guidance-text {
+            color: #374151;
+            font-size: 18px;
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        .important-note {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+            color: #92400e;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+            
+            .info-label {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-header">
+            <div class="desc-branding">DESC Standing Order Tool</div>
+            <h1 class="app-title">💉 LAI Medication Management</h1>
+            <p class="app-subtitle">Clinical decision support for early or late/overdue long-acting injectable medications</p>
+        </div>
+
+        <div class="form-section">
+            <h3 class="section-title">📋 Select LAI Medication & Guidance Type</h3>
+            
+            <div class="input-group">
+                <label for="medication">LAI Medication <span class="required">*</span></label>
+                <select id="medication" onchange="handleMedicationChange()">
+                    <option value="">Select medication...</option>
+                    <optgroup label="Antipsychotics - Currently Used at DESC">
+                        <option value="invega_sustenna">Invega Sustenna (paliperidone palmitate)</option>
+                        <option value="invega_trinza">Invega Trinza (paliperidone palmitate 3-month)</option>
+                        <option value="invega_hafyera">Invega Hafyera (paliperidone palmitate 6-month)</option>
+                        <option value="abilify_maintena">Abilify Maintena (aripiprazole)</option>
+                        <option value="aristada">Aristada (aripiprazole lauroxil)</option>
+                        <option value="uzedy">Uzedy (risperidone subcutaneous)</option>
+                        <option value="haloperidol_decanoate">Haloperidol Decanoate (Haldol Dec)</option>
+                        <option value="fluphenazine_decanoate">Fluphenazine Decanoate (formerly Prolixin Dec)</option>
+                    </optgroup>
+                    <optgroup label="Addiction Medicine">
+                        <option value="vivitrol">Vivitrol (naltrexone)</option>
+                        <option value="sublocade">Sublocade (buprenorphine)</option>
+                        <option value="brixadi">Brixadi (buprenorphine)</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="guidance-type">Choose Guidance Type <span class="required">*</span></label>
+                <select id="guidance-type" onchange="handleGuidanceTypeChange()">
+                    <option value="">Select guidance type...</option>
+                    <option value="early">Early Administration Guidance</option>
+                    <option value="late">Late/Overdue Administration Guidance</option>
+                </select>
+                <p style="margin-top: 8px; color: #6b7280; font-size: 14px;">
+                    <strong>Early:</strong> Patient requesting injection before scheduled date<br>
+                    <strong>Late/Overdue:</strong> Patient is late or overdue for injection
+                </p>
+            </div>
+
+            <div class="input-group" id="invega-sustenna-options" style="display: none;">
+                <label for="invega-type">Invega Sustenna Injection Type <span class="required">*</span></label>
+                <select id="invega-type" onchange="handleInvegaTypeChange()">
+                    <option value="">Select injection type...</option>
+                    <option value="initiation">Missed/delayed 2nd initiation (156 mg) injection</option>
+                    <option value="maintenance">Missed/delayed monthly maintenance injection</option>
+                </select>
+            </div>
+
+            <div class="input-group" id="first-injection-date" style="display: none;">
+                <label for="first-injection">Date of first (234 mg) injection <span class="required">*</span></label>
+                <input type="date" id="first-injection" class="date-input">
+            </div>
+
+            <div class="input-group" id="maintenance-fields" style="display: none;">
+                <label for="last-maintenance">Date of last maintenance injection <span class="required">*</span></label>
+                <input type="date" id="last-maintenance" class="date-input">
+                
+                <div style="margin-top: 15px;">
+                    <label for="maintenance-dose">Monthly maintenance injection dose <span class="required">*</span></label>
+                    <select id="maintenance-dose">
+                        <option value="">Select dose...</option>
+                        <option value="156-or-less">156 mg or less</option>
+                        <option value="234">234 mg</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group" id="trinza-fields" style="display: none;">
+                <label for="last-trinza">Date of last Trinza injection <span class="required">*</span></label>
+                <input type="date" id="last-trinza" class="date-input">
+                
+                <div style="margin-top: 15px;">
+                    <label for="trinza-dose">Trinza injection dose <span class="required">*</span></label>
+                    <select id="trinza-dose">
+                        <option value="">Select dose...</option>
+                        <option value="410">410 mg</option>
+                        <option value="546">546 mg</option>
+                        <option value="819">819 mg</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group" id="hafyera-fields" style="display: none;">
+                <label for="last-hafyera">Date of last Hafyera injection <span class="required">*</span></label>
+                <input type="date" id="last-hafyera" class="date-input">
+            </div>
+
+            <div class="input-group" id="abilify-fields" style="display: none;">
+                <label for="last-abilify">Date of last Abilify Maintena injection <span class="required">*</span></label>
+                <input type="date" id="last-abilify" class="date-input">
+                
+                <div style="margin-top: 15px;">
+                    <label for="abilify-doses">Number of prior consecutive monthly Abilify Maintena injections received <span class="required">*</span></label>
+                    <select id="abilify-doses">
+                        <option value="">Select number...</option>
+                        <option value="1-2">1 or 2 monthly doses</option>
+                        <option value="3+">3 or more monthly doses</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group" id="aristada-fields" style="display: none;">
+                <label for="last-aristada">Date of last Aristada injection <span class="required">*</span></label>
+                <input type="date" id="last-aristada" class="date-input">
+                
+                <div style="margin-top: 15px;">
+                    <label for="aristada-dose">Dose of last Aristada injection <span class="required">*</span></label>
+                    <select id="aristada-dose">
+                        <option value="">Select dose...</option>
+                        <option value="441">441 mg</option>
+                        <option value="662">662 mg</option>
+                        <option value="882">882 mg</option>
+                        <option value="1064">1064 mg</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group" id="uzedy-fields" style="display: none;">
+                <label for="last-uzedy">Date of last Uzedy injection <span class="required">*</span></label>
+                <input type="date" id="last-uzedy" class="date-input">
+                
+                <div style="margin-top: 15px;">
+                    <label for="uzedy-dose">Uzedy maintenance dose <span class="required">*</span></label>
+                    <select id="uzedy-dose">
+                        <option value="">Select dose...</option>
+                        <option value="150-or-less">150 mg or less</option>
+                        <option value="200-or-more">200 mg or more</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button type="button" class="btn" onclick="handleSubmit()">Submit</button>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>⚠️ DESC Standing Order Disclaimer:</strong> This tool implements DESC's standing order protocols for LAI medication administration. It is intended for use by licensed RNs and MAs at DESC only. All CONSULT decision points require contact with a DESC prescriber. This tool does not replace clinical judgment and should be used in conjunction with the complete DESC LAI standing order document.
+        </div>
+    </div>
+
+    <script>
+        function handleMedicationChange() {
+            handleGuidanceTypeChange();
+        }
+
+        function handleGuidanceTypeChange() {
+            const medication = document.getElementById('medication').value;
+            const guidanceType = document.getElementById('guidance-type').value;
+            const invegaOptions = document.getElementById('invega-sustenna-options');
+            const trinzaFields = document.getElementById('trinza-fields');
+            const hafyeraFields = document.getElementById('hafyera-fields');
+            const abilifyFields = document.getElementById('abilify-fields');
+            const aristadaFields = document.getElementById('aristada-fields');
+            const uzedyFields = document.getElementById('uzedy-fields');
+            
+            // Hide all special fields first
+            invegaOptions.style.display = 'none';
+            trinzaFields.style.display = 'none';
+            hafyeraFields.style.display = 'none';
+            abilifyFields.style.display = 'none';
+            aristadaFields.style.display = 'none';
+            uzedyFields.style.display = 'none';
+            
+            // Clear all field values
+            document.getElementById('invega-type').value = '';
+            document.getElementById('first-injection-date').style.display = 'none';
+            document.getElementById('first-injection').value = '';
+            document.getElementById('maintenance-fields').style.display = 'none';
+            document.getElementById('last-maintenance').value = '';
+            document.getElementById('maintenance-dose').value = '';
+            document.getElementById('last-trinza').value = '';
+            document.getElementById('trinza-dose').value = '';
+            document.getElementById('last-hafyera').value = '';
+            document.getElementById('last-abilify').value = '';
+            document.getElementById('abilify-doses').value = '';
+            document.getElementById('last-aristada').value = '';
+            document.getElementById('aristada-dose').value = '';
+            document.getElementById('last-uzedy').value = '';
+            document.getElementById('uzedy-dose').value = '';
+            
+            if (guidanceType === 'late') {
+                if (medication === 'invega_sustenna') {
+                    invegaOptions.style.display = 'block';
+                } else if (medication === 'invega_trinza') {
+                    trinzaFields.style.display = 'block';
+                } else if (medication === 'invega_hafyera') {
+                    hafyeraFields.style.display = 'block';
+                } else if (medication === 'abilify_maintena') {
+                    abilifyFields.style.display = 'block';
+                } else if (medication === 'aristada') {
+                    aristadaFields.style.display = 'block';
+                } else if (medication === 'uzedy') {
+                    uzedyFields.style.display = 'block';
+                }
+            }
+        }
+
+        function handleInvegaTypeChange() {
+            const invegaType = document.getElementById('invega-type').value;
+            const firstInjectionDate = document.getElementById('first-injection-date');
+            const maintenanceFields = document.getElementById('maintenance-fields');
+            
+            if (invegaType === 'initiation') {
+                firstInjectionDate.style.display = 'block';
+                maintenanceFields.style.display = 'none';
+                document.getElementById('last-maintenance').value = '';
+                document.getElementById('maintenance-dose').value = '';
+            } else if (invegaType === 'maintenance') {
+                firstInjectionDate.style.display = 'none';
+                maintenanceFields.style.display = 'block';
+                document.getElementById('first-injection').value = '';
+            } else {
+                firstInjectionDate.style.display = 'none';
+                maintenanceFields.style.display = 'none';
+                document.getElementById('first-injection').value = '';
+                document.getElementById('last-maintenance').value = '';
+                document.getElementById('maintenance-dose').value = '';
+            }
+        }
+
+        function handleSubmit() {
+            const medication = document.getElementById('medication').value;
+            const guidanceType = document.getElementById('guidance-type').value;
+            const invegaType = document.getElementById('invega-type').value;
+            const firstInjectionDate = document.getElementById('first-injection').value;
+            const lastMaintenanceDate = document.getElementById('last-maintenance').value;
+            const maintenanceDose = document.getElementById('maintenance-dose').value;
+            const lastTrinzaDate = document.getElementById('last-trinza').value;
+            const trinzaDose = document.getElementById('trinza-dose').value;
+            const lastHafyeraDate = document.getElementById('last-hafyera').value;
+            const lastAbilifyDate = document.getElementById('last-abilify').value;
+            const abilifyDoses = document.getElementById('abilify-doses').value;
+            const lastAristadaDate = document.getElementById('last-aristada').value;
+            const aristadaDose = document.getElementById('aristada-dose').value;
+            const lastUzedyDate = document.getElementById('last-uzedy').value;
+            const uzedyDose = document.getElementById('uzedy-dose').value;
+            
+            if (!medication) {
+                alert('Please select a medication.');
+                return;
+            }
+            
+            if (!guidanceType) {
+                alert('Please select a guidance type.');
+                return;
+            }
+            
+            if (medication === 'invega_sustenna' && guidanceType === 'late' && !invegaType) {
+                alert('Please select the Invega Sustenna injection type.');
+                return;
+            }
+            
+            if (medication === 'invega_sustenna' && guidanceType === 'late' && invegaType === 'initiation' && !firstInjectionDate) {
+                alert('Please enter the date of first (234 mg) injection.');
+                return;
+            }
+            
+            if (medication === 'invega_sustenna' && guidanceType === 'late' && invegaType === 'maintenance') {
+                if (!lastMaintenanceDate) {
+                    alert('Please enter the date of last maintenance injection.');
+                    return;
+                }
+                if (!maintenanceDose) {
+                    alert('Please select the monthly maintenance injection dose.');
+                    return;
+                }
+            }
+            
+            if (medication === 'invega_trinza' && guidanceType === 'late') {
+                if (!lastTrinzaDate) {
+                    alert('Please enter the date of last Trinza injection.');
+                    return;
+                }
+                if (!trinzaDose) {
+                    alert('Please select the Trinza injection dose.');
+                    return;
+                }
+            }
+            
+            if (medication === 'invega_hafyera' && guidanceType === 'late') {
+                if (!lastHafyeraDate) {
+                    alert('Please enter the date of last Hafyera injection.');
+                    return;
+                }
+            }
+            
+            if (medication === 'abilify_maintena' && guidanceType === 'late') {
+                if (!lastAbilifyDate) {
+                    alert('Please enter the date of last Abilify Maintena injection.');
+                    return;
+                }
+                if (!abilifyDoses) {
+                    alert('Please select the number of prior consecutive monthly injections.');
+                    return;
+                }
+            }
+            
+            if (medication === 'aristada' && guidanceType === 'late') {
+                if (!lastAristadaDate) {
+                    alert('Please enter the date of last Aristada injection.');
+                    return;
+                }
+                if (!aristadaDose) {
+                    alert('Please select the dose of last Aristada injection.');
+                    return;
+                }
+            }
+            
+            if (medication === 'uzedy' && guidanceType === 'late') {
+                if (!lastUzedyDate) {
+                    alert('Please enter the date of last Uzedy injection.');
+                    return;
+                }
+                if (!uzedyDose) {
+                    alert('Please select the Uzedy maintenance dose.');
+                    return;
+                }
+            }
+            
+            if (guidanceType === 'early') {
+                showEarlyGuidance(medication);
+            } else if (medication === 'invega_sustenna' && invegaType === 'initiation') {
+                showInvegaInitiationGuidance(firstInjectionDate);
+            } else if (medication === 'invega_sustenna' && invegaType === 'maintenance') {
+                showInvegaMaintenanceGuidance(lastMaintenanceDate, maintenanceDose);
+            } else if (medication === 'invega_trinza') {
+                showInvegaTrinzaGuidance(lastTrinzaDate, trinzaDose);
+            } else if (medication === 'invega_hafyera') {
+                showInvegaHafyeraGuidance(lastHafyeraDate);
+            } else if (medication === 'abilify_maintena') {
+                showAbilifyMaintenaGuidance(lastAbilifyDate, abilifyDoses);
+            } else if (medication === 'aristada') {
+                showAristadaGuidance(lastAristadaDate, aristadaDose);
+            } else if (medication === 'uzedy') {
+                showUzedyGuidance(lastUzedyDate, uzedyDose);
+            } else {
+                alert('Late/overdue guidance for this medication is coming soon!');
+            }
+        }
+
+        function showEarlyGuidance(medication) {
+            const medicationName = getMedicationDisplayName(medication);
+            const guidanceContent = getEarlyGuidanceContent(medication);
+            
+            document.querySelector('.form-section').style.display = 'none';
+            
+            const guidanceHTML = `
+                <div class="guidance-section">
+                    <div class="medication-info">
+                        <div class="info-row">
+                            <span class="info-label">Medication:</span>
+                            <span class="info-value">${medicationName}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Guidance Type:</span>
+                            <span class="info-value">Early Administration Guidance</span>
+                        </div>
+                    </div>
+
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">Time frame acceptable to give an "early" injection without seeking provider consult:</h3>
+                        <div class="guidance-text">
+                            ${guidanceContent}
+                        </div>
+                    </div>
+
+                    <div class="important-note">
+                        <strong>⚠️ Important:</strong> If there may be a reason to administer even earlier than the specified timeframe, provider approval must be obtained.
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button type="button" class="btn" onclick="startOver()">Start Over</button>
+                    </div>
+                </div>
+            `;
+            
+            const container = document.querySelector('.app-container');
+            const header = document.querySelector('.app-header');
+            header.insertAdjacentHTML('afterend', guidanceHTML);
+            
+            window.scrollTo(0, 0);
+        }
+
+        function getMedicationDisplayName(medication) {
+            const nameMap = {
+                'invega_sustenna': 'Invega Sustenna (paliperidone palmitate)',
+                'invega_trinza': 'Invega Trinza (paliperidone palmitate 3-month)',
+                'invega_hafyera': 'Invega Hafyera (paliperidone palmitate 6-month)',
+                'abilify_maintena': 'Abilify Maintena (aripiprazole)',
+                'aristada': 'Aristada (aripiprazole lauroxil)',
+                'uzedy': 'Uzedy (risperidone subcutaneous)',
+                'haloperidol_decanoate': 'Haloperidol Decanoate (Haldol Dec)',
+                'fluphenazine_decanoate': 'Fluphenazine Decanoate (formerly Prolixin Dec)',
+                'vivitrol': 'Vivitrol (naltrexone)',
+                'sublocade': 'Sublocade (buprenorphine)',
+                'brixadi': 'Brixadi (buprenorphine)'
+            };
+            return nameMap[medication] || medication;
+        }
+
+        function getEarlyGuidanceContent(medication) {
+            const guidanceMap = {
+                'invega_sustenna': '1 week before due date<br><em>(Note: after completing full initiation process)</em>',
+                'invega_trinza': '2 weeks before due date',
+                'invega_hafyera': '2 weeks before due date',
+                'abilify_maintena': 'No sooner than 26 days after last injection',
+                'aristada': '1 week before due date',
+                'uzedy': '3 days before due date<br><em>(DESC created guidance)</em>',
+                'haloperidol_decanoate': '3 days before due date<br><em>(DESC created guidance)</em>',
+                'fluphenazine_decanoate': '3 days before due date<br><em>(DESC created guidance)</em>',
+                'vivitrol': 'No sooner than 3 weeks after last injection',
+                'sublocade': 'No sooner than 3 weeks after last injection<br><em>(This may be given earlier with provider approval)</em>',
+                'brixadi': 'No sooner than 3 weeks after last injection<br><em>(This may be given earlier with provider approval)</em>'
+            };
+            return guidanceMap[medication] || 'Please consult the DESC LAI standing order document for specific guidance.';
+        }
+
+        function showUzedyGuidance(lastUzedyDate, uzedyDose) {
+            const lastDate = new Date(lastUzedyDate);
+            const today = new Date();
+            const daysSince = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+            
+            const guidance = getUzedyGuidance(daysSince, uzedyDose);
+            
+            document.querySelector('.form-section').style.display = 'none';
+            
+            const guidanceHTML = `
+                <div class="guidance-section">
+                    <div class="medication-info">
+                        <div class="info-row">
+                            <span class="info-label">Medication:</span>
+                            <span class="info-value">Uzedy (risperidone subcutaneous)</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Guidance Type:</span>
+                            <span class="info-value">Late/Overdue Administration Guidance</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Date of last injection:</span>
+                            <span class="info-value">${formatDate(lastUzedyDate)}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Uzedy maintenance dose:</span>
+                            <span class="info-value">${uzedyDose === '150-or-less' ? '150 mg or less' : '200 mg or more'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Time since last injection:</span>
+                            <span class="info-value">${daysSince} days (${formatWeeksAndDays(daysSince)})</span>
+                        </div>
+                    </div>
+
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">Ideal steps (do if possible):</h3>
+                        <div class="guidance-text">
+                            ${guidance.idealSteps}
+                        </div>
+                    </div>
+
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">Acceptable pragmatic variations if ideal is not possible:</h3>
+                        <div class="guidance-text">
+                            ${guidance.pragmaticVariations}
+                        </div>
+                    </div>
+
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">When to notify provider:</h3>
+                        <div class="guidance-text">
+                            ${guidance.providerNotification}
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button type="button" class="btn" onclick="startOver()">Start Over</button>
+                    </div>
+                </div>
+            `;
+            
+            const container = document.querySelector('.app-container');
+            const header = document.querySelector('.app-header');
+            header.insertAdjacentHTML('afterend', guidanceHTML);
+            
+            window.scrollTo(0, 0);
+        }
+
+        function getUzedyGuidance(daysSince, uzedyDose) {
+            if (daysSince < 28) {
+                return {
+                    idealSteps: '<p>Uzedy is not yet due. Please consult the Uzedy early administration guidance.</p>',
+                    pragmaticVariations: '<p>Same</p>',
+                    providerNotification: '<p>No provider notification needed.</p>'
+                };
+            } else if (daysSince >= 29 && daysSince <= 119) {
+                return {
+                    idealSteps: '<p>Administer usual Uzedy maintenance dose (unless it is not yet due, in which case consult the early administration guidance). Then arrange for the next injection at the usual dosing interval.</p>',
+                    pragmaticVariations: '<p>Same</p>',
+                    providerNotification: '<p>After the injection, notify the provider as an FYI on the injection timing.</p>'
+                };
+            } else if (daysSince >= 120 && daysSince <= 180) {
+                return {
+                    idealSteps: '<p>(1) Administer usual Uzedy maintenance dose</p><p>(2) Arrange for care team to check in with patient within 1-2 days, to assess for sedation</p><p>(3) Next injection at usual dosing interval</p>',
+                    pragmaticVariations: '<p>Same</p>',
+                    providerNotification: '<p>After the injection, notify the provider as an FYI on the injection timing.</p>'
+                };
+            } else if (daysSince >= 181) {
+                if (uzedyDose === '150-or-less') {
+                    return {
+                        idealSteps: '<p>(1) Administer usual Uzedy maintenance dose (150 mg or less)</p><p>(2) Arrange for care team to check in with patient within 1-2 days, to assess for sedation</p><p>(3) Next injection at usual dosing interval</p>',
+                        pragmaticVariations: '<p>Same</p>',
+                        providerNotification: '<p>After the injection, notify the provider as an FYI on the injection timing.</p>'
+                    };
+                } else {
+                    return {
+                        idealSteps: '<p>(1) Try to contact prescriber for discussion on whether this person is at risk for sedation or other severe antipsychotic adverse events</p><p>(2) If prescriber cannot be reached, administer approximately 150 mg of the injection. Example: the typical injection is 200 mg; administer approximately ¾ of the medication</p><p>(3) Arrange for care team to check in with patient within 1-2 days, to assess for sedation</p>',
+                        pragmaticVariations: '<p>Same</p>',
+                        providerNotification: '<p>If not already contacted, notify the provider after the injection to get guidance on next steps.</p>'
+                    };
+                }
+            }
+        }
+
+        function showInvegaInitiationGuidance(firstInjectionDate) {
+            const firstDate = new Date(firstInjectionDate);
+            const today = new Date();
+            const daysSince = Math.floor((today - firstDate) / (1000 * 60 * 60 * 24));
+            
+            const guidance = getInvegaInitiationGuidance(daysSince);
+            
+            document.querySelector('.form-section').style.display = 'none';
+            
+            const guidanceHTML = `
+                <div class="guidance-section">
+                    <div class="medication-info">
+                        <div class="info-row">
+                            <span class="info-label">Medication:</span>
+                            <span class="info-value">Invega Sustenna (paliperidone palmitate)</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Guidance Type:</span>
+                            <span class="info-value">Late/Overdue Administration Guidance</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Injection Type:</span>
+                            <span class="info-value">Missed/delayed 2nd initiation (156 mg) injection</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Date of first (234 mg) injection:</span>
+                            <span class="info-value">${formatDate(firstInjectionDate)}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Time since first (234 mg) injection:</span>
+                            <span class="info-value">${daysSince} days (${formatWeeksAndDays(daysSince)})</span>
+                        </div>
+                    </div>
+
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">Ideal next steps (do if possible):</h3>
+                        <div class="guidance-text">
+                            ${guidance.idealSteps}
+                        </div>
+                    </div>
+
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">Acceptable pragmatic variations if ideal is not possible:</h3>
+                        <div class="guidance-text">
+                            ${guidance.pragmaticVariations}
+                        </div>
+                    </div>
+
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">When to notify provider:</h3>
+                        <div class="guidance-text">
+                            ${guidance.providerNotification}
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button type="button" class="btn" onclick="startOver()">Start Over</button>
+                    </div>
+                </div>
+            `;
+            
+            const container = document.querySelector('.app-container');
+            const header = document.querySelector('.app-header');
+            header.insertAdjacentHTML('afterend', guidanceHTML);
+            
+            window.scrollTo(0, 0);
+        }
+
+        function getInvegaInitiationGuidance(daysSince) {
+            if (daysSince <= 12) {
+                return {
+                    idealSteps: `<p>The 156 mg is either not due or not significantly overdue. Proceed with original plans and orders.</p>`,
+                    pragmaticVariations: `<p>No variations needed - proceed with standard protocol.</p>`,
+                    providerNotification: `<p>Only if questions remain</p>`
+                };
+            } else if (daysSince >= 13 && daysSince <= 28) {
+                return {
+                    idealSteps: `<p>(1) Administer 156 mg (in deltoid ideally).</p>
+                                <p>(2) Arrange for a 117 mg injection 5 weeks after the first (234 mg) injection, regardless of when the 156 mg injection (in step 1) is administered</p>
+                                <p>(3) Thereafter, start monthly maintenance dosing 4 weeks after step 2.</p>`,
+                    pragmaticVariations: `<p>Ok to administer the 156 mg injection in gluteal muscle if patient strongly prefers.</p>`,
+                    providerNotification: `<p><strong>Post-injection (156 mg):</strong> Notify provider of the situation and need to order a 117 mg injection if not already done.</p>`
+                };
+            } else if (daysSince >= 29 && daysSince <= 49) {
+                return {
+                    idealSteps: `<p>(1) Administer 156 mg (in deltoid ideally).</p>
+                                <p>(2) Arrange for a 2nd 156 mg injection (in deltoid ideally) 1 week after step 1.</p>
+                                <p>(3) Thereafter, start monthly maintenance dosing 4 weeks after step 2.</p>`,
+                    pragmaticVariations: `<p>Ok to administer the 156 mg injection in gluteal muscle if patient strongly prefers.</p>`,
+                    providerNotification: `<p><strong>Post-injection (1st 156 mg):</strong> Notify provider of the situation and need to order a 2nd 156 mg injection if not already done.</p>`
+                };
+            } else if (daysSince >= 50 && daysSince <= 180) {
+                return {
+                    idealSteps: `<p>(1) Restart initiation: Administer a 234 mg injection if available</p>
+                                <p>(2) Arrange for a 156 mg injection 1 week after step 1.</p>
+                                <p>(3) Thereafter, start monthly maintenance dosing 4 weeks after step 2.</p>`,
+                    pragmaticVariations: `<p>Ok to administer the 156 mg injection at time of patient presentation if a 234 mg injection is not available and arrange for the patient to return in 1 week.</p>`,
+                    providerNotification: `<p><strong>Post-injection:</strong> notify provider of situation and for orders and guidance on next steps</p>`
+                };
+            } else {
+                return {
+                    idealSteps: `<p>Consult provider to get orders to proceed</p>`,
+                    pragmaticVariations: `<p>Same</p>`,
+                    providerNotification: `<p><strong>Before any injection:</strong> Consult provider</p>`
+                };
+            }
+        }
+
+        function showInvegaMaintenanceGuidance(lastMaintenanceDate, maintenanceDose) {
+            const lastDate = new Date(lastMaintenanceDate);
+            const today = new Date();
+            const daysSince = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+            const weeksSince = Math.floor(daysSince / 7);
+            
+            const guidance = getInvegaMaintenanceGuidance(daysSince, maintenanceDose);
+            
+            document.querySelector('.form-section').style.display = 'none';
+            
+            const guidanceHTML = `
+                <div class="guidance-section">
+                    <div class="medication-info">
+                        <div class="info-row">
+                            <span class="info-label">Medication:</span>
+                            <span class="info-value">Invega Sustenna (paliperidone palmitate)</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Guidance Type:</span>
+                            <span class="info-value">Late/Overdue Administration Guidance</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Injection Type:</span>
+                            <span class="info-value">Missed/delayed monthly maintenance injection</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Date of last maintenance injection:</span>
+                            <span class="info-value">${formatDate(lastMaintenanceDate)}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Monthly maintenance dose:</span>
+                            <span class="info-value">${maintenanceDose === '156-or-less' ? '156 mg or less' : '234 mg'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Time since last maintenance injection:</span>
+                            <span class="info-value">${daysSince} days (${formatWeeksAndDays(daysSince)})</span>
+                        </div>
+                    </div>
+
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">Ideal steps (do if possible):</h3>
+                        <div class="guidance-text">
+                            ${guidance.idealSteps}
+                        </div>
+                    </div>
+
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">Acceptable pragmatic variations if ideal is not possible:</h3>
+                        <div class="guidance-text">
+                            ${guidance.pragmaticVariations}
+                        </div>
+                    </div>
+
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">When to notify provider:</h3>
+                        <div class="guidance-text">
+                            ${guidance.providerNotification}
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button type="button" class="btn" onclick="startOver()">Start Over</button>
+                    </div>
+                </div>
+            `;
+            
+            const container = document.querySelector('.app-container');
+            const header = document.querySelector('.app-header');
+            header.insertAdjacentHTML('afterend', guidanceHTML);
+            
+            window.scrollTo(0, 0);
+        }
+
+        function showInvegaTrinzaGuidance(lastTrinzaDate, trinzaDose) {
+            const lastDate = new Date(lastTrinzaDate);
+            const today = new Date();
+            const daysSince = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+            const monthsSince = Math.floor(daysSince / 30.44);
+            
+            const guidance = getInvegaTrinzaGuidance(monthsSince, trinzaDose);
+            
+            document.querySelector('.form-section').style.display = 'none';
+            
+            const guidanceHTML = `
+                <div class="guidance-section">
+                    <div class="medication-info">
+                        <div class="info-row">
+                            <span class="info-label">Medication:</span>
+                            <span class="info-value">Invega Trinza (paliperidone palmitate 3-month)</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Guidance Type:</span>
+                            <span class="info-value">Late/Overdue Administration Guidance</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Date of last Trinza injection:</span>
+                            <span class="info-value">${formatDate(lastTrinzaDate)}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Trinza injection dose:</span>
+                            <span class="info-value">${trinzaDose} mg</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Time since last Trinza injection:</span>
+                            <span class="info-value">${daysSince} days (approximately ${monthsSince} months)</span>
+                        </div>
+                    </div>
+
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">Ideal steps (do if possible):</h3>
+                        <div class="guidance-text">
+                            ${guidance.idealSteps}
+                        </div>
+                    </div>
+
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">Acceptable pragmatic variations if ideal is not possible:</h3>
+                        <div class="guidance-text">
+                            ${guidance.pragmaticVariations}
+                        </div>
+                    </div>
+
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">When to notify provider:</h3>
+                        <div class="guidance-text">
+                            ${guidance.providerNotification}
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button type="button" class="btn" onclick="startOver()">Start Over</button>
+                    </div>
+                </div>
+            `;
+            
+            const container = document.querySelector('.app-container');
+            const header = document.querySelector('.app-header');
+            header.insertAdjacentHTML('afterend', guidanceHTML);
+            
+            window.scrollTo(0, 0);
+        }
+
+        function getInvegaTrinzaGuidance(monthsSince, trinzaDose) {
+            const daysSince = monthsSince * 30.44; // Convert back to days for accurate comparison
+            
+            if (daysSince < 90) {
+                return {
+                    idealSteps: `<p>Please refer to the early dosing guidance. The Trinza injection is not yet due or overdue.</p>`,
+                    pragmaticVariations: `<p>See early dosing guidance section.</p>`,
+                    providerNotification: `<p>No provider notification needed.</p>`
+                };
+            } else if (daysSince >= 90 && daysSince <= 120) {
+                return {
+                    idealSteps: `<p>(1) Administer next usual Invega Trinza dose</p>`,
+                    pragmaticVariations: `<p>Same</p>`,
+                    providerNotification: `<p>No need but notify full care team of importance of avoiding missed doses of Trinza.</p>`
+                };
+            } else if (daysSince >= 121 && daysSince <= 270) {
+                if (trinzaDose === '410') {
+                    return {
+                        idealSteps: `<p>(1) Do not administer Trinza dose</p>
+                                    <p>(2) Administer Invega <strong>Sustenna</strong> 117 mg</p>
+                                    <p>(3) Arrange for a 2nd Invega Sustenna 117 mg injection 7 days after step 2.</p>
+                                    <p>(4) Arrange for a 410 mg Invega <strong>Trinza</strong> injection 4 weeks after step 3.</p>`,
+                        pragmaticVariations: `<p>None. Consult provider prior to deviating from ideal steps.</p>`,
+                        providerNotification: `<p>Consult provider in all cases.</p>`
+                    };
+                } else {
+                    return {
+                        idealSteps: `<p>(1) Do not administer Trinza dose</p>
+                                    <p>(2) Administer Invega <strong>Sustenna</strong> 156 mg</p>
+                                    <p>(3) Arrange for a 2nd Invega Sustenna 156 mg injection 7 days after step 2.</p>
+                                    <p>(4) Arrange for the usual Invega <strong>Trinza</strong> injection 4 weeks after step 3.</p>`,
+                        pragmaticVariations: `<p>None. Consult provider prior to deviating from ideal steps.</p>`,
+                        providerNotification: `<p>Consult provider in all cases.</p>`
+                    };
+                }
+            } else {
+                return {
+                    idealSteps: `<p>Consult provider. Reinitiation is necessary</p>`,
+                    pragmaticVariations: `<p>Same</p>`,
+                    providerNotification: `<p>Consult provider in all cases</p>`
+                };
+            }
+        }
+
+        function getInvegaMaintenanceGuidance(daysSince, maintenanceDose) {
+            if (daysSince >= 28 && daysSince <= 42) {
+                // 28 days to 42 days
+                return {
+                    idealSteps: `<p>(1) Administer usual Invega Sustenna dose.</p>
+                                <p>(2) Arrange for next usual monthly maintenance dose = 4 weeks later.</p>`,
+                    pragmaticVariations: `<p>No change from ideal steps</p>`,
+                    providerNotification: `<p>No need</p>`
+                };
+            } else if (daysSince >= 43 && daysSince <= 180) {
+                // 43 days to 180 days - guidance depends on dose
+                if (maintenanceDose === '156-or-less') {
+                    // 156 mg or less dose
+                    return {
+                        idealSteps: `<p>(1) Administer usual maintenance dose.</p>
+                                    <p>(2) Arrange for a 2nd usual maintenance dose (same dose) to be administered 1 week later.</p>
+                                    <p>(3) Then resume usual monthly doses 4 weeks after step 2.</p>`,
+                        pragmaticVariations: `<p>For step (2), ok if the 2nd usual maintenance dose happens anytime 1 week or beyond. Attempt to return to a monthly cycle after the 2nd usual maintenance dose.</p>`,
+                        providerNotification: `<p><strong>Post-injection:</strong> Notify provider of the need to have a 2nd usual maintenance dose ordered.</p>`
+                    };
+                } else {
+                    // 234 mg dose
+                    return {
+                        idealSteps: `<p>(1) Administer 156 mg Invega Sustenna</p>
+                                    <p>(2) Arrange for another 156 mg injection to be administered 1 week later</p>
+                                    <p>(3) Then resume usual monthly doses with 234 mg at 4 weeks after step 2.</p>`,
+                        pragmaticVariations: `<p>If a 156 mg Invega Sustenna injection is not available at the time the patient presents, give the 234 mg injection. Notify the provider to guide next steps.</p>`,
+                        providerNotification: `<p><strong>Post-injection:</strong> Notify provider of the situation. If ideal steps are followed, a 2nd 156 mg injection may need to be ordered.</p>
+                                            <p>If the pragmatic variation was followed, the provider will guide next steps.</p>`
+                    };
+                }
+            } else if (daysSince >= 181) {
+                // 181 days or more
+                return {
+                    idealSteps: `<p>Consult provider: reinitiation will need to happen</p>`,
+                    pragmaticVariations: `<p>Same</p>`,
+                    providerNotification: `<p><strong>Before any injection:</strong> Consult provider</p>`
+                };
+            } else {
+                // Less than 28 days - not significantly overdue
+                return {
+                    idealSteps: `<p>The maintenance injection is not significantly overdue (less than 4 weeks since last injection). Proceed with administering the usual maintenance dose and continue with normal monthly schedule.</p>`,
+                    pragmaticVariations: `<p>No variations needed - proceed with standard protocol.</p>`,
+                    providerNotification: `<p>No provider notification needed for routine administration.</p>`
+                };
+            }
+        }
+
+        function showInvegaHafyeraGuidance(lastHafyeraDate) {
+            const lastDate = new Date(lastHafyeraDate);
+            const today = new Date();
+            const daysSince = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+            const weeksSince = Math.floor(daysSince / 7);
+            const monthsSince = Math.floor(daysSince / 30.44);
+            
+            document.querySelector('.form-section').style.display = 'none';
+            
+            let guidanceContent = '';
+            if (daysSince < 180) { // Less than 6 months
+                guidanceContent = `
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">Guidance:</h3>
+                        <div class="guidance-text">
+                            <p>The Hafyera injection is not yet overdue. Please consult guidance on early dosing.</p>
+                        </div>
+                    </div>
+                `;
+            } else if (daysSince >= 181 && daysSince <= 202) { // 181-202 days
+                guidanceContent = `
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">Guidance:</h3>
+                        <div class="guidance-text">
+                            <p>Proceed with administering the Hafyera injection. Plan for the subsequent injection in 6 months.</p>
+                        </div>
+                    </div>
+                `;
+            } else { // 203 days and beyond
+                guidanceContent = `
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">Guidance:</h3>
+                        <div class="guidance-text">
+                            <p><strong>CONSULT PROVIDER REQUIRED</strong></p>
+                            <p>The patient is presenting more than 6 months and 3 weeks after the last Hafyera dose.</p>
+                            <p>Please consult a provider prior to proceeding with any injection.</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            const guidanceHTML = `
+                <div class="guidance-section">
+                    <div class="medication-info">
+                        <div class="info-row">
+                            <span class="info-label">Medication:</span>
+                            <span class="info-value">Invega Hafyera (paliperidone palmitate 6-month)</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Guidance Type:</span>
+                            <span class="info-value">Late/Overdue Administration Guidance</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Date of last Hafyera injection:</span>
+                            <span class="info-value">${formatDate(lastHafyeraDate)}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Time since last injection:</span>
+                            <span class="info-value">${daysSince} days (${formatWeeksAndDays(daysSince)} or approximately ${monthsSince} months)</span>
+                        </div>
+                    </div>
+
+                    ${guidanceContent}
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button type="button" class="btn" onclick="startOver()">Start Over</button>
+                    </div>
+                </div>
+            `;
+            
+            const container = document.querySelector('.app-container');
+            const header = document.querySelector('.app-header');
+            header.insertAdjacentHTML('afterend', guidanceHTML);
+            
+            window.scrollTo(0, 0);
+        }
+
+        function showAbilifyMaintenaGuidance(lastAbilifyDate, abilifyDoses) {
+            const lastDate = new Date(lastAbilifyDate);
+            const today = new Date();
+            const daysSince = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+            const weeksSince = Math.floor(daysSince / 7);
+            
+            const guidance = getAbilifyMaintenaGuidance(weeksSince, abilifyDoses);
+            
+            document.querySelector('.form-section').style.display = 'none';
+            
+            const guidanceHTML = `
+                <div class="guidance-section">
+                    <div class="medication-info">
+                        <div class="info-row">
+                            <span class="info-label">Medication:</span>
+                            <span class="info-value">Abilify Maintena (aripiprazole)</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Guidance Type:</span>
+                            <span class="info-value">Late/Overdue Administration Guidance</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Date of last injection:</span>
+                            <span class="info-value">${formatDate(lastAbilifyDate)}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Prior consecutive doses:</span>
+                            <span class="info-value">${abilifyDoses === '1-2' ? '1 or 2 monthly doses' : '3 or more monthly doses'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Time since last injection:</span>
+                            <span class="info-value">${daysSince} days (${formatWeeksAndDays(daysSince)})</span>
+                        </div>
+                    </div>
+
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">Ideal steps (do if possible):</h3>
+                        <div class="guidance-text">
+                            ${guidance.idealSteps}
+                        </div>
+                    </div>
+
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">Acceptable pragmatic variations if ideal is not possible:</h3>
+                        <div class="guidance-text">
+                            ${guidance.pragmaticVariations}
+                        </div>
+                    </div>
+
+                    <div class="guidance-content">
+                        <h3 class="guidance-heading">When to notify provider:</h3>
+                        <div class="guidance-text">
+                            ${guidance.providerNotification}
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button type="button" class="btn" onclick="startOver()">Start Over</button>
+                    </div>
+                </div>
+            `;
+            
+            const container = document.querySelector('.app-container');
+            const header = document.querySelector('.app-header');
+            header.insertAdjacentHTML('afterend', guidanceHTML);
+            
+            window.scrollTo(0, 0);
+        }
+
+        function getAbilifyMaintenaGuidance(weeksSince, abilifyDoses) {
+            if (weeksSince < 4) {
+                // Less than 28 days
+                return {
+                    idealSteps: `<p>The Abilify Maintena injection is not due. Please consult guidance on early dosing.</p>`,
+                    pragmaticVariations: `<p>See early dosing guidance section.</p>`,
+                    providerNotification: `<p>No provider notification needed.</p>`
+                };
+            } else if (abilifyDoses === '1-2') {
+                // 1 or 2 monthly maintenance doses received
+                if (weeksSince >= 4 && weeksSince <= 5) {
+                    return {
+                        idealSteps: `<p>(1) Administer usual Abilify Maintena monthly dose</p>
+                                    <p>(2) Arrange for next usual monthly dose in 4 weeks</p>`,
+                        pragmaticVariations: `<p>Same</p>`,
+                        providerNotification: `<p>No need</p>`
+                    };
+                } else if (weeksSince > 5) {
+                    return {
+                        idealSteps: `<p>Re-initiate:</p>
+                                    <p>(1) Administer usual Abilify Maintena monthly dose</p>
+                                    <p>(2) Notify patient of the options recommended for reinitiation: either (a) receive a 2nd Abilify Maintena dose at the same time as the first (in step 1) or within days, or (b) resume oral aripiprazole (10-20 mg) for 14 days</p>`,
+                        pragmaticVariations: `<p>If the patient is not able or likely to take oral aripiprazole or get a 2nd injection immediately, consult with provider about accelerating timing of next injection.</p>`,
+                        providerNotification: `<p>Post-injection: notify provider of situation and need for either a 2nd immediate monthly injection or 14 days of oral aripiprazole.</p>`
+                    };
+                }
+            }
+        }
+
+        function showAristadaGuidance(lastAristadaDate, aristadaDose) {
+            const lastDate = new Date(lastAristadaDate);
+            const today = new Date();
+            const daysSince = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+            
+            const guidance = getAristadaGuidance(daysSince, aristadaDose);
+            
+            document.querySelector('.form-section').style.display = 'none';
+            
+            // Special handling for < 28 days
+            if (daysSince < 28) {
+                const guidanceHTML = `
+                    <div class="guidance-section">
+                        <div class="medication-info">
+                            <div class="info-row">
+                                <span class="info-label">Medication:</span>
+                                <span class="info-value">Aristada (aripiprazole lauroxil)</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Guidance Type:</span>
+                                <span class="info-value">Late/Overdue Administration Guidance</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Date of last injection:</span>
+                                <span class="info-value">${formatDate(lastAristadaDate)}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Dose of last injection:</span>
+                                <span class="info-value">${aristadaDose} mg</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Time since last injection:</span>
+                                <span class="info-value">${daysSince} days (${formatWeeksAndDays(daysSince)})</span>
+                            </div>
+                        </div>
+
+                        <div class="guidance-content">
+                            <h3 class="guidance-heading">Guidance:</h3>
+                            <div class="guidance-text">
+                                ${guidance.message}
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 30px;">
+                            <button type="button" class="btn" onclick="startOver()">Start Over</button>
+                        </div>
+                    </div>
+                `;
+                
+                const container = document.querySelector('.app-container');
+                const header = document.querySelector('.app-header');
+                header.insertAdjacentHTML('afterend', guidanceHTML);
+            } else {
+                // Normal display for >= 28 days
+                const guidanceHTML = `
+                    <div class="guidance-section">
+                        <div class="medication-info">
+                            <div class="info-row">
+                                <span class="info-label">Medication:</span>
+                                <span class="info-value">Aristada (aripiprazole lauroxil)</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Guidance Type:</span>
+                                <span class="info-value">Late/Overdue Administration Guidance</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Date of last injection:</span>
+                                <span class="info-value">${formatDate(lastAristadaDate)}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Dose of last injection:</span>
+                                <span class="info-value">${aristadaDose} mg</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Time since last injection:</span>
+                                <span class="info-value">${daysSince} days (${formatWeeksAndDays(daysSince)})</span>
+                            </div>
+                        </div>
+
+                        <div class="guidance-content">
+                            <h3 class="guidance-heading">Administer the usual Aristada dose as soon as possible, then assess the need for supplementation.</h3>
+                        </div>
+
+                        <div class="guidance-content">
+                            <h3 class="guidance-heading">Recommended supplementation:</h3>
+                            <div class="guidance-text">
+                                ${guidance.supplementation}
+                            </div>
+                        </div>
+
+                        <div class="guidance-content">
+                            <h3 class="guidance-heading">When to notify provider:</h3>
+                            <div class="guidance-text">
+                                ${guidance.providerNotification}
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 30px;">
+                            <button type="button" class="btn" onclick="startOver()">Start Over</button>
+                        </div>
+                    </div>
+                `;
+                
+                const container = document.querySelector('.app-container');
+                const header = document.querySelector('.app-header');
+                header.insertAdjacentHTML('afterend', guidanceHTML);
+            }
+            
+            window.scrollTo(0, 0);
+        }
+
+        function getAristadaGuidance(daysSince, aristadaDose) {
+            // If less than 28 days, not yet due
+            if (daysSince < 28) {
+                return {
+                    message: `<p>The Aristada injection is not yet due. Please consult the guidance on early dosing.</p>`,
+                    supplementation: '',
+                    providerNotification: ''
+                };
+            }
+            
+            let supplementation = '';
+            let providerNotification = '';
+            
+            // For 441 mg dose
+            if (aristadaDose === '441') {
+                if (daysSince >= 29 && daysSince <= 42) {
+                    supplementation = `<p>No supplementation required</p>`;
+                    providerNotification = `<p>No need</p>`;
+                } else if (daysSince >= 43 && daysSince <= 49) {
+                    supplementation = `<p>Oral aripiprazole for 7 days <strong>OR</strong> Aristada Initio 675 mg IM once (now or within next few days)</p>`;
+                    providerNotification = `<p>Notify provider with patient preference for supplementation and to order medications</p>`;
+                } else if (daysSince >= 50) {
+                    supplementation = `<p>Oral aripiprazole for 21 days <strong>OR</strong> Aristada Initio 675 mg IM once (now or within next few days)</p>`;
+                    providerNotification = `<p>Notify provider with patient preference for supplementation and to order medications</p>`;
+                }
+            }
+            // For 662 mg or 882 mg dose
+            else if (aristadaDose === '662' || aristadaDose === '882') {
+                if (daysSince >= 29 && daysSince <= 56) {
+                    supplementation = `<p>No supplementation required</p>`;
+                    providerNotification = `<p>No need</p>`;
+                } else if (daysSince >= 57 && daysSince <= 84) {
+                    supplementation = `<p>Oral aripiprazole for 7 days <strong>OR</strong> Aristada Initio 675 mg IM once (now or within next few days)</p>`;
+                    providerNotification = `<p>Notify provider with patient preference for supplementation and to order medications</p>`;
+                } else if (daysSince >= 85) {
+                    supplementation = `<p>Oral aripiprazole for 21 days <strong>OR</strong> Aristada Initio 675 mg IM once (now or within next few days)</p>`;
+                    providerNotification = `<p>Notify provider with patient preference for supplementation and to order medications</p>`;
+                }
+            }
+            // For 1064 mg dose
+            else if (aristadaDose === '1064') {
+                if (daysSince >= 29 && daysSince <= 70) {
+                    supplementation = `<p>No supplementation required</p>`;
+                    providerNotification = `<p>No need</p>`;
+                } else if (daysSince >= 71 && daysSince <= 84) {
+                    supplementation = `<p>Oral aripiprazole for 7 days <strong>OR</strong> Aristada Initio 675 mg IM once (now or within next few days)</p>`;
+                    providerNotification = `<p>Notify provider with patient preference for supplementation and to order medications</p>`;
+                } else if (daysSince >= 85) {
+                    supplementation = `<p>Oral aripiprazole for 21 days <strong>OR</strong> Aristada Initio 675 mg IM once (now or within next few days)</p>`;
+                    providerNotification = `<p>Notify provider with patient preference for supplementation and to order medications</p>`;
+                }
+            }
+            
+            return {
+                supplementation: supplementation,
+                providerNotification: providerNotification
+            };
+        }
+
+        function formatWeeksAndDays(totalDays) {
+            const weeks = Math.floor(totalDays / 7);
+            const remainingDays = totalDays % 7;
+            
+            if (weeks === 0) {
+                return `${remainingDays} day${remainingDays !== 1 ? 's' : ''}`;
+            } else if (remainingDays === 0) {
+                return `${weeks} week${weeks !== 1 ? 's' : ''}`;
+            } else {
+                return `${weeks} week${weeks !== 1 ? 's' : ''}, ${remainingDays} day${remainingDays !== 1 ? 's' : ''}`;
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        function startOver() {
+            document.getElementById('medication').value = '';
+            document.getElementById('guidance-type').value = '';
+            document.getElementById('invega-type').value = '';
+            document.getElementById('first-injection').value = '';
+            document.getElementById('last-maintenance').value = '';
+            document.getElementById('maintenance-dose').value = '';
+            document.getElementById('last-trinza').value = '';
+            document.getElementById('trinza-dose').value = '';
+            document.getElementById('last-hafyera').value = '';
+            document.getElementById('last-abilify').value = '';
+            document.getElementById('abilify-doses').value = '';
+            document.getElementById('last-aristada').value = '';
+            document.getElementById('aristada-dose').value = '';
+            document.getElementById('last-uzedy').value = '';
+            document.getElementById('uzedy-dose').value = '';
+            
+            document.getElementById('invega-sustenna-options').style.display = 'none';
+            document.getElementById('first-injection-date').style.display = 'none';
+            document.getElementById('maintenance-fields').style.display = 'none';
+            document.getElementById('trinza-fields').style.display = 'none';
+            document.getElementById('hafyera-fields').style.display = 'none';
+            document.getElementById('abilify-fields').style.display = 'none';
+            document.getElementById('aristada-fields').style.display = 'none';
+            document.getElementById('uzedy-fields').style.display = 'none';
+            
+            const guidanceSection = document.querySelector('.guidance-section');
+            if (guidanceSection) {
+                guidanceSection.remove();
+            }
+            
+            document.querySelector('.form-section').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html> 14 days of oral aripiprazole.</p>`
+                    };
+                }
+            } else {
+                // 3 or more monthly maintenance doses received
+                if (weeksSince >= 4 && weeksSince <= 6) {
+                    return {
+                        idealSteps: `<p>(1) Administer usual Abilify Maintena monthly dose</p>
+                                    <p>(2) Arrange for next usual monthly dose in 4 weeks</p>`,
+                        pragmaticVariations: `<p>Same</p>`,
+                        providerNotification: `<p>No need</p>`
+                    };
+                } else if (weeksSince > 6) {
+                    return {
+                        idealSteps: `<p>Re-initiate:</p>
+                                    <p>(1) Administer usual Abilify Maintena monthly dose</p>
+                                    <p>(2) Notify patient of the options recommended for reinitiation: either (a) receive a 2nd Abilify Maintena dose at the same time as the first (in step 1) or within days, or (b) resume oral aripiprazole (10-20 mg) for 14 days</p>`,
+                        pragmaticVariations: `<p>If the patient is not able or likely to take oral aripiprazole or get a 2nd injection immediately, consult with provider about accelerating timing of next injection.</p>`,
+                        providerNotification: `<p>Post-injection: notify provider of situation and need for either a 2nd immediate monthly injection or
