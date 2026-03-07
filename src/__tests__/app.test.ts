@@ -12,7 +12,7 @@ import {
 
 // ─── jsdom stubs ──────────────────────────────────────────────────────────────
 
-window.scrollTo = vi.fn() as typeof window.scrollTo;
+window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
 window.alert    = vi.fn();
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

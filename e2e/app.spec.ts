@@ -16,6 +16,61 @@ async function fillDate(page: Page, id: string, value: string): Promise<void> {
     await page.fill(`#${id}`, value);
 }
 
+// ─── CSS loading ─────────────────────────────────────────────────────────────
+//
+// If the <link> tag is missing or the stylesheet fails to load, the browser
+// falls back to default styles: white body, native-width selects, no custom
+// colours. These tests catch that regression without asserting pixel-perfect
+// values — they only verify that the custom stylesheet was actually applied.
+
+test.describe('CSS loading', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/');
+    });
+
+    test('body has blue gradient background (not default white)', async ({ page }) => {
+        // Default body background-color is transparent/rgba(0,0,0,0).
+        // Our CSS sets a blue linear-gradient, which browsers expose as
+        // background-image. A non-"none" value proves the stylesheet loaded.
+        const bgImage = await page.evaluate(() =>
+            getComputedStyle(document.body).backgroundImage,
+        );
+        expect(bgImage).not.toBe('none');
+        expect(bgImage).toContain('linear-gradient');
+    });
+
+    test('app-container has white background (not transparent)', async ({ page }) => {
+        await expect(page.locator('.app-container')).toHaveCSS(
+            'background-color',
+            'rgb(255, 255, 255)',
+        );
+    });
+
+    test('medication select is full-width (CSS width: 100% applied)', async ({ page }) => {
+        const selectWidth = await page.locator('#medication').evaluate(
+            (el) => el.getBoundingClientRect().width,
+        );
+        const containerWidth = await page.locator('#medication').evaluate(
+            (el) => (el.parentElement as HTMLElement).getBoundingClientRect().width,
+        );
+        // With CSS applied the select fills its container; without CSS it is
+        // only as wide as its longest option text (~200 px on most platforms).
+        expect(selectWidth).toBeCloseTo(containerWidth, -1); // within 10 px
+    });
+
+    test('submit button has custom blue background (not default grey)', async ({ page }) => {
+        // Default <button> background is a grey system colour.
+        // Our CSS applies a blue gradient; the computed background-color of the
+        // gradient start stop is rgb(44, 90, 160).
+        const bgColor = await page.locator('button.btn').first().evaluate(
+            (el) => getComputedStyle(el).backgroundColor,
+        );
+        expect(bgColor).not.toBe('rgba(0, 0, 0, 0)');
+        // Must not be the default grey button colour
+        expect(bgColor).not.toMatch(/^rgb\(2[0-1]\d/); // rules out ~200-219 grey range
+    });
+});
+
 // ─── Page load ────────────────────────────────────────────────────────────────
 
 test.describe('page load', () => {
