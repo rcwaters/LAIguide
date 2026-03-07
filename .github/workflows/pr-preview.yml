@@ -1,0 +1,41 @@
+name: PR Preview Deploy
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+# Required for deploying to gh-pages and commenting on the PR
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  deploy-preview:
+    name: Deploy PR Preview
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        if: github.event.action != 'closed'
+        run: npm ci
+
+      - name: Build
+        if: github.event.action != 'closed'
+        run: npm run build
+
+      # Deploys dist/ to gh-pages branch under pr-preview/pr-<number>/
+      # Posts a comment on the PR with the live preview URL.
+      # When the PR is closed/merged the preview is automatically cleaned up.
+      - name: Deploy preview
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: dist/
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          action: auto
