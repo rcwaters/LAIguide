@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DESC LAI Medication Standing Order Tool</title>
+  <script type="module" crossorigin src="./assets/index-BvBzG3KU.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DBIB36zM.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-header">
+            <div class="desc-branding">DESC Standing Order Tool</div>
+            <h1 class="app-title">💉 LAI Medication Management</h1>
+            <p class="app-subtitle">Clinical decision support for early or late/overdue long-acting injectable medications</p>
+        </div>
+
+        <div class="form-section">
+            <h3 class="section-title">📋 Select LAI Medication &amp; Guidance Type</h3>
+
+            <div class="input-group">
+                <label for="medication">LAI Medication <span class="required">*</span></label>
+                <select id="medication" onchange="handleMedicationChange()">
+                    <option value="">Select medication...</option>
+                    <optgroup label="Antipsychotics - Currently Used at DESC">
+                        <option value="invega_sustenna">Invega Sustenna (paliperidone palmitate)</option>
+                        <option value="invega_trinza">Invega Trinza (paliperidone palmitate 3-month)</option>
+                        <option value="invega_hafyera">Invega Hafyera (paliperidone palmitate 6-month)</option>
+                        <option value="abilify_maintena">Abilify Maintena (aripiprazole)</option>
+                        <option value="aristada">Aristada (aripiprazole lauroxil)</option>
+                        <option value="uzedy">Uzedy (risperidone subcutaneous)</option>
+                        <option value="haloperidol_decanoate">Haloperidol Decanoate (Haldol Dec)</option>
+                        <option value="fluphenazine_decanoate">Fluphenazine Decanoate (formerly Prolixin Dec)</option>
+                    </optgroup>
+                    <optgroup label="Addiction Medicine">
+                        <option value="vivitrol">Vivitrol (naltrexone)</option>
+                        <option value="sublocade">Sublocade (buprenorphine)</option>
+                        <option value="brixadi">Brixadi (buprenorphine)</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="guidance-type">Choose Guidance Type <span class="required">*</span></label>
+                <select id="guidance-type" onchange="handleGuidanceTypeChange()">
+                    <option value="">Select guidance type...</option>
+                    <option value="early">Early Administration Guidance</option>
+                    <option value="late">Late/Overdue Administration Guidance</option>
+                </select>
+                <p style="margin-top: 8px; color: #6b7280; font-size: 14px;">
+                    <strong>Early:</strong> Patient requesting injection before scheduled date<br>
+                    <strong>Late/Overdue:</strong> Patient is late or overdue for injection
+                </p>
+            </div>
+
+            <div class="input-group" id="invega-sustenna-options" style="display: none;">
+                <label for="invega-type">Invega Sustenna Injection Type <span class="required">*</span></label>
+                <select id="invega-type" onchange="handleInvegaTypeChange()">
+                    <option value="">Select injection type...</option>
+                    <option value="initiation">Missed/delayed 2nd initiation (156 mg) injection</option>
+                    <option value="maintenance">Missed/delayed monthly maintenance injection</option>
+                </select>
+            </div>
+
+            <div class="input-group" id="first-injection-date" style="display: none;">
+                <label for="first-injection">Date of first (234 mg) injection <span class="required">*</span></label>
+                <input type="date" id="first-injection" class="date-input">
+            </div>
+
+            <div class="input-group" id="maintenance-fields" style="display: none;">
+                <label for="last-maintenance">Date of last maintenance injection <span class="required">*</span></label>
+                <input type="date" id="last-maintenance" class="date-input">
+                <div style="margin-top: 15px;">
+                    <label for="maintenance-dose">Monthly maintenance injection dose <span class="required">*</span></label>
+                    <select id="maintenance-dose">
+                        <option value="">Select dose...</option>
+                        <option value="156-or-less">156 mg or less</option>
+                        <option value="234">234 mg</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group" id="trinza-fields" style="display: none;">
+                <label for="last-trinza">Date of last Trinza injection <span class="required">*</span></label>
+                <input type="date" id="last-trinza" class="date-input">
+                <div style="margin-top: 15px;">
+                    <label for="trinza-dose">Trinza injection dose <span class="required">*</span></label>
+                    <select id="trinza-dose">
+                        <option value="">Select dose...</option>
+                        <option value="410">410 mg</option>
+                        <option value="546">546 mg</option>
+                        <option value="819">819 mg</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group" id="hafyera-fields" style="display: none;">
+                <label for="last-hafyera">Date of last Hafyera injection <span class="required">*</span></label>
+                <input type="date" id="last-hafyera" class="date-input">
+            </div>
+
+            <div class="input-group" id="abilify-fields" style="display: none;">
+                <label for="last-abilify">Date of last Abilify Maintena injection <span class="required">*</span></label>
+                <input type="date" id="last-abilify" class="date-input">
+                <div style="margin-top: 15px;">
+                    <label for="abilify-doses">Number of prior consecutive monthly Abilify Maintena injections received <span class="required">*</span></label>
+                    <select id="abilify-doses">
+                        <option value="">Select number...</option>
+                        <option value="1-2">1 or 2 monthly doses</option>
+                        <option value="3+">3 or more monthly doses</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group" id="aristada-fields" style="display: none;">
+                <label for="last-aristada">Date of last Aristada injection <span class="required">*</span></label>
+                <input type="date" id="last-aristada" class="date-input">
+                <div style="margin-top: 15px;">
+                    <label for="aristada-dose">Dose of last Aristada injection <span class="required">*</span></label>
+                    <select id="aristada-dose">
+                        <option value="">Select dose...</option>
+                        <option value="441">441 mg</option>
+                        <option value="662">662 mg</option>
+                        <option value="882">882 mg</option>
+                        <option value="1064">1064 mg</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group" id="uzedy-fields" style="display: none;">
+                <label for="last-uzedy">Date of last Uzedy injection <span class="required">*</span></label>
+                <input type="date" id="last-uzedy" class="date-input">
+                <div style="margin-top: 15px;">
+                    <label for="uzedy-dose">Uzedy maintenance dose <span class="required">*</span></label>
+                    <select id="uzedy-dose">
+                        <option value="">Select dose...</option>
+                        <option value="150-or-less">150 mg or less</option>
+                        <option value="200-or-more">200 mg or more</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button type="button" class="btn" onclick="handleSubmit()">Submit</button>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>⚠️ DESC Standing Order Disclaimer:</strong> This tool implements DESC's standing order protocols for LAI medication administration. It is intended for use by licensed RNs and MAs at DESC only. All CONSULT decision points require contact with a DESC prescriber. This tool does not replace clinical judgment and should be used in conjunction with the complete DESC LAI standing order document.
+        </div>
+    </div>
+
+</body>
+</html>
