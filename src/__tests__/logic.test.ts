@@ -3,6 +3,8 @@ import {
     getMedicationDisplayName,
     getEarlyGuidanceContent,
     formatWeeksAndDays,
+    daysSinceDate,
+    formatDate,
     getInvegaInitiationGuidance,
     getInvegaMaintenanceGuidance,
     getInvegaTrinzaGuidance,
@@ -11,6 +13,17 @@ import {
     getAristadaGuidance,
     getUzedyGuidance,
 } from '../logic';
+
+/** Returns a YYYY-MM-DD string for N days ago in local time. */
+function localDaysAgo(n: number): string {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - n);
+    const yyyy = d.getFullYear();
+    const mm   = String(d.getMonth() + 1).padStart(2, '0');
+    const dd   = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+}
 
 // ─── getMedicationDisplayName ─────────────────────────────────────────────────
 
@@ -58,6 +71,49 @@ describe('formatWeeksAndDays', () => {
         expect(formatWeeksAndDays(8)).toBe('1 week, 1 day');
         expect(formatWeeksAndDays(10)).toBe('1 week, 3 days');
         expect(formatWeeksAndDays(45)).toBe('6 weeks, 3 days');
+    });
+});
+
+// ─── daysSinceDate ────────────────────────────────────────────────────────────
+
+describe('daysSinceDate', () => {
+    it('returns 0 for today', () => {
+        expect(daysSinceDate(localDaysAgo(0))).toBe(0);
+    });
+
+    it('returns correct count for past dates', () => {
+        expect(daysSinceDate(localDaysAgo(1))).toBe(1);
+        expect(daysSinceDate(localDaysAgo(28))).toBe(28);
+        expect(daysSinceDate(localDaysAgo(180))).toBe(180);
+    });
+
+    it('is not affected by time-of-day (no UTC off-by-one)', () => {
+        // Regardless of when during the day this test runs, today = 0, yesterday = 1
+        expect(daysSinceDate(localDaysAgo(0))).toBe(0);
+        expect(daysSinceDate(localDaysAgo(1))).toBe(1);
+    });
+});
+
+// ─── formatDate ───────────────────────────────────────────────────────────────
+
+describe('formatDate', () => {
+    it('formats a known date correctly', () => {
+        expect(formatDate('2025-01-15')).toBe('January 15, 2025');
+        expect(formatDate('2026-12-31')).toBe('December 31, 2026');
+    });
+
+    it('displays the same day that was entered (no UTC shift)', () => {
+        // Build a date string from local time to confirm no off-by-one
+        const today = new Date();
+        today.setHours(12, 0, 0, 0);
+        const yyyy  = today.getFullYear();
+        const mm    = String(today.getMonth() + 1).padStart(2, '0');
+        const dd    = String(today.getDate()).padStart(2, '0');
+        const input = `${yyyy}-${mm}-${dd}`;
+        const formatted = formatDate(input);
+        // The formatted string must include the correct day number
+        expect(formatted).toContain(String(today.getDate()));
+        expect(formatted).toContain(String(yyyy));
     });
 });
 
@@ -146,6 +202,21 @@ describe('getInvegaMaintenanceGuidance', () => {
         expect(r.idealSteps).toContain('reinitiation');
         expect(r.providerNotification).toContain('Before any injection');
     });
+
+    it('exact tier boundaries (maxDays: 27, 42, 180, Infinity)', () => {
+        // day 27 → tier 1: not due
+        expect(getInvegaMaintenanceGuidance(27, '156-or-less').idealSteps).toContain('not significantly overdue');
+        // day 28 → tier 2: on-time
+        expect(getInvegaMaintenanceGuidance(28, '156-or-less').idealSteps).toContain('4 weeks later');
+        // day 42 → tier 2: still on-time
+        expect(getInvegaMaintenanceGuidance(42, '156-or-less').idealSteps).toContain('4 weeks later');
+        // day 43 → tier 3: overdue (dose-variant)
+        expect(getInvegaMaintenanceGuidance(43, '156-or-less').idealSteps).toContain('2nd usual maintenance dose');
+        // day 180 → tier 3: still overdue
+        expect(getInvegaMaintenanceGuidance(180, '156-or-less').idealSteps).toContain('2nd usual maintenance dose');
+        // day 181 → tier 4: reinitiation
+        expect(getInvegaMaintenanceGuidance(181, '156-or-less').idealSteps).toContain('reinitiation');
+    });
 });
 
 // ─── getInvegaTrinzaGuidance ──────────────────────────────────────────────────
@@ -179,6 +250,21 @@ describe('getInvegaTrinzaGuidance', () => {
         const r = getInvegaTrinzaGuidance(300, '546');
         expect(r.idealSteps).toContain('Reinitiation');
         expect(r.providerNotification).toContain('Consult provider');
+    });
+
+    it('exact tier boundaries (maxDays: 89, 120, 270, Infinity)', () => {
+        // day 89 → tier 1: not yet due
+        expect(getInvegaTrinzaGuidance(89, '546').idealSteps).toContain('not yet due');
+        // day 90 → tier 2: on-time
+        expect(getInvegaTrinzaGuidance(90, '546').idealSteps).toContain('usual Invega Trinza dose');
+        // day 120 → tier 2: still on-time
+        expect(getInvegaTrinzaGuidance(120, '546').idealSteps).toContain('usual Invega Trinza dose');
+        // day 121 → tier 3: bridge with Sustenna (dose-variant)
+        expect(getInvegaTrinzaGuidance(121, '546').idealSteps).toContain('156 mg');
+        // day 270 → tier 3: still bridge
+        expect(getInvegaTrinzaGuidance(270, '546').idealSteps).toContain('156 mg');
+        // day 271 → tier 4: reinitiation
+        expect(getInvegaTrinzaGuidance(271, '546').idealSteps).toContain('Reinitiation');
     });
 });
 
@@ -261,6 +347,26 @@ describe('getAristadaGuidance', () => {
             expect(r.notDue).toBe(false);
             if (!r.notDue) expect(r.supplementation).toContain('21 days');
         });
+
+        it('exact tier boundaries (not-due: <28; maxDays: 42, 49, Infinity)', () => {
+            // day 27 → not due (<28)
+            expect(getAristadaGuidance(27, '441').notDue).toBe(true);
+            // day 28 → no supplementation (maxDays:42)
+            const r28 = getAristadaGuidance(28, '441'); expect(r28.notDue).toBe(false);
+            if (!r28.notDue) expect(r28.supplementation).toContain('No supplementation');
+            // day 42 → no supplementation (still maxDays:42)
+            const r42 = getAristadaGuidance(42, '441'); expect(r42.notDue).toBe(false);
+            if (!r42.notDue) expect(r42.supplementation).toContain('No supplementation');
+            // day 43 → 7-day supplementation (maxDays:49)
+            const r43 = getAristadaGuidance(43, '441'); expect(r43.notDue).toBe(false);
+            if (!r43.notDue) expect(r43.supplementation).toContain('7 days');
+            // day 49 → 7-day supplementation (still maxDays:49)
+            const r49 = getAristadaGuidance(49, '441'); expect(r49.notDue).toBe(false);
+            if (!r49.notDue) expect(r49.supplementation).toContain('7 days');
+            // day 50 → 21-day supplementation (maxDays:Infinity)
+            const r50 = getAristadaGuidance(50, '441'); expect(r50.notDue).toBe(false);
+            if (!r50.notDue) expect(r50.supplementation).toContain('21 days');
+        });
     });
 
     describe('662 mg dose', () => {
@@ -281,6 +387,21 @@ describe('getAristadaGuidance', () => {
             expect(r.notDue).toBe(false);
             if (!r.notDue) expect(r.supplementation).toContain('21 days');
         });
+
+        it('exact tier boundaries (not-due: <28; maxDays: 56, 84, Infinity)', () => {
+            // day 56 → no supplementation (maxDays:56)
+            const r56 = getAristadaGuidance(56, '662'); expect(r56.notDue).toBe(false);
+            if (!r56.notDue) expect(r56.supplementation).toContain('No supplementation');
+            // day 57 → 7-day supplementation (maxDays:84)
+            const r57 = getAristadaGuidance(57, '662'); expect(r57.notDue).toBe(false);
+            if (!r57.notDue) expect(r57.supplementation).toContain('7 days');
+            // day 84 → 7-day supplementation (still maxDays:84)
+            const r84 = getAristadaGuidance(84, '662'); expect(r84.notDue).toBe(false);
+            if (!r84.notDue) expect(r84.supplementation).toContain('7 days');
+            // day 85 → 21-day supplementation (maxDays:Infinity)
+            const r85 = getAristadaGuidance(85, '662'); expect(r85.notDue).toBe(false);
+            if (!r85.notDue) expect(r85.supplementation).toContain('21 days');
+        });
     });
 
     describe('882 mg dose (same thresholds as 662)', () => {
@@ -294,6 +415,21 @@ describe('getAristadaGuidance', () => {
             const r = getAristadaGuidance(90, '882');
             expect(r.notDue).toBe(false);
             if (!r.notDue) expect(r.supplementation).toContain('21 days');
+        });
+
+        it('exact tier boundaries (identical to 662: maxDays 56, 84, Infinity)', () => {
+            // day 56 → no supplementation (maxDays:56)
+            const r56 = getAristadaGuidance(56, '882'); expect(r56.notDue).toBe(false);
+            if (!r56.notDue) expect(r56.supplementation).toContain('No supplementation');
+            // day 57 → 7-day supplementation (maxDays:84)
+            const r57 = getAristadaGuidance(57, '882'); expect(r57.notDue).toBe(false);
+            if (!r57.notDue) expect(r57.supplementation).toContain('7 days');
+            // day 84 → 7-day supplementation (still maxDays:84)
+            const r84 = getAristadaGuidance(84, '882'); expect(r84.notDue).toBe(false);
+            if (!r84.notDue) expect(r84.supplementation).toContain('7 days');
+            // day 85 → 21-day supplementation (maxDays:Infinity)
+            const r85 = getAristadaGuidance(85, '882'); expect(r85.notDue).toBe(false);
+            if (!r85.notDue) expect(r85.supplementation).toContain('21 days');
         });
     });
 
@@ -314,6 +450,21 @@ describe('getAristadaGuidance', () => {
             const r = getAristadaGuidance(100, '1064');
             expect(r.notDue).toBe(false);
             if (!r.notDue) expect(r.supplementation).toContain('21 days');
+        });
+
+        it('exact tier boundaries (not-due: <28; maxDays: 70, 84, Infinity)', () => {
+            // day 70 → no supplementation (maxDays:70)
+            const r70 = getAristadaGuidance(70, '1064'); expect(r70.notDue).toBe(false);
+            if (!r70.notDue) expect(r70.supplementation).toContain('No supplementation');
+            // day 71 → 7-day supplementation (maxDays:84)
+            const r71 = getAristadaGuidance(71, '1064'); expect(r71.notDue).toBe(false);
+            if (!r71.notDue) expect(r71.supplementation).toContain('7 days');
+            // day 84 → 7-day supplementation (still maxDays:84)
+            const r84 = getAristadaGuidance(84, '1064'); expect(r84.notDue).toBe(false);
+            if (!r84.notDue) expect(r84.supplementation).toContain('7 days');
+            // day 85 → 21-day supplementation (maxDays:Infinity)
+            const r85 = getAristadaGuidance(85, '1064'); expect(r85.notDue).toBe(false);
+            if (!r85.notDue) expect(r85.supplementation).toContain('21 days');
         });
     });
 });
@@ -349,5 +500,20 @@ describe('getUzedyGuidance', () => {
         expect(r.idealSteps).toContain('contact prescriber');
         expect(r.idealSteps).toContain('150 mg');
         expect(r.providerNotification).toContain('notify the provider');
+    });
+
+    it('exact tier boundaries (maxDays: 27, 119, 180, Infinity)', () => {
+        // day 27 → tier 1: not yet due
+        expect(getUzedyGuidance(27, '150-or-less').idealSteps).toContain('not yet due');
+        // day 28 → tier 2: administer usual dose (maxDays:119)
+        expect(getUzedyGuidance(28, '150-or-less').idealSteps).toContain('usual Uzedy maintenance dose');
+        // day 119 → tier 2: still administer usual dose
+        expect(getUzedyGuidance(119, '150-or-less').idealSteps).toContain('usual Uzedy maintenance dose');
+        // day 120 → tier 3: administer + sedation check (maxDays:180)
+        expect(getUzedyGuidance(120, '150-or-less').idealSteps).toContain('sedation');
+        // day 180 → tier 3: still sedation check
+        expect(getUzedyGuidance(180, '150-or-less').idealSteps).toContain('sedation');
+        // day 181 → tier 4: dose-variant (maxDays:Infinity)
+        expect(getUzedyGuidance(181, '150-or-less').idealSteps).toContain('150 mg or less');
     });
 });

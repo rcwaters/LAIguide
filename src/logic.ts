@@ -71,8 +71,10 @@ export function getEarlyGuidanceContent(medication: string): string {
 // ─── Date / Time Utilities ────────────────────────────────────────────────────
 
 export function daysSinceDate(dateString: string): number {
-    const past  = new Date(dateString);
+    const [year, month, day] = dateString.split('-').map(Number);
+    const past  = new Date(year, month - 1, day); // local midnight
     const today = new Date();
+    today.setHours(0, 0, 0, 0);                    // local midnight
     return Math.floor((today.getTime() - past.getTime()) / (1000 * 60 * 60 * 24));
 }
 
@@ -90,7 +92,8 @@ export function formatWeeksAndDays(totalDays: number): string {
 }
 
 export function formatDate(dateString: string): string {
-    const date = new Date(dateString);
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day); // local midnight
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
