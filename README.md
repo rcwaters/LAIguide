@@ -2,39 +2,49 @@
 
 Clinical decision support tool for early or late/overdue long-acting injectable (LAI) medication administration at DESC.
 
+## Live URL
+
+**https://rcwaters.github.io/LAIguide**
+
+> If the page isn't accessible, enable GitHub Pages in the repo: **Settings → Pages → Branch: `main` → Save**
+
 ## Running Locally
 
-### Option 1 — Python (no install required)
+The project uses [Vite](https://vitejs.dev/) to serve TypeScript — a simple file server (Python, Live Server, etc.) will **not** work.
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or later)
+
+### Steps
 
 ```bash
 cd LAIguide
-python3 -m http.server 8000
+npm install
+npm run dev
 ```
 
-Open your browser to: **http://localhost:8000**
+Open your browser to the URL shown in the terminal (typically **http://localhost:5173**).
 
 To stop the server, press `Ctrl+C` in the terminal.
 
 ---
 
-### Option 2 — VS Code Live Server
+### Running Tests
 
-1. Install the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension in VS Code
-2. Open the project folder in VS Code
-3. Right-click `index.html` → **Open with Live Server**
-4. Browser opens automatically at `http://127.0.0.1:5500` and reloads on file save
-
----
-
-> **Note:** Do not open `index.html` by double-clicking — browsers restrict local file loading which will prevent scripts from running correctly. Always use one of the server options above.
+```bash
+npm test
+```
 
 ## Project Structure
 
 ```
 LAIguide/
-├── index.html     # App markup
-├── styles.css     # Styles
-└── js/
-    ├── logic.js   # Business logic (guidance algorithms, data)
-    └── app.js     # UI and DOM interactions
+├── index.html        # App entry point
+└── src/
+    ├── styles.css    # Styles (imported by app.ts)
+    ├── types.ts      # TypeScript interfaces and type definitions
+    ├── constants.ts  # Medication data (tier configs, guidance text)
+    ├── logic.ts      # Business logic (guidance algorithms)
+    └── app.ts        # UI and DOM interactions
 ```
