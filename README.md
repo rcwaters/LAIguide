@@ -35,16 +35,3 @@ To stop the server, press `Ctrl+C` in the terminal.
 ```bash
 npm test
 ```
-
-## Project Structure
-
-```
-LAIguide/
-├── index.html        # App entry point
-└── src/
-    ├── styles.css    # Styles (imported by app.ts)
-    ├── types.ts      # TypeScript interfaces and type definitions
-    ├── constants.ts  # Medication data (tier configs, guidance text)
-    ├── logic.ts      # Business logic (guidance algorithms)
-    └── app.ts        # UI and DOM interactions
-```

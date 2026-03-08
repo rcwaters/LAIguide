@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DESC LAI Medication Standing Order Tool</title>
-  <script type="module" crossorigin src="./assets/index-D2ofal4i.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DBIB36zM.css">
 </head>
 <body>
     <div class="app-container">
@@ -20,29 +18,26 @@
 
             <div class="input-group">
                 <label for="medication">LAI Medication <span class="required">*</span></label>
-                <select id="medication" onchange="handleMedicationChange()">
+                <select id="medication" onchange="handleGuidanceTypeChange()">
                     <option value="">Select medication...</option>
                 </select>
             </div>
 
-            <div class="input-group">
-                <label for="guidance-type">Choose Guidance Type <span class="required">*</span></label>
-                <select id="guidance-type" onchange="handleGuidanceTypeChange()">
-                    <option value="">Select guidance type...</option>
-                    <option value="early">Early Administration Guidance</option>
-                    <option value="late">Late/Overdue Administration Guidance</option>
-                </select>
-                <p style="margin-top: 8px; color: #6b7280; font-size: 14px;">
-                    <strong>Early:</strong> Patient requesting injection before scheduled date<br>
-                    <strong>Late/Overdue:</strong> Patient is late or overdue for injection
-                </p>
+            <div class="input-group" id="guidance-type-group" style="display:none">
+                <label>Choose Guidance Type <span class="required">*</span></label>
+                <div class="seg-group" role="group" aria-label="Guidance type">
+                    <label class="seg-opt">
+                        <input type="radio" name="guidance-type" value="early" onchange="handleGuidanceTypeChange()">
+                        <span>Early Administration</span>
+                    </label>
+                    <label class="seg-opt">
+                        <input type="radio" name="guidance-type" value="late" onchange="handleGuidanceTypeChange()">
+                        <span>Late / Overdue Administration</span>
+                    </label>
+                </div>
             </div>
 
-            <!-- Medication-specific form field groups are injected here by app.ts -->
-
-            <div class="form-submit" style="text-align: center; margin-top: 30px;">
-                <button type="button" class="btn" onclick="handleSubmit()">Submit</button>
-            </div>
+            <!-- Medication-specific form field groups are injected here by main.ts -->
         </div>
 
         <div class="disclaimer">
@@ -50,5 +45,6 @@
         </div>
     </div>
 
+    <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

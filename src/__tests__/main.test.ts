@@ -3,13 +3,12 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import {
-    handleMedicationChange,
     handleGuidanceTypeChange,
     handleInvegaTypeChange,
     handleSubmit,
     startOver,
     initForm,
-} from '../app';
+} from '../main';
 
 // ─── jsdom stubs ──────────────────────────────────────────────────────────────
 
@@ -26,6 +25,8 @@ function setupDOM(): void {
 }
 
 function setField(id: string, value: string): void {
+    const radio = document.querySelector<HTMLInputElement>(`input[name="${id}"][value="${value}"]`);
+    if (radio) { radio.checked = true; return; }
     (document.getElementById(id) as HTMLInputElement | HTMLSelectElement).value = value;
 }
 
@@ -85,7 +86,7 @@ describe('handleGuidanceTypeChange', () => {
         expect(isVisible('invega-sustenna-options')).toBe(true);
 
         setField('medication', 'uzedy');
-        handleMedicationChange();
+        handleGuidanceTypeChange();
         expect(isVisible('invega-sustenna-options')).toBe(false);
         expect(isVisible('uzedy-fields')).toBe(true);
     });
@@ -262,6 +263,52 @@ describe('handleSubmit — validation', () => {
         handleSubmit();
         expect(window.alert).toHaveBeenCalledWith('Please select the Uzedy maintenance dose.');
     });
+
+    test('haloperidol_decanoate + late: alerts when no date entered', () => {
+        setField('medication', 'haloperidol_decanoate');
+        setField('guidance-type', 'late');
+        handleSubmit();
+        expect(window.alert).toHaveBeenCalledWith('Please enter the date of last Haloperidol Decanoate injection.');
+    });
+
+    test('haloperidol_decanoate + late: alerts when no prior doses selected', () => {
+        setField('medication', 'haloperidol_decanoate');
+        setField('guidance-type', 'late');
+        setField('last-haloperidol', daysAgo(60));
+        handleSubmit();
+        expect(window.alert).toHaveBeenCalledWith('Please select the number of prior Haloperidol Decanoate injections.');
+    });
+
+    test('fluphenazine_decanoate + late: alerts when no date entered', () => {
+        setField('medication', 'fluphenazine_decanoate');
+        setField('guidance-type', 'late');
+        handleSubmit();
+        expect(window.alert).toHaveBeenCalledWith('Please enter the date of last Fluphenazine Decanoate injection.');
+    });
+
+    test('vivitrol + late: alerts when no indication selected', () => {
+        setField('medication', 'vivitrol');
+        setField('guidance-type', 'late');
+        setField('last-vivitrol', daysAgo(25));
+        handleSubmit();
+        expect(window.alert).toHaveBeenCalledWith('Please select the Vivitrol indication.');
+    });
+
+    test('sublocade + late: alerts when no type selected', () => {
+        setField('medication', 'sublocade');
+        setField('guidance-type', 'late');
+        setField('last-sublocade', daysAgo(25));
+        handleSubmit();
+        expect(window.alert).toHaveBeenCalledWith('Please select the Sublocade dose and history.');
+    });
+
+    test('brixadi + late: alerts when no type selected', () => {
+        setField('medication', 'brixadi');
+        setField('guidance-type', 'late');
+        setField('last-brixadi', daysAgo(7));
+        handleSubmit();
+        expect(window.alert).toHaveBeenCalledWith('Please select the Brixadi formulation and dose.');
+    });
 });
 
 // ─── handleSubmit — guidance rendering ───────────────────────────────────────
@@ -390,7 +437,7 @@ describe('startOver', () => {
         startOver();
 
         expect((document.getElementById('medication')       as HTMLSelectElement).value).toBe('');
-        expect((document.getElementById('guidance-type')    as HTMLSelectElement).value).toBe('');
+        expect(document.querySelector<HTMLInputElement>('input[name="guidance-type"]:checked')).toBeNull();
         expect((document.getElementById('last-uzedy')       as HTMLInputElement).value).toBe('');
         expect((document.getElementById('uzedy-dose')       as HTMLSelectElement).value).toBe('');
     });
@@ -403,5 +450,28 @@ describe('startOver', () => {
 
         startOver();
         expect(isVisible('uzedy-fields')).toBe(false);
+    });
+});
+
+describe('initForm — double-injection guard', () => {
+    beforeEach(setupDOM);
+
+    test('calling initForm twice does not duplicate field group IDs', () => {
+        initForm(); // second call
+        expect(document.querySelectorAll('#uzedy-fields')).toHaveLength(1);
+        expect(document.querySelectorAll('#abilify-fields')).toHaveLength(1);
+        expect(document.querySelectorAll('#invega-sustenna-options')).toHaveLength(1);
+    });
+
+    test('calling initForm twice does not duplicate medication options', () => {
+        initForm(); // second call
+        const options = document.querySelectorAll('#medication option[value="uzedy"]');
+        expect(options).toHaveLength(1);
+    });
+
+    test('calling initForm a third time still produces no duplicates', () => {
+        initForm();
+        initForm();
+        expect(document.querySelectorAll('#trinza-fields')).toHaveLength(1);
     });
 });

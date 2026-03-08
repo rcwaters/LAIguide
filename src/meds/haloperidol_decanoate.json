@@ -1,9 +1,9 @@
 {
     "key": "haloperidol_decanoate",
     "displayName": "Haloperidol Decanoate (Haldol Dec)",
-    "earlyGuidance": "3 days before due date<br><em>(DESC created guidance)</em>",
+    "earlyGuidance": "3 days before due date  \n*(DESC created guidance)*",
     "lateGuidance": {
-        "kind": "prior-dose-tier-groups",
+        "kind": "tiers-by-prior-doses",
         "priorDoseGroups": [
             {
                 "priorDoses": "1-3",
@@ -11,17 +11,17 @@
                     {
                         "maxDays": 84,
                         "guidance": {
-                            "idealSteps": "\n<p>(1) Administer usual haloperidol decanoate injection <strong>if the dose is 200 mg or less</strong>.</p>\n<p style=\"margin-left:1rem\">If the dose is greater than 200 mg, consult provider <em>before</em> administering.</p>\n<p>(2) If symptoms of psychosis have returned or worsened, recommend oral haloperidol supplementation (consult provider for order).</p>\n<p>(3) Schedule a check-in with patient in <strong>6–7 days</strong> (near peak dose) to assess for haloperidol-related adverse effects.</p>",
-                            "pragmaticVariations": "<p>Same, no change from ideal steps.</p>",
-                            "providerNotification": "\n<p><strong>Pre-injection:</strong> Consult provider only if haloperidol decanoate dose is greater than 200 mg.</p>\n<p><strong>Post-injection:</strong> Notify provider of the situation and request an order for oral supplementation if needed (returned or worsened psychosis symptoms).</p>"
+                            "idealSteps": "(1) Administer usual haloperidol decanoate injection **if the dose is 200 mg or less**.\n\n> If the dose is greater than 200 mg, consult provider *before* administering.\n\n(2) If symptoms of psychosis have returned or worsened, recommend oral haloperidol supplementation (consult provider for order).\n\n(3) Schedule a check-in with patient in **6–7 days** (near peak dose) to assess for haloperidol-related adverse effects.",
+                            "pragmaticVariations": "Same, no change from ideal steps.",
+                            "providerNotification": "**Pre-injection:** Consult provider only if haloperidol decanoate dose is greater than 200 mg.\n\n**Post-injection:** Notify provider of the situation and request an order for oral supplementation if needed (returned or worsened psychosis symptoms)."
                         }
                     },
                     {
                         "maxDays": null,
                         "guidance": {
-                            "idealSteps": "<p>Do not administer. Reinitiation is required. <strong>Consult provider BEFORE any injection.</strong></p>",
-                            "pragmaticVariations": "<p>Same.</p>",
-                            "providerNotification": "<p><strong>Before any injection:</strong> Consult provider in all cases.</p>"
+                            "idealSteps": "Do not administer. Reinitiation is required. **Consult provider BEFORE any injection.**",
+                            "pragmaticVariations": "Same.",
+                            "providerNotification": "**Before any injection:** Consult provider in all cases."
                         }
                     }
                 ]
@@ -32,28 +32,89 @@
                     {
                         "maxDays": 41,
                         "guidance": {
-                            "idealSteps": "<p>(1) Administer usual haloperidol decanoate injection.</p><p>(2) Arrange for next injection in 4 weeks.</p>",
-                            "pragmaticVariations": "<p>Same.</p>",
-                            "providerNotification": "<p>No need.</p>"
+                            "idealSteps": "(1) Administer usual haloperidol decanoate injection.\n\n(2) Arrange for next injection in 4 weeks.",
+                            "pragmaticVariations": "Same.",
+                            "providerNotification": "No need."
                         }
                     },
                     {
                         "maxDays": 84,
                         "guidance": {
-                            "idealSteps": "\n<p>(1) Administer usual haloperidol decanoate injection <strong>if the dose is 200 mg or less</strong>.</p>\n<p style=\"margin-left:1rem\">If the dose is greater than 200 mg, consult provider <em>before</em> administering.</p>\n<p>(2) If symptoms of psychosis have returned or worsened, recommend oral haloperidol supplementation (consult provider for order).</p>\n<p>(3) Schedule a check-in with patient in <strong>6–7 days</strong> (near peak dose) to assess for haloperidol-related adverse effects.</p>",
-                            "pragmaticVariations": "<p>Same, no change from ideal steps.</p>",
-                            "providerNotification": "\n<p><strong>Pre-injection:</strong> Consult provider only if haloperidol decanoate dose is greater than 200 mg.</p>\n<p><strong>Post-injection:</strong> Notify provider of the situation and request an order for oral supplementation if needed (returned or worsened psychosis symptoms).</p>"
+                            "idealSteps": "(1) Administer usual haloperidol decanoate injection **if the dose is 200 mg or less**.\n\n> If the dose is greater than 200 mg, consult provider *before* administering.\n\n(2) If symptoms of psychosis have returned or worsened, recommend oral haloperidol supplementation (consult provider for order).\n\n(3) Schedule a check-in with patient in **6–7 days** (near peak dose) to assess for haloperidol-related adverse effects.",
+                            "pragmaticVariations": "Same, no change from ideal steps.",
+                            "providerNotification": "**Pre-injection:** Consult provider only if haloperidol decanoate dose is greater than 200 mg.\n\n**Post-injection:** Notify provider of the situation and request an order for oral supplementation if needed (returned or worsened psychosis symptoms)."
                         }
                     },
                     {
                         "maxDays": null,
                         "guidance": {
-                            "idealSteps": "<p>Do not administer. Reinitiation is required. <strong>Consult provider BEFORE any injection.</strong></p>",
-                            "pragmaticVariations": "<p>Same.</p>",
-                            "providerNotification": "<p><strong>Before any injection:</strong> Consult provider in all cases.</p>"
+                            "idealSteps": "Do not administer. Reinitiation is required. **Consult provider BEFORE any injection.**",
+                            "pragmaticVariations": "Same.",
+                            "providerNotification": "**Before any injection:** Consult provider in all cases."
                         }
                     }
                 ]
+            }
+        ]
+    },
+    "optgroupLabel": "Antipsychotics - Currently Used at DESC",
+    "renderType": "three-part",
+    "formGroupsSpec": [
+        {
+            "groupId": "haloperidol-fields",
+            "fields": [
+                {
+                    "type": "date",
+                    "id": "last-haloperidol",
+                    "label": "Date of last Haloperidol Decanoate injection"
+                },
+                {
+                    "type": "select",
+                    "id": "haloperidol-prior-doses",
+                    "label": "Prior consecutive monthly Haloperidol Decanoate injections received",
+                    "placeholder": "Select number...",
+                    "options": [
+                        {
+                            "value": "1-3",
+                            "label": "1–3 injections (steady state not yet likely achieved)"
+                        },
+                        {
+                            "value": "4+",
+                            "label": "4 or more injections (steady state likely achieved)"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "lateSpec": {
+        "requiredFields": [
+            {
+                "id": "last-haloperidol",
+                "message": "Please enter the date of last Haloperidol Decanoate injection."
+            },
+            {
+                "id": "haloperidol-prior-doses",
+                "message": "Please select the number of prior Haloperidol Decanoate injections."
+            }
+        ],
+        "dateField": "last-haloperidol",
+        "paramKey": "variant",
+        "paramField": "haloperidol-prior-doses",
+        "infoRows": [
+            {
+                "label": "Date of last injection:",
+                "field": "last-haloperidol",
+                "format": "date"
+            },
+            {
+                "label": "Prior consecutive injections:",
+                "field": "haloperidol-prior-doses",
+                "format": "option-label"
+            },
+            {
+                "label": "Time since last injection:",
+                "format": "days-weeks"
             }
         ]
     }

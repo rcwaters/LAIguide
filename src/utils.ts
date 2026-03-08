@@ -1,11 +1,18 @@
+import { marked } from 'marked';
+
 // ─── Date / Time Utilities ────────────────────────────────────────────────────
 
 export function daysSinceDate(dateString: string): number {
-    const [year, month, day] = dateString.split('-').map(Number);
-    const past  = new Date(year, month - 1, day); // local midnight
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);                    // local midnight
-    return Math.floor((today.getTime() - past.getTime()) / (1000 * 60 * 60 * 24));
+    try {
+        const [year, month, day] = dateString.split('-').map(Number);
+        const past  = new Date(year, month - 1, day); // local midnight
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);                    // local midnight
+        return Math.floor((today.getTime() - past.getTime()) / (1000 * 60 * 60 * 24));
+    } catch (err) {
+        console.error('[daysSinceDate] Failed to parse date string:', dateString, err);
+        return 0;
+    }
 }
 
 export function formatWeeksAndDays(totalDays: number): string {
@@ -17,12 +24,29 @@ export function formatWeeksAndDays(totalDays: number): string {
     } else if (remainingDays === 0) {
         return `${weeks} week${weeks !== 1 ? 's' : ''}`;
     } else {
-        return `${weeks} week${weeks !== 1 ? 's' : ''}, ${remainingDays} day${remainingDays !== 1 ? 's' : ''}`;
+        return `${weeks} week${weeks !== 1 ? 's' : ''} and ${remainingDays} day${remainingDays !== 1 ? 's' : ''}`;
     }
 }
 
 export function formatDate(dateString: string): string {
-    const [year, month, day] = dateString.split('-').map(Number);
-    const date = new Date(year, month - 1, day); // local midnight
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    try {
+        const [year, month, day] = dateString.split('-').map(Number);
+        const date = new Date(year, month - 1, day); // local midnight
+        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    } catch (err) {
+        console.error('[formatDate] Failed to format date string:', dateString, err);
+        return dateString;
+    }
+}
+
+// ─── Markdown renderer ────────────────────────────────────────────────────────
+
+/** Parse a Markdown string into an HTML string for safe innerHTML insertion. */
+export function md(text: string): string {
+    try {
+        return marked.parse(text) as string;
+    } catch (err) {
+        console.error('[md] Failed to parse markdown:', err);
+        return text;
+    }
 }
