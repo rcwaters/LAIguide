@@ -165,13 +165,14 @@ function buildStandardDef(json: any): Omit<MedDefinition, 'displayName' | 'early
                 ? formatDate(raw)
                 : (optionsByField[row.field]?.find(o => o.value === raw)?.label ?? raw)];
         }
-        const approxMonths = Math.floor(daysSince / DAYS_PER_MONTH);
-        const breakdown    = daysSince > 0;  // skip parenthetical for 0 / negative (future date)
+        const displayDays  = Math.max(0, daysSince);  // clamp future dates to 0
+        const approxMonths = Math.round(displayDays / DAYS_PER_MONTH);
+        const breakdown    = displayDays > 0;  // skip parenthetical for 0
         const t = row.format === 'days-months'
-            ? `${daysSince} days${breakdown ? ` (approximately ${approxMonths} months)` : ''}`
+            ? `${displayDays} days${breakdown ? ` (approximately ${approxMonths} months)` : ''}`
             : row.format === 'days-weeks-months'
-                ? `${daysSince} days${breakdown ? ` (${formatWeeksAndDays(daysSince)} or approximately ${approxMonths} months)` : ''}`
-                : `${daysSince} days${breakdown ? ` (${formatWeeksAndDays(daysSince)})` : ''}`;
+                ? `${displayDays} days${breakdown ? ` (${formatWeeksAndDays(displayDays)})` : ''}`
+                : `${displayDays} days${breakdown ? ` (${formatWeeksAndDays(displayDays)})` : ''}`;
         return [row.label, t];
     }
 

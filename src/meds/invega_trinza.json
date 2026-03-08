@@ -111,7 +111,7 @@
                 "format": "option-label"
             },
             {
-                "label": "Time since last Trinza injection:",
+                "label": "Time since last injection:",
                 "format": "days-months"
             }
         ]

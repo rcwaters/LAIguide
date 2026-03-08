@@ -417,3 +417,152 @@ describe('getUzedyGuidance', () => {
         expect(getUzedyGuidance(181, '150-or-less').idealSteps).toContain('150 mg or less');
     });
 });
+
+// ─── renderInfoRow (exercised via buildLateInfoRows) ─────────────────────────
+
+describe('renderInfoRow — all branches', () => {
+
+    // ── static value row ──────────────────────────────────────────────────────
+    describe('static value row', () => {
+        it('returns the literal value regardless of ctx and daysSince', () => {
+            const ctx = { 'invega-type': 'initiation', 'first-injection': '' };
+            const rows = MED_REGISTRY['invega_sustenna'].buildLateInfoRows(ctx, 14);
+            const row = rows.find(([label]) => label === 'Injection Type:');
+            expect(row).toBeDefined();
+            expect(row![1]).toBe('Missed/delayed 2nd initiation (156 mg) injection');
+        });
+
+        it('maintenance branch has its own static label', () => {
+            const ctx = { 'invega-type': 'maintenance', 'last-maintenance': '', 'maintenance-dose': '234' };
+            const rows = MED_REGISTRY['invega_sustenna'].buildLateInfoRows(ctx, 50);
+            const row = rows.find(([label]) => label === 'Injection Type:');
+            expect(row).toBeDefined();
+            expect(row![1]).toBe('Missed/delayed monthly maintenance injection');
+        });
+    });
+
+    // ── field row — date format ───────────────────────────────────────────────
+    describe('field row — date format', () => {
+        it('formats ISO date as localised long date string', () => {
+            const ctx = { 'last-trinza': '2026-01-15', 'trinza-dose': '546' };
+            const rows = MED_REGISTRY['invega_trinza'].buildLateInfoRows(ctx, 52);
+            const row = rows.find(([label]) => label === 'Date of last Trinza injection:');
+            expect(row).toBeDefined();
+            expect(row![1]).toBe('January 15, 2026');
+        });
+
+        it('another date field (sustenna initiation)', () => {
+            const ctx = { 'invega-type': 'initiation', 'first-injection': '2025-11-20' };
+            const rows = MED_REGISTRY['invega_sustenna'].buildLateInfoRows(ctx, 14);
+            const row = rows.find(([label]) => label === 'Date of first (234 mg) injection:');
+            expect(row).toBeDefined();
+            expect(row![1]).toBe('November 20, 2025');
+        });
+    });
+
+    // ── field row — option-label format ──────────────────────────────────────
+    describe('field row — option-label format', () => {
+        it('returns the human-readable label for a known option value', () => {
+            const ctx = { 'invega-type': 'maintenance', 'last-maintenance': '', 'maintenance-dose': '156-or-less' };
+            const rows = MED_REGISTRY['invega_sustenna'].buildLateInfoRows(ctx, 50);
+            const row = rows.find(([label]) => label === 'Monthly maintenance dose:');
+            expect(row).toBeDefined();
+            expect(row![1]).toBe('156 mg or less');
+        });
+
+        it('returns the other option label correctly', () => {
+            const ctx = { 'invega-type': 'maintenance', 'last-maintenance': '', 'maintenance-dose': '234' };
+            const rows = MED_REGISTRY['invega_sustenna'].buildLateInfoRows(ctx, 50);
+            const row = rows.find(([label]) => label === 'Monthly maintenance dose:');
+            expect(row![1]).toBe('234 mg');
+        });
+
+        it('falls back to the raw value when the option is not found', () => {
+            const ctx = { 'invega-type': 'maintenance', 'last-maintenance': '', 'maintenance-dose': 'unknown-val' };
+            const rows = MED_REGISTRY['invega_sustenna'].buildLateInfoRows(ctx, 50);
+            const row = rows.find(([label]) => label === 'Monthly maintenance dose:');
+            expect(row![1]).toBe('unknown-val');
+        });
+    });
+
+    // ── computed time — days-months ───────────────────────────────────────────
+    describe('computed time — days-months format (trinza)', () => {
+        function timeRow(days: number) {
+            const ctx = { 'last-trinza': '', 'trinza-dose': '546' };
+            const rows = MED_REGISTRY['invega_trinza'].buildLateInfoRows(ctx, days);
+            return rows.find(([label]) => label === 'Time since last injection:')![1];
+        }
+
+        it('90 days → approximately 3 months (Math.round(90 / 30.44) = 3)', () => {
+            expect(timeRow(90)).toBe('90 days (approximately 3 months)');
+        });
+
+        it('30 days → approximately 1 month', () => {
+            expect(timeRow(30)).toBe('30 days (approximately 1 months)');
+        });
+
+        it('0 days → "0 days" with no parenthetical (today = injection day)', () => {
+            expect(timeRow(0)).toBe('0 days');
+        });
+
+        it('negative days are clamped to 0 (future date entered)', () => {
+            expect(timeRow(-5)).toBe('0 days');
+        });
+    });
+
+    // ── computed time — days-weeks-months ─────────────────────────────────────
+    describe('computed time — days-weeks-months format (hafyera)', () => {
+        function timeRow(days: number) {
+            const ctx = { 'last-hafyera': '' };
+            const rows = MED_REGISTRY['invega_hafyera'].buildLateInfoRows(ctx, days);
+            return rows.find(([label]) => label === 'Time since last injection:')![1];
+        }
+
+        it('33 days → "4 weeks and 5 days", no "approximately" and no "months"', () => {
+            expect(timeRow(33)).toBe('33 days (4 weeks and 5 days)');
+            expect(timeRow(33)).not.toContain('approximately');
+            expect(timeRow(33)).not.toContain('months');
+        });
+
+        it('7 days → "1 week"', () => {
+            expect(timeRow(7)).toBe('7 days (1 week)');
+        });
+
+        it('14 days → "2 weeks"', () => {
+            expect(timeRow(14)).toBe('14 days (2 weeks)');
+        });
+
+        it('0 days → "0 days" with no parenthetical', () => {
+            expect(timeRow(0)).toBe('0 days');
+        });
+
+        it('negative days are clamped to 0 (future date entered)', () => {
+            expect(timeRow(-10)).toBe('0 days');
+        });
+    });
+
+    // ── computed time — days-weeks (default branch, same output as days-weeks-months) ──
+    describe('computed time — days-weeks format (sustenna)', () => {
+        function timeRow(days: number) {
+            const ctx = { 'invega-type': 'initiation', 'first-injection': '' };
+            const rows = MED_REGISTRY['invega_sustenna'].buildLateInfoRows(ctx, days);
+            return rows.find(([label]) => label === 'Time since first (234 mg) injection:')![1];
+        }
+
+        it('21 days → "3 weeks"', () => {
+            expect(timeRow(21)).toBe('21 days (3 weeks)');
+        });
+
+        it('10 days → "1 week and 3 days"', () => {
+            expect(timeRow(10)).toBe('10 days (1 week and 3 days)');
+        });
+
+        it('0 days → "0 days" with no parenthetical', () => {
+            expect(timeRow(0)).toBe('0 days');
+        });
+
+        it('negative days are clamped to 0', () => {
+            expect(timeRow(-3)).toBe('0 days');
+        });
+    });
+});
