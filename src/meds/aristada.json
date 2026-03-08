@@ -1,0 +1,44 @@
+{
+    "key": "aristada",
+    "displayName": "Aristada (aripiprazole lauroxil)",
+    "earlyGuidance": "1 week before due date",
+    "lateGuidance": {
+        "kind": "aristada",
+        "notDueBeforeDays": 28,
+        "notDueMessage": "<p>The Aristada injection is not yet due. Please consult the guidance on early dosing.</p>",
+        "doseConfigs": [
+            {
+                "dose": "441",
+                "tiers": [
+                    { "maxDays": 42,   "supplementation": "<p>No supplementation required</p>",                                                                                               "providerNotification": "<p>No need</p>" },
+                    { "maxDays": 49,   "supplementation": "<p>Oral aripiprazole for 7 days <strong>OR</strong> Aristada Initio 675 mg IM once (now or within next few days)</p>",           "providerNotification": "<p>Notify provider with patient preference for supplementation and to order medications</p>" },
+                    { "maxDays": null, "supplementation": "<p>Oral aripiprazole for 21 days <strong>OR</strong> Aristada Initio 675 mg IM once (now or within next few days)</p>",          "providerNotification": "<p>Notify provider with patient preference for supplementation and to order medications</p>" }
+                ]
+            },
+            {
+                "dose": "662",
+                "tiers": [
+                    { "maxDays": 56,   "supplementation": "<p>No supplementation required</p>",                                                                                               "providerNotification": "<p>No need</p>" },
+                    { "maxDays": 84,   "supplementation": "<p>Oral aripiprazole for 7 days <strong>OR</strong> Aristada Initio 675 mg IM once (now or within next few days)</p>",           "providerNotification": "<p>Notify provider with patient preference for supplementation and to order medications</p>" },
+                    { "maxDays": null, "supplementation": "<p>Oral aripiprazole for 21 days <strong>OR</strong> Aristada Initio 675 mg IM once (now or within next few days)</p>",          "providerNotification": "<p>Notify provider with patient preference for supplementation and to order medications</p>" }
+                ]
+            },
+            {
+                "dose": "882",
+                "tiers": [
+                    { "maxDays": 56,   "supplementation": "<p>No supplementation required</p>",                                                                                               "providerNotification": "<p>No need</p>" },
+                    { "maxDays": 84,   "supplementation": "<p>Oral aripiprazole for 7 days <strong>OR</strong> Aristada Initio 675 mg IM once (now or within next few days)</p>",           "providerNotification": "<p>Notify provider with patient preference for supplementation and to order medications</p>" },
+                    { "maxDays": null, "supplementation": "<p>Oral aripiprazole for 21 days <strong>OR</strong> Aristada Initio 675 mg IM once (now or within next few days)</p>",          "providerNotification": "<p>Notify provider with patient preference for supplementation and to order medications</p>" }
+                ]
+            },
+            {
+                "dose": "1064",
+                "tiers": [
+                    { "maxDays": 70,   "supplementation": "<p>No supplementation required</p>",                                                                                               "providerNotification": "<p>No need</p>" },
+                    { "maxDays": 84,   "supplementation": "<p>Oral aripiprazole for 7 days <strong>OR</strong> Aristada Initio 675 mg IM once (now or within next few days)</p>",           "providerNotification": "<p>Notify provider with patient preference for supplementation and to order medications</p>" },
+                    { "maxDays": null, "supplementation": "<p>Oral aripiprazole for 21 days <strong>OR</strong> Aristada Initio 675 mg IM once (now or within next few days)</p>",          "providerNotification": "<p>Notify provider with patient preference for supplementation and to order medications</p>" }
+                ]
+            }
+        ]
+    }
+}

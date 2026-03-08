@@ -1,0 +1,27 @@
+{
+    "key": "abilify_maintena",
+    "displayName": "Abilify Maintena (aripiprazole)",
+    "earlyGuidance": "No sooner than 26 days after last injection",
+    "lateGuidance": {
+        "kind": "abilify",
+        "notDueGuidance": {
+            "idealSteps": "<p>The Abilify Maintena injection is not due. Please consult guidance on early dosing.</p>",
+            "pragmaticVariations": "<p>See early dosing guidance section.</p>",
+            "providerNotification": "<p>No provider notification needed.</p>"
+        },
+        "routineGuidance": {
+            "idealSteps": "<p>(1) Administer usual Abilify Maintena monthly dose</p>\n<p>(2) Arrange for next usual monthly dose in 4 weeks</p>",
+            "pragmaticVariations": "<p>Same</p>",
+            "providerNotification": "<p>No need</p>"
+        },
+        "reinitiateGuidance": {
+            "idealSteps": "<p>Re-initiate:</p>\n<p>(1) Administer usual Abilify Maintena monthly dose</p>\n<p>(2) Notify patient of the options recommended for reinitiation: either (a) receive a 2nd Abilify Maintena dose at the same time as the first (in step 1) or within days, or (b) resume oral aripiprazole (10-20 mg) for 14 days</p>",
+            "pragmaticVariations": "<p>If the patient is not able or likely to take oral aripiprazole or get a 2nd injection immediately, consult with provider about accelerating timing of next injection.</p>",
+            "providerNotification": "<p>Post-injection: notify provider of situation and need for either a 2nd immediate monthly injection or 14 days of oral aripiprazole.</p>"
+        },
+        "priorDoseGroups": [
+            { "priorDoses": "1-2", "routineMaxWeeks": 5 },
+            { "priorDoses": "3+",  "routineMaxWeeks": 6 }
+        ]
+    }
+}
