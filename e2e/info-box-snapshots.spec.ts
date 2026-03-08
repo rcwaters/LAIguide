@@ -11,10 +11,7 @@ function daysAgo(n: number): string {
 async function selectField(page: Page, id: string, value: string): Promise<void> {
     const radio = page.locator(`input[name="${id}"][value="${value}"]`);
     if (await radio.count() > 0) {
-        await page.evaluate(({ id, value }) => {
-            const input = document.querySelector<HTMLInputElement>(`input[name="${id}"][value="${value}"]`);
-            if (input) { input.checked = true; input.dispatchEvent(new Event('change', { bubbles: true })); }
-        }, { id, value });
+        await page.locator(`label:has(input[name="${id}"][value="${value}"])`).click();
     } else {
         await page.selectOption(`#${id}`, value);
     }

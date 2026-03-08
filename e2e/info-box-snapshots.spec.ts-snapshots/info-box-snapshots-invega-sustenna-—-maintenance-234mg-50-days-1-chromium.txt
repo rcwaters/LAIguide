@@ -3,4 +3,4 @@ Guidance Type: Late/Overdue Administration Guidance
 Injection Type: Missed/delayed monthly maintenance injection
 Date of last maintenance injection: [DATE]
 Monthly maintenance dose: 234 mg
-Time since last maintenance injection: 50 days (7 weeks and 1 day)
+Time since last maintenance injection: 49 days (7 weeks)
