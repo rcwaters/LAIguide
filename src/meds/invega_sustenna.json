@@ -113,5 +113,44 @@
                 ]}
             ]
         }
-    ]
+    ],
+    "lateSpec": {
+        "kind": "branched",
+        "branchField": "invega-type",
+        "requiredBase": [
+            { "id": "invega-type", "message": "Please select the Invega Sustenna injection type." }
+        ],
+        "branches": {
+            "initiation": {
+                "requiredFields": [
+                    { "id": "first-injection", "message": "Please enter the date of first (234 mg) injection." }
+                ],
+                "dateField": "first-injection",
+                "showGroup": "first-injection-date",
+                "params": { "variant": "initiation" },
+                "infoRows": [
+                    { "label": "Injection Type:",                       "value": "Missed/delayed 2nd initiation (156 mg) injection" },
+                    { "label": "Date of first (234 mg) injection:",     "field": "first-injection", "format": "date" },
+                    { "label": "Time since first (234 mg) injection:",  "format": "days-weeks" }
+                ]
+            },
+            "maintenance": {
+                "requiredFields": [
+                    { "id": "last-maintenance", "message": "Please enter the date of last maintenance injection." },
+                    { "id": "maintenance-dose", "message": "Please select the monthly maintenance injection dose." }
+                ],
+                "dateField": "last-maintenance",
+                "showGroup": "maintenance-fields",
+                "params": { "variant": "maintenance" },
+                "paramKey": "dose",
+                "paramField": "maintenance-dose",
+                "infoRows": [
+                    { "label": "Injection Type:",                         "value": "Missed/delayed monthly maintenance injection" },
+                    { "label": "Date of last maintenance injection:",     "field": "last-maintenance",  "format": "date" },
+                    { "label": "Monthly maintenance dose:",               "field": "maintenance-dose",  "format": "option-label" },
+                    { "label": "Time since last maintenance injection:",  "format": "days-weeks" }
+                ]
+            }
+        }
+    }
 }
