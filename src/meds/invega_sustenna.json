@@ -1,7 +1,9 @@
 {
     "key": "invega_sustenna",
     "displayName": "Invega Sustenna (paliperidone palmitate)",
-    "earlyGuidance": "1 week before due date  \n*(Note: after completing full initiation process)*",
+    "earlyWindowType": "before-next",
+    "earlyGuidanceNote": "Note: after completing full initiation process",
+    "earlyWindowDays": 7,
     "lateGuidance": {
         "kind": "invega-sustenna",
         "_comment": "initiationTiers = days since first 234 mg initiation dose; maintenanceTiers = days since last monthly dose",

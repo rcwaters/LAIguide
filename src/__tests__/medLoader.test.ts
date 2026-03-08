@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { MED_REGISTRY } from '../medLoader';
+import { MED_REGISTRY, pluralDays, composeEarlyGuidance } from '../medLoader';
 import type { GuidanceResult, SupplementalGuidanceResult, CategoricalGuidanceResult } from '../interfaces/guidance';
 
 // Local wrappers that preserve the original test call signatures
@@ -32,9 +32,95 @@ describe('displayName', () => {
     });
 });
 describe('earlyGuidance', () => {
-    it('returns early guidance content for known medications', () => {
-        expect(MED_REGISTRY['invega_trinza'].earlyGuidance).toBe('2 weeks before due date');
-        expect(MED_REGISTRY['abilify_maintena'].earlyGuidance).toBe('No sooner than 26 days after last injection');
+    // ── pluralDays ──────────────────────────────────────────────────────────
+    describe('pluralDays', () => {
+        it('1 day  → "1 day"',   () => expect(pluralDays(1)).toBe('1 day'));
+        it('3 days → "3 days"',  () => expect(pluralDays(3)).toBe('3 days'));
+        it('6 days → "6 days"',  () => expect(pluralDays(6)).toBe('6 days'));
+        it('7 days → "1 week"',  () => expect(pluralDays(7)).toBe('1 week'));
+        it('14 days → "2 weeks"',() => expect(pluralDays(14)).toBe('2 weeks'));
+        it('21 days → "3 weeks"',() => expect(pluralDays(21)).toBe('3 weeks'));
+        it('26 days → "26 days"',() => expect(pluralDays(26)).toBe('26 days'));
+    });
+
+    // ── composeEarlyGuidance ────────────────────────────────────────────────
+    describe('composeEarlyGuidance', () => {
+        it('before-next, no note',   () => expect(composeEarlyGuidance('before-next', 7,  undefined, undefined)).toBe('1 week before due date'));
+        it('before-next, with note', () => expect(composeEarlyGuidance('before-next', 3,  undefined, 'DESC created guidance')).toBe('3 days before due date  \n*(DESC created guidance)*'));
+        it('since-last, no note',    () => expect(composeEarlyGuidance('since-last',  undefined, 21, undefined)).toBe('No sooner than 3 weeks after last injection'));
+        it('since-last, with note',  () => expect(composeEarlyGuidance('since-last',  undefined, 21, 'This may be given earlier with provider approval')).toBe('No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*'));
+        it('since-last, non-week days', () => expect(composeEarlyGuidance('since-last', undefined, 26, undefined)).toBe('No sooner than 26 days after last injection'));
+    });
+
+    // ── Registry: earlyGuidance string ─────────────────────────────────────
+    describe('registry earlyGuidance string', () => {
+        it('returns early guidance content for known medications', () => {
+            expect(MED_REGISTRY['invega_trinza'].earlyGuidance).toBe('2 weeks before due date');
+            expect(MED_REGISTRY['abilify_maintena'].earlyGuidance).toBe('No sooner than 26 days after last injection');
+        });
+        const cases: [string, string][] = [
+            ['aristada',             '1 week before due date'],
+            ['invega_sustenna',      '1 week before due date  \n*(Note: after completing full initiation process)*'],
+            ['invega_hafyera',       '2 weeks before due date'],
+            ['fluphenazine_decanoate','3 days before due date  \n*(DESC created guidance)*'],
+            ['haloperidol_decanoate','3 days before due date  \n*(DESC created guidance)*'],
+            ['uzedy',               '3 days before due date  \n*(DESC created guidance)*'],
+            ['brixadi',             'No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*'],
+            ['sublocade',           'No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*'],
+            ['vivitrol',            'No sooner than 3 weeks after last injection'],
+        ];
+        for (const [key, expected] of cases) {
+            it(`${key} earlyGuidance`, () =>
+                expect(MED_REGISTRY[key as keyof typeof MED_REGISTRY].earlyGuidance).toBe(expected));
+        }
+    });
+
+    // ── Registry: earlyWindowType ───────────────────────────────────────────
+    describe('registry earlyWindowType', () => {
+        const beforeNext = ['aristada', 'invega_sustenna', 'invega_trinza', 'invega_hafyera',
+                            'fluphenazine_decanoate', 'haloperidol_decanoate', 'uzedy'];
+        const sinceLast  = ['abilify_maintena', 'brixadi', 'sublocade', 'vivitrol'];
+        for (const key of beforeNext) {
+            it(`${key} → before-next`, () =>
+                expect(MED_REGISTRY[key as keyof typeof MED_REGISTRY].earlyWindowType).toBe('before-next'));
+        }
+        for (const key of sinceLast) {
+            it(`${key} → since-last`, () =>
+                expect(MED_REGISTRY[key as keyof typeof MED_REGISTRY].earlyWindowType).toBe('since-last'));
+        }
+    });
+
+    // ── Registry: earlyWindowDays / earlyMinDays ────────────────────────────
+    describe('registry earlyWindowDays and earlyMinDays', () => {
+        const windowDayCases: [string, number][] = [
+            ['aristada',              7],
+            ['invega_sustenna',       7],
+            ['invega_trinza',        14],
+            ['invega_hafyera',       14],
+            ['fluphenazine_decanoate', 3],
+            ['haloperidol_decanoate',  3],
+            ['uzedy',                  3],
+        ];
+        for (const [key, days] of windowDayCases) {
+            it(`${key} earlyWindowDays = ${days}`, () =>
+                expect(MED_REGISTRY[key as keyof typeof MED_REGISTRY].earlyWindowDays).toBe(days));
+        }
+        const minDayCases: [string, number][] = [
+            ['abilify_maintena', 26],
+            ['brixadi',          21],
+            ['sublocade',        21],
+            ['vivitrol',         21],
+        ];
+        for (const [key, days] of minDayCases) {
+            it(`${key} earlyMinDays = ${days}`, () =>
+                expect(MED_REGISTRY[key as keyof typeof MED_REGISTRY].earlyMinDays).toBe(days));
+        }
+        it('before-next meds have no earlyMinDays', () => {
+            expect(MED_REGISTRY['uzedy'].earlyMinDays).toBeUndefined();
+        });
+        it('since-last meds have no earlyWindowDays', () => {
+            expect(MED_REGISTRY['abilify_maintena'].earlyWindowDays).toBeUndefined();
+        });
     });
 });
 describe('getInvegaInitiationGuidance', () => {

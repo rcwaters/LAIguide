@@ -1,7 +1,8 @@
 {
     "key": "aristada",
     "displayName": "Aristada (aripiprazole lauroxil)",
-    "earlyGuidance": "1 week before due date",
+    "earlyWindowType": "before-next",
+    "earlyWindowDays": 7,
     "lateGuidance": {
         "kind": "aristada",
         "notDueBeforeDays": 28,

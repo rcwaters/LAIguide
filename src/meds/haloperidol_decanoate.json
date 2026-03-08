@@ -1,7 +1,9 @@
 {
     "key": "haloperidol_decanoate",
     "displayName": "Haloperidol Decanoate (Haldol Dec)",
-    "earlyGuidance": "3 days before due date  \n*(DESC created guidance)*",
+    "earlyWindowType": "before-next",
+    "earlyGuidanceNote": "DESC created guidance",
+    "earlyWindowDays": 3,
     "lateGuidance": {
         "kind": "tiers-by-prior-doses",
         "priorDoseGroups": [

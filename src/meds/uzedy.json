@@ -1,7 +1,9 @@
 {
     "key": "uzedy",
     "displayName": "Uzedy (risperidone subcutaneous)",
-    "earlyGuidance": "3 days before due date  \n*(DESC created guidance)*",
+    "earlyWindowType": "before-next",
+    "earlyGuidanceNote": "DESC created guidance",
+    "earlyWindowDays": 3,
     "lateGuidance": {
         "kind": "tiers",
         "tiers": [

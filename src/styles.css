@@ -329,6 +329,16 @@ input:not([type="radio"]):not([type="checkbox"]):focus-visible, select:focus-vis
     line-height: 1.65;
 }
 
+.early-allowed {
+    border-left-color: #059669;
+    background: #ecfdf5;
+}
+
+.early-not-allowed {
+    border-left-color: #dc2626;
+    background: #fef2f2;
+}
+
 .important-note {
     background: #fef3c7;
     border: 1px solid #fde68a;

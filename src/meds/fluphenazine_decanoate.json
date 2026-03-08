@@ -1,7 +1,9 @@
 {
     "key": "fluphenazine_decanoate",
     "displayName": "Fluphenazine Decanoate (formerly Prolixin Dec)",
-    "earlyGuidance": "3 days before due date  \n*(DESC created guidance)*",
+    "earlyWindowType": "before-next",
+    "earlyGuidanceNote": "DESC created guidance",
+    "earlyWindowDays": 3,
     "lateGuidance": {
         "kind": "tiers-by-prior-doses",
         "priorDoseGroups": [

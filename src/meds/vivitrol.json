@@ -1,7 +1,8 @@
 {
     "key": "vivitrol",
     "displayName": "Vivitrol (naltrexone)",
-    "earlyGuidance": "No sooner than 3 weeks after last injection",
+    "earlyWindowType": "since-last",
+    "earlyMinDays": 21,
     "lateGuidance": {
         "kind": "tiers-by-variant",
         "variants": [

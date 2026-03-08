@@ -2,7 +2,7 @@ import './styles.css';
 import { MED_REGISTRY } from './medLoader';
 import type { MedicationKey, FormGroupSpec, FieldSpec } from './interfaces/med';
 import type { SubmitContext, GuidanceResult, SupplementalGuidanceResult, CategoricalGuidanceResult } from './interfaces/guidance';
-import { md } from './utils';
+import { md, daysSinceDate, formatDate } from './utils';
 
 // ─── Form Field Visibility ────────────────────────────────────────────────────
 
@@ -40,6 +40,23 @@ export function handleGuidanceTypeChange(): void {
 
     Object.values(MED_REGISTRY).flatMap(e => e.formFieldIds).forEach(clear);
 
+    // Show/hide the correct early date picker based on the med's earlyWindowType
+    const earlyGroup     = document.getElementById('early-date-group')      as HTMLElement | null;
+    const earlyLastGroup = document.getElementById('early-last-date-group') as HTMLElement | null;
+    if (guidanceType === 'early' && medication) {
+        const entry = MED_REGISTRY[medication as MedicationKey];
+        if (entry?.earlyWindowType === 'since-last') {
+            if (earlyGroup)     { earlyGroup.style.display     = 'none';  clear('next-injection-date'); }
+            if (earlyLastGroup) { earlyLastGroup.style.display = 'block'; }
+        } else {
+            if (earlyGroup)     { earlyGroup.style.display     = 'block'; }
+            if (earlyLastGroup) { earlyLastGroup.style.display = 'none';  clear('last-injection-date'); }
+        }
+    } else {
+        if (earlyGroup)     { earlyGroup.style.display     = 'none';  clear('next-injection-date'); }
+        if (earlyLastGroup) { earlyLastGroup.style.display = 'none';  clear('last-injection-date'); }
+    }
+
     if (guidanceType === 'late') {
         const entry = MED_REGISTRY[medication as MedicationKey];
         if (entry) show(entry.lateFieldsGroup);
@@ -64,7 +81,13 @@ export function checkAutoSubmit(): void {
     const guidanceType = val('guidance-type');
     if (!medication || !guidanceType) return;
 
-    if (guidanceType === 'early') { handleSubmit(); return; }
+    if (guidanceType === 'early') {
+        const entry       = MED_REGISTRY[medication as MedicationKey];
+        const dateField   = entry?.earlyWindowType === 'since-last' ? 'last-injection-date' : 'next-injection-date';
+        if (!val(dateField)) return;
+        handleSubmit();
+        return;
+    }
 
     // Late: every visible required field (date inputs + selects, excluding
     // the guidance-type segmented control) must have a value before submitting.
@@ -94,6 +117,12 @@ export function handleSubmit(): void {
         );
 
         if (guidanceType === 'early') {
+            const entry = MED_REGISTRY[medication as MedicationKey];
+            if (entry?.earlyWindowType === 'since-last') {
+                if (!val('last-injection-date')) { alert('Please enter the date of the last injection.'); return; }
+            } else {
+                if (!val('next-injection-date')) { alert('Please enter the next scheduled injection date.'); return; }
+            }
             showEarlyGuidance(medication);
             return;
         }
@@ -173,16 +202,65 @@ function injectGuidanceSection(infoRows: string, bodyHTML: string): void {
 
 function showEarlyGuidance(medication: string): void {
     const entry = MED_REGISTRY[medication as MedicationKey];
-    const rows = infoRow('Medication:', entry.displayName)
-               + infoRow('Guidance Type:', 'Early Administration Guidance');
+
+    let rows: string;
+    let resultHTML: string;
+
+    if (entry.earlyWindowType === 'since-last') {
+        const lastDate  = val('last-injection-date');
+        const daysSince = daysSinceDate(lastDate);
+        const minDays   = entry.earlyMinDays!;
+
+        rows = infoRow('Medication:', entry.displayName)
+             + infoRow('Guidance Type:', 'Early Administration Guidance')
+             + infoRow('Last injection:', formatDate(lastDate));
+
+        if (daysSince >= minDays) {
+            resultHTML = `<div class="guidance-content early-allowed">
+                <strong>\u2705 Early administration is allowed.</strong>
+                <p>It has been <strong>${daysSince} day${daysSince === 1 ? '' : 's'}</strong> since the last injection (minimum: ${minDays} days).</p>
+            </div>`;
+        } else {
+            const remaining = minDays - daysSince;
+            resultHTML = `<div class="guidance-content early-not-allowed">
+                <strong>\u274c Too early to administer.</strong>
+                <p>It has been <strong>${daysSince} day${daysSince === 1 ? '' : 's'}</strong> since the last injection. Early administration requires at least <strong>${minDays} days</strong> since the last injection (<strong>${remaining} day${remaining === 1 ? '' : 's'}</strong> remaining).</p>
+            </div>`;
+        }
+    } else {
+        const nextDate   = val('next-injection-date');
+        const daysUntil  = Math.max(0, -daysSinceDate(nextDate));
+        const windowDays = entry.earlyWindowDays!;
+
+        rows = infoRow('Medication:', entry.displayName)
+             + infoRow('Guidance Type:', 'Early Administration Guidance')
+             + infoRow('Next injection scheduled:', formatDate(nextDate));
+
+        if (daysUntil === 0) {
+            resultHTML = `<div class="guidance-content early-allowed">
+                <strong>\u2705 Administer today \u2014 the injection is scheduled for today.</strong>
+            </div>`;
+        } else if (daysUntil <= windowDays) {
+            resultHTML = `<div class="guidance-content early-allowed">
+                <strong>\u2705 Early administration is allowed.</strong>
+                <p>The scheduled injection is <strong>${daysUntil} day${daysUntil === 1 ? '' : 's'}</strong> away, within the ${windowDays}-day early window.</p>
+            </div>`;
+        } else {
+            resultHTML = `<div class="guidance-content early-not-allowed">
+                <strong>\u274c Too early to administer.</strong>
+                <p>The scheduled injection is <strong>${daysUntil} day${daysUntil === 1 ? '' : 's'}</strong> away. Early administration is permitted within <strong>${windowDays} day${windowDays === 1 ? '' : 's'}</strong> of the scheduled date.</p>
+            </div>`;
+        }
+    }
 
     const body = `
+        ${resultHTML}
         <div class="guidance-content">
-            <h3 class="guidance-heading">Time frame acceptable to give an "early" injection without seeking provider consult:</h3>
+            <h3 class="guidance-heading">Early administration window:</h3>
             <div class="guidance-text">${md(entry.earlyGuidance)}</div>
         </div>
         <div class="important-note">
-            <strong>⚠️ Important:</strong> If there may be a reason to administer even earlier than the specified timeframe, provider approval must be obtained.
+            <strong>\u26a0\ufe0f Important:</strong> If there may be a reason to administer even earlier than the specified timeframe, provider approval must be obtained.
         </div>`;
 
     injectGuidanceSection(rows, body);
@@ -268,6 +346,21 @@ export function initForm(): void {
             .map(renderFieldGroup)
             .join('\n');
         formSection.insertAdjacentHTML('beforeend', groupsHtml);
+
+        // Inject the early-date-group (next scheduled date — for before-next meds)
+        const today = new Date().toISOString().split('T')[0];
+        formSection.insertAdjacentHTML('beforeend',
+            `<div class="input-group" id="early-date-group" style="display: none;">
+<label for="next-injection-date">Next injection scheduled <span class="required">*</span></label>
+<input type="date" id="next-injection-date" class="date-input" min="${today}" onchange="checkAutoSubmit()">
+</div>`);
+
+        // Inject the early-last-date-group (last injection date — for since-last meds)
+        formSection.insertAdjacentHTML('beforeend',
+            `<div class="input-group" id="early-last-date-group" style="display: none;">
+<label for="last-injection-date">Date of last injection <span class="required">*</span></label>
+<input type="date" id="last-injection-date" class="date-input" max="${today}" onchange="checkAutoSubmit()">
+</div>`);
     } catch (err) {
         console.error('[initForm] Unexpected error:', err);
     }
@@ -286,6 +379,13 @@ export function startOver(): void {
             hide(e.lateFieldsGroup);
             e.subFieldGroups?.forEach(hide);
         });
+
+        const earlyDateGroup = document.getElementById('early-date-group')      as HTMLElement | null;
+        const earlyLastGroup = document.getElementById('early-last-date-group') as HTMLElement | null;
+        if (earlyDateGroup) { earlyDateGroup.style.display = 'none'; }
+        if (earlyLastGroup) { earlyLastGroup.style.display = 'none'; }
+        clear('next-injection-date');
+        clear('last-injection-date');
 
         const gtGroup = document.getElementById('guidance-type-group') as HTMLElement | null;
         if (gtGroup) gtGroup.style.display = 'none';

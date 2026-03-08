@@ -62,9 +62,16 @@ export interface FormGroupSpec { groupId: string; fields: FieldSpec[]; }
 
 // ─── MedDefinition ────────────────────────────────────────────────────────────
 
+export type EarlyWindowType = 'before-next' | 'since-last';
+
 export interface MedDefinition {
-    displayName:   string;
-    earlyGuidance: string;
+    displayName:      string;
+    earlyGuidance:    string;
+    earlyWindowType:  EarlyWindowType;
+    /** Days before the scheduled next injection that early administration is permitted (before-next meds). */
+    earlyWindowDays?: number;
+    /** Minimum days since last injection required for early administration (since-last meds). */
+    earlyMinDays?:    number;
     getLateGuidance(params: LateGuidanceParams): LateGuidanceOutput;
 
     // UI config: used by main.ts to generically handle form interaction
@@ -88,8 +95,8 @@ export interface MedDefinition {
 
 export type RawTier = Record<string, unknown>;
 
-/** Internal: the three guidance-logic fields built by buildCoreDef. */
-export type CoreDef = Pick<MedDefinition, 'displayName' | 'earlyGuidance' | 'getLateGuidance'>;
+/** Internal: the core fields built by buildCoreDef. */
+export type CoreDef = Pick<MedDefinition, 'displayName' | 'earlyGuidance' | 'earlyWindowType' | 'earlyWindowDays' | 'earlyMinDays' | 'getLateGuidance'>;
 
 /** Average days per month (365.25 / 12). */
 export const DAYS_PER_MONTH = 30.44;

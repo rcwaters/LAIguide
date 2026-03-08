@@ -1,7 +1,8 @@
 {
     "key": "invega_hafyera",
     "displayName": "Invega Hafyera (paliperidone palmitate 6-month)",
-    "earlyGuidance": "2 weeks before due date",
+    "earlyWindowType": "before-next",
+    "earlyWindowDays": 14,
     "lateGuidance": {
         "kind": "hafyera",
         "earlyMaxDays": 180,

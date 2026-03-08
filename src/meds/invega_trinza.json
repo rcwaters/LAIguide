@@ -1,7 +1,8 @@
 {
     "key": "invega_trinza",
     "displayName": "Invega Trinza (paliperidone palmitate 3-month)",
-    "earlyGuidance": "2 weeks before due date",
+    "earlyWindowType": "before-next",
+    "earlyWindowDays": 14,
     "lateGuidance": {
         "kind": "tiers",
         "tiers": [

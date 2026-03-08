@@ -1,7 +1,8 @@
 {
     "key": "abilify_maintena",
     "displayName": "Abilify Maintena (aripiprazole)",
-    "earlyGuidance": "No sooner than 26 days after last injection",
+    "earlyWindowType": "since-last",
+    "earlyMinDays": 26,
     "lateGuidance": {
         "kind": "abilify",
         "notDueGuidance": {

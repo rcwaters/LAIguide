@@ -1,2 +1,3 @@
 Medication: Abilify Maintena (aripiprazole)
 Guidance Type: Early Administration Guidance
+Last injection: [DATE]

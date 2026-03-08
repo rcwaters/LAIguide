@@ -1,7 +1,9 @@
 {
     "key": "brixadi",
     "displayName": "Brixadi (buprenorphine)",
-    "earlyGuidance": "No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*",
+    "earlyWindowType": "since-last",
+    "earlyGuidanceNote": "This may be given earlier with provider approval",
+    "earlyMinDays": 21,
     "lateGuidance": {
         "kind": "tiers-by-variant",
         "variants": [
