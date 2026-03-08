@@ -12,6 +12,8 @@ jobs:
   deploy:
     name: Build & Deploy
     runs-on: ubuntu-latest
+    # Prevent the deploy bot's own commit from re-triggering this workflow
+    if: github.actor != 'github-actions[bot]'
     steps:
       - uses: actions/checkout@v4
 
@@ -26,9 +28,11 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Deploy to gh-pages
+      # Deploy built dist/ back to main root so GitHub Pages (serving main/(root))
+      # serves the compiled bundle instead of the raw TypeScript source.
+      - name: Deploy to main
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: gh-pages
+          branch: main
           folder: dist/
-          clean-exclude: pr-preview/   # preserve any active PR previews
+          clean: false   # preserve source files (src/, package.json, etc.)
