@@ -107,12 +107,17 @@ test.describe('conditional field visibility', () => {
     });
 
     const medFields: [string, string][] = [
-        ['invega_sustenna',  'invega-sustenna-options'],
-        ['invega_trinza',    'trinza-fields'],
-        ['invega_hafyera',   'hafyera-fields'],
-        ['abilify_maintena', 'abilify-fields'],
-        ['aristada',         'aristada-fields'],
-        ['uzedy',            'uzedy-fields'],
+        ['invega_sustenna',        'invega-sustenna-options'],
+        ['invega_trinza',          'trinza-fields'],
+        ['invega_hafyera',         'hafyera-fields'],
+        ['abilify_maintena',       'abilify-fields'],
+        ['aristada',               'aristada-fields'],
+        ['uzedy',                  'uzedy-fields'],
+        ['haloperidol_decanoate',  'haloperidol-fields'],
+        ['fluphenazine_decanoate', 'fluphenazine-fields'],
+        ['vivitrol',               'vivitrol-fields'],
+        ['sublocade',              'sublocade-fields'],
+        ['brixadi',                'brixadi-fields'],
     ];
 
     for (const [medication, fieldId] of medFields) {
@@ -407,6 +412,665 @@ test.describe('late guidance — Uzedy', () => {
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('contact prescriber');
+    });
+});
+
+// ─── Early guidance — missing medications ────────────────────────────────────
+
+test.describe('early guidance flow — remaining medications', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/');
+    });
+
+    const missingMeds = ['fluphenazine_decanoate', 'sublocade', 'brixadi'];
+
+    for (const med of missingMeds) {
+        test(`${med}: shows guidance and hides form`, async ({ page }) => {
+            await selectField(page, 'medication', med);
+            await selectField(page, 'guidance-type', 'early');
+            await page.click('button:has-text("Submit")');
+
+            await expect(page.locator('.guidance-section')).toBeVisible();
+            await expect(page.locator('.form-section')).not.toBeVisible();
+        });
+    }
+});
+
+// ─── Validation — new medications ────────────────────────────────────────────
+
+test.describe('form validation — new medications', () => {
+    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+
+    async function expectAlertMsg(page: Page, trigger: () => Promise<void>, expected: string): Promise<void> {
+        let message = '';
+        page.once('dialog', async dialog => { message = dialog.message(); await dialog.dismiss(); });
+        await trigger();
+        expect(message).toBe(expected);
+    }
+
+    test('haloperidol + late: alerts when no date entered', async ({ page }) => {
+        await selectField(page, 'medication', 'haloperidol_decanoate');
+        await selectField(page, 'guidance-type', 'late');
+        await expectAlertMsg(page, () => page.click('button:has-text("Submit")'),
+            'Please enter the date of last Haloperidol Decanoate injection.');
+    });
+
+    test('haloperidol + late: alerts when no prior doses selected', async ({ page }) => {
+        await selectField(page, 'medication', 'haloperidol_decanoate');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-haloperidol', daysAgo(60));
+        await expectAlertMsg(page, () => page.click('button:has-text("Submit")'),
+            'Please select the number of prior Haloperidol Decanoate injections.');
+    });
+
+    test('fluphenazine + late: alerts when no date entered', async ({ page }) => {
+        await selectField(page, 'medication', 'fluphenazine_decanoate');
+        await selectField(page, 'guidance-type', 'late');
+        await expectAlertMsg(page, () => page.click('button:has-text("Submit")'),
+            'Please enter the date of last Fluphenazine Decanoate injection.');
+    });
+
+    test('vivitrol + late: alerts when no indication selected', async ({ page }) => {
+        await selectField(page, 'medication', 'vivitrol');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-vivitrol', daysAgo(25));
+        await expectAlertMsg(page, () => page.click('button:has-text("Submit")'),
+            'Please select the Vivitrol indication.');
+    });
+
+    test('sublocade + late: alerts when no type selected', async ({ page }) => {
+        await selectField(page, 'medication', 'sublocade');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-sublocade', daysAgo(25));
+        await expectAlertMsg(page, () => page.click('button:has-text("Submit")'),
+            'Please select the Sublocade dose and history.');
+    });
+
+    test('brixadi + late: alerts when no type selected', async ({ page }) => {
+        await selectField(page, 'medication', 'brixadi');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-brixadi', daysAgo(7));
+        await expectAlertMsg(page, () => page.click('button:has-text("Submit")'),
+            'Please select the Brixadi formulation and dose.');
+    });
+});
+
+// ─── Late guidance — Haloperidol Decanoate ────────────────────────────────────
+
+test.describe('late guidance — Haloperidol Decanoate', () => {
+    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+
+    test('1-3 doses < 12 weeks: shows check-in guidance (200 mg threshold, 6-7 day check-in)', async ({ page }) => {
+        await selectField(page, 'medication', 'haloperidol_decanoate');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-haloperidol', daysAgo(60));
+        await selectField(page, 'haloperidol-prior-doses', '1-3');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.medication-info')).toContainText('Haloperidol Decanoate');
+        await expect(page.locator('.guidance-section')).toContainText('200 mg or less');
+        await expect(page.locator('.guidance-section')).toContainText('6–7 days');
+    });
+
+    test('4+ doses < 6 weeks: shows routine guidance (next injection 4 weeks)', async ({ page }) => {
+        await selectField(page, 'medication', 'haloperidol_decanoate');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-haloperidol', daysAgo(30));
+        await selectField(page, 'haloperidol-prior-doses', '4+');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('4 weeks');
+    });
+
+    test('4+ doses 6-12 weeks: shows check-in guidance', async ({ page }) => {
+        await selectField(page, 'medication', 'haloperidol_decanoate');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-haloperidol', daysAgo(60));
+        await selectField(page, 'haloperidol-prior-doses', '4+');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('200 mg or less');
+    });
+
+    test('> 12 weeks: shows consult-before-injection guidance', async ({ page }) => {
+        await selectField(page, 'medication', 'haloperidol_decanoate');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-haloperidol', daysAgo(90));
+        await selectField(page, 'haloperidol-prior-doses', '1-3');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('BEFORE any injection');
+    });
+});
+
+// ─── Late guidance — Fluphenazine Decanoate ───────────────────────────────────
+
+test.describe('late guidance — Fluphenazine Decanoate', () => {
+    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+
+    test('1-2 doses < 4 months: shows check-in guidance (50 mg threshold, 24 hours)', async ({ page }) => {
+        await selectField(page, 'medication', 'fluphenazine_decanoate');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-fluphenazine', daysAgo(90));
+        await selectField(page, 'fluphenazine-prior-doses', '1-2');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.medication-info')).toContainText('Fluphenazine Decanoate');
+        await expect(page.locator('.guidance-section')).toContainText('50 mg or less');
+        await expect(page.locator('.guidance-section')).toContainText('24 hours');
+    });
+
+    test('3+ doses < 6 weeks: shows routine guidance', async ({ page }) => {
+        await selectField(page, 'medication', 'fluphenazine_decanoate');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-fluphenazine', daysAgo(30));
+        await selectField(page, 'fluphenazine-prior-doses', '3+');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('previously planned dosing interval');
+    });
+
+    test('3+ doses 6 weeks to 4 months: shows check-in guidance', async ({ page }) => {
+        await selectField(page, 'medication', 'fluphenazine_decanoate');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-fluphenazine', daysAgo(90));
+        await selectField(page, 'fluphenazine-prior-doses', '3+');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('50 mg or less');
+    });
+
+    test('> 4 months: shows consult-before-injection guidance', async ({ page }) => {
+        await selectField(page, 'medication', 'fluphenazine_decanoate');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-fluphenazine', daysAgo(130));
+        await selectField(page, 'fluphenazine-prior-doses', '1-2');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('BEFORE any injection');
+    });
+});
+
+// ─── Late guidance — Vivitrol ─────────────────────────────────────────────────
+
+test.describe('late guidance — Vivitrol', () => {
+    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+
+    test('OUD, 3-4 weeks: administer, no UDS required', async ({ page }) => {
+        await selectField(page, 'medication', 'vivitrol');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-vivitrol', daysAgo(25));
+        await selectField(page, 'vivitrol-indication', 'oud');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.medication-info')).toContainText('Vivitrol');
+        await expect(page.locator('.guidance-section')).toContainText('No UDS required');
+    });
+
+    test('OUD, 4-5 weeks: conditional on intentional fentanyl use report', async ({ page }) => {
+        await selectField(page, 'medication', 'vivitrol');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-vivitrol', daysAgo(31));
+        await selectField(page, 'vivitrol-indication', 'oud');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('intentional fentanyl use');
+    });
+
+    test('OUD, 5-8 weeks: UDS required', async ({ page }) => {
+        await selectField(page, 'medication', 'vivitrol');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-vivitrol', daysAgo(45));
+        await selectField(page, 'vivitrol-indication', 'oud');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('point-of-care UDS');
+    });
+
+    test('OUD, 8+ weeks: consult provider', async ({ page }) => {
+        await selectField(page, 'medication', 'vivitrol');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-vivitrol', daysAgo(65));
+        await selectField(page, 'vivitrol-indication', 'oud');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('Consult provider before');
+    });
+
+    test('overdose prevention, 3-5 weeks: administer if no daily opioid use', async ({ page }) => {
+        await selectField(page, 'medication', 'vivitrol');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-vivitrol', daysAgo(25));
+        await selectField(page, 'vivitrol-indication', 'overdose-prevention');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('no intentional daily use');
+    });
+
+    test('overdose prevention, 8+ weeks: consult provider', async ({ page }) => {
+        await selectField(page, 'medication', 'vivitrol');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-vivitrol', daysAgo(65));
+        await selectField(page, 'vivitrol-indication', 'overdose-prevention');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('Consult provider before');
+    });
+
+    test('< 3 weeks: shows not-yet-due message', async ({ page }) => {
+        await selectField(page, 'medication', 'vivitrol');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-vivitrol', daysAgo(10));
+        await selectField(page, 'vivitrol-indication', 'oud');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('not yet overdue');
+    });
+});
+
+// ─── Late guidance — Sublocade ────────────────────────────────────────────────
+
+test.describe('late guidance — Sublocade', () => {
+    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+
+    test('100mg, < 5 weeks: administer regardless', async ({ page }) => {
+        await selectField(page, 'medication', 'sublocade');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-sublocade', daysAgo(25));
+        await selectField(page, 'sublocade-type', '100mg');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.medication-info')).toContainText('Sublocade');
+        await expect(page.locator('.guidance-section')).toContainText('Administer the next injection');
+    });
+
+    test('100mg, 5-6 weeks: conditional guidance with moderate dependence option', async ({ page }) => {
+        await selectField(page, 'medication', 'sublocade');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-sublocade', daysAgo(38));
+        await selectField(page, 'sublocade-type', '100mg');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('fentanyl dependence assessment');
+        await expect(page.locator('.guidance-section')).toContainText('moderate fentanyl dependence');
+    });
+
+    test('100mg, 6-8 weeks: strict conditional guidance (no moderate option)', async ({ page }) => {
+        await selectField(page, 'medication', 'sublocade');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-sublocade', daysAgo(48));
+        await selectField(page, 'sublocade-type', '100mg');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('fentanyl dependence assessment');
+    });
+
+    test('100mg, 8+ weeks: consult prescriber', async ({ page }) => {
+        await selectField(page, 'medication', 'sublocade');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-sublocade', daysAgo(60));
+        await selectField(page, 'sublocade-type', '100mg');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('Consult a prescriber in real-time');
+    });
+
+    test('300mg established, < 7 weeks: administer regardless', async ({ page }) => {
+        await selectField(page, 'medication', 'sublocade');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-sublocade', daysAgo(45));
+        await selectField(page, 'sublocade-type', '300mg-established');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('Administer the next injection');
+    });
+
+    test('300mg established, 10+ weeks: consult prescriber', async ({ page }) => {
+        await selectField(page, 'medication', 'sublocade');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-sublocade', daysAgo(75));
+        await selectField(page, 'sublocade-type', '300mg-established');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('Consult a prescriber in real-time');
+    });
+});
+
+// ─── Late guidance — Brixadi ──────────────────────────────────────────────────
+
+test.describe('late guidance — Brixadi', () => {
+    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+
+    test('monthly-64, < 5 weeks: administer regardless', async ({ page }) => {
+        await selectField(page, 'medication', 'brixadi');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-brixadi', daysAgo(25));
+        await selectField(page, 'brixadi-type', 'monthly-64');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.medication-info')).toContainText('Brixadi');
+        await expect(page.locator('.guidance-section')).toContainText('Administer the next injection');
+    });
+
+    test('monthly-128, 5-6 weeks: conditional guidance with moderate dependence', async ({ page }) => {
+        await selectField(page, 'medication', 'brixadi');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-brixadi', daysAgo(38));
+        await selectField(page, 'brixadi-type', 'monthly-128');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('fentanyl dependence assessment');
+        await expect(page.locator('.guidance-section')).toContainText('moderate fentanyl dependence');
+    });
+
+    test('monthly-96, 8+ weeks: consult prescriber', async ({ page }) => {
+        await selectField(page, 'medication', 'brixadi');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-brixadi', daysAgo(60));
+        await selectField(page, 'brixadi-type', 'monthly-96');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('Consult a prescriber in real-time');
+    });
+
+    test('weekly, ≤ 9 days: administer per standing order', async ({ page }) => {
+        await selectField(page, 'medication', 'brixadi');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-brixadi', daysAgo(7));
+        await selectField(page, 'brixadi-type', 'weekly');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('9 days');
+    });
+
+    test('weekly, > 9 days: per prescriber guidance', async ({ page }) => {
+        await selectField(page, 'medication', 'brixadi');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-brixadi', daysAgo(12));
+        await selectField(page, 'brixadi-type', 'weekly');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('per prescriber guidance');
+    });
+});
+
+// ─── Late guidance — Invega Trinza (additional doses & reinitiation) ──────────
+
+test.describe('late guidance — Invega Trinza additional tiers', () => {
+    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+
+    test('410 mg overdue: administer Sustenna 117 mg bridge', async ({ page }) => {
+        await selectField(page, 'medication', 'invega_trinza');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-trinza', daysAgo(150));
+        await selectField(page, 'trinza-dose', '410');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.medication-info')).toContainText('410 mg');
+        await expect(page.locator('.guidance-section')).toContainText('117 mg');
+    });
+
+    test('819 mg overdue: administer Sustenna 156 mg bridge', async ({ page }) => {
+        await selectField(page, 'medication', 'invega_trinza');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-trinza', daysAgo(150));
+        await selectField(page, 'trinza-dose', '819');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.medication-info')).toContainText('819 mg');
+        await expect(page.locator('.guidance-section')).toContainText('156 mg');
+    });
+
+    test('>270 days: shows reinitiation consult guidance', async ({ page }) => {
+        await selectField(page, 'medication', 'invega_trinza');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-trinza', daysAgo(280));
+        await selectField(page, 'trinza-dose', '546');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('Reinitiation');
+    });
+
+    test('on-time window (90–120 days): administer usual dose', async ({ page }) => {
+        await selectField(page, 'medication', 'invega_trinza');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-trinza', daysAgo(100));
+        await selectField(page, 'trinza-dose', '546');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('Administer next usual Invega Trinza dose');
+    });
+});
+
+// ─── Late guidance — Invega Sustenna maintenance (additional tiers) ───────────
+
+test.describe('late guidance — Invega Sustenna maintenance additional tiers', () => {
+    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+
+    test('>180 days: shows reinitiation consult guidance', async ({ page }) => {
+        await selectField(page, 'medication', 'invega_sustenna');
+        await selectField(page, 'guidance-type', 'late');
+        await selectField(page, 'invega-type', 'maintenance');
+        await fillDate(page, 'last-maintenance', daysAgo(190));
+        await selectField(page, 'maintenance-dose', '234');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('reinitiation');
+    });
+
+    test('28–42 days: administer usual dose, schedule 4 weeks later', async ({ page }) => {
+        await selectField(page, 'medication', 'invega_sustenna');
+        await selectField(page, 'guidance-type', 'late');
+        await selectField(page, 'invega-type', 'maintenance');
+        await fillDate(page, 'last-maintenance', daysAgo(38));
+        await selectField(page, 'maintenance-dose', '234');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('Administer usual Invega Sustenna dose');
+    });
+});
+
+// ─── Late guidance — Abilify Maintena (additional tiers) ─────────────────────
+
+test.describe('late guidance — Abilify Maintena additional tiers', () => {
+    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+
+    test('3+ doses beyond 6-week window: shows reinitiation guidance', async ({ page }) => {
+        await selectField(page, 'medication', 'abilify_maintena');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-abilify', daysAgo(50));
+        await selectField(page, 'abilify-doses', '3+');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('Re-initiate');
+    });
+
+    test('< 4 weeks: shows not-due guidance', async ({ page }) => {
+        await selectField(page, 'medication', 'abilify_maintena');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-abilify', daysAgo(20));
+        await selectField(page, 'abilify-doses', '3+');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('not due');
+    });
+});
+
+// ─── Late guidance — Aristada (additional doses & tiers) ─────────────────────
+
+test.describe('late guidance — Aristada additional doses and tiers', () => {
+    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+
+    test('882 mg within 56 days: no supplementation', async ({ page }) => {
+        await selectField(page, 'medication', 'aristada');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-aristada', daysAgo(50));
+        await selectField(page, 'aristada-dose', '882');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('No supplementation required');
+    });
+
+    test('882 mg 57–84 days: 7-day supplementation', async ({ page }) => {
+        await selectField(page, 'medication', 'aristada');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-aristada', daysAgo(70));
+        await selectField(page, 'aristada-dose', '882');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('7 days');
+    });
+
+    test('882 mg >84 days: 21-day supplementation', async ({ page }) => {
+        await selectField(page, 'medication', 'aristada');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-aristada', daysAgo(100));
+        await selectField(page, 'aristada-dose', '882');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('21 days');
+    });
+
+    test('1064 mg within 70 days: no supplementation', async ({ page }) => {
+        await selectField(page, 'medication', 'aristada');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-aristada', daysAgo(65));
+        await selectField(page, 'aristada-dose', '1064');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('No supplementation required');
+    });
+
+    test('1064 mg 71–84 days: 7-day supplementation', async ({ page }) => {
+        await selectField(page, 'medication', 'aristada');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-aristada', daysAgo(78));
+        await selectField(page, 'aristada-dose', '1064');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('7 days');
+    });
+
+    test('1064 mg >84 days: 21-day supplementation', async ({ page }) => {
+        await selectField(page, 'medication', 'aristada');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-aristada', daysAgo(95));
+        await selectField(page, 'aristada-dose', '1064');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('21 days');
+    });
+
+    test('441 mg >49 days: 21-day supplementation', async ({ page }) => {
+        await selectField(page, 'medication', 'aristada');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-aristada', daysAgo(60));
+        await selectField(page, 'aristada-dose', '441');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('21 days');
+    });
+
+    test('662 mg >84 days: 21-day supplementation', async ({ page }) => {
+        await selectField(page, 'medication', 'aristada');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-aristada', daysAgo(90));
+        await selectField(page, 'aristada-dose', '662');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('21 days');
+    });
+
+    test('< 28 days: shows not-yet-due message', async ({ page }) => {
+        await selectField(page, 'medication', 'aristada');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-aristada', daysAgo(20));
+        await selectField(page, 'aristada-dose', '662');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('not yet due');
+    });
+});
+
+// ─── Late guidance — Uzedy (additional tiers) ────────────────────────────────
+
+test.describe('late guidance — Uzedy additional tiers', () => {
+    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+
+    test('< 28 days: shows not-yet-due message', async ({ page }) => {
+        await selectField(page, 'medication', 'uzedy');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-uzedy', daysAgo(20));
+        await selectField(page, 'uzedy-dose', '150-or-less');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('not yet due');
+    });
+
+    test('28–119 days: administer usual dose, routine window', async ({ page }) => {
+        await selectField(page, 'medication', 'uzedy');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-uzedy', daysAgo(60));
+        await selectField(page, 'uzedy-dose', '150-or-less');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('Administer usual Uzedy maintenance dose');
+    });
+
+    test('120–180 days: administer with sedation check-in', async ({ page }) => {
+        await selectField(page, 'medication', 'uzedy');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-uzedy', daysAgo(150));
+        await selectField(page, 'uzedy-dose', '200-or-more');
+        await page.click('button:has-text("Submit")');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('sedation');
     });
 });
 

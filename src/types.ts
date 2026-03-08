@@ -74,3 +74,25 @@ export interface AbilifyPriorDoseGroup {
     /** Administer routine guidance when weeksSince <= this value. */
     routineMaxWeeks: number;
 }
+
+// ─── Haloperidol / Fluphenazine Decanoate ─────────────────────────────────────
+
+export type HaloperidolPriorDoses = '1-3' | '4+';
+
+export interface HaloperidolPriorDoseGroup {
+    priorDoses: HaloperidolPriorDoses;
+    tiers: LateTier[];
+}
+
+export type FluphenazinePriorDoses = '1-2' | '3+';
+
+export interface FluphenazinePriorDoseGroup {
+    priorDoses: FluphenazinePriorDoses;
+    tiers: LateTier[];
+}
+
+// ─── Vivitrol / Sublocade / Brixadi ──────────────────────────────────────────
+
+export type VivitrolIndication = 'oud' | 'overdose-prevention';
+export type SublocadeType      = '100mg' | '300mg-few' | '300mg-established';
+export type BrixadiType        = 'monthly-64' | 'monthly-96' | 'monthly-128' | 'weekly';

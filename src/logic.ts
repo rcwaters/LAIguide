@@ -11,6 +11,11 @@ export type {
     GuidanceResult,
     AristadaGuidanceResult,
     LateTier,
+    HaloperidolPriorDoses,
+    FluphenazinePriorDoses,
+    VivitrolIndication,
+    SublocadeType,
+    BrixadiType,
 } from './types';
 
 import type {
@@ -24,6 +29,11 @@ import type {
     GuidanceResult,
     AristadaGuidanceResult,
     LateTier,
+    HaloperidolPriorDoses,
+    FluphenazinePriorDoses,
+    VivitrolIndication,
+    SublocadeType,
+    BrixadiType,
 } from './types';
 
 import {
@@ -41,6 +51,11 @@ import {
     ARISTADA_NOT_DUE_MESSAGE,
     ARISTADA_DOSE_CONFIGS,
     UZEDY_TIERS,
+    HALOPERIDOL_DOSE_GROUPS,
+    FLUPHENAZINE_DOSE_GROUPS,
+    VIVITROL_TIERS,
+    SUBLOCADE_TIERS,
+    BRIXADI_TIERS,
 } from './constants';
 
 // ─── Generic Tier Resolver ────────────────────────────────────────────────────
@@ -165,4 +180,41 @@ export function getAristadaGuidance(daysSince: number, aristadaDose: AristadaDos
  */
 export function getUzedyGuidance(daysSince: number, uzedyDose: UzedyDose): GuidanceResult {
     return resolveLateTier(UZEDY_TIERS, daysSince, uzedyDose);
+}
+
+/**
+ * Returns guidance for a missed/delayed Haloperidol Decanoate injection.
+ */
+export function getHaloperidolGuidance(daysSince: number, priorDoses: HaloperidolPriorDoses): GuidanceResult {
+    const group = HALOPERIDOL_DOSE_GROUPS.find(g => g.priorDoses === priorDoses)!;
+    return resolveLateTier(group.tiers, daysSince);
+}
+
+/**
+ * Returns guidance for a missed/delayed Fluphenazine Decanoate injection.
+ */
+export function getFluphenazineGuidance(daysSince: number, priorDoses: FluphenazinePriorDoses): GuidanceResult {
+    const group = FLUPHENAZINE_DOSE_GROUPS.find(g => g.priorDoses === priorDoses)!;
+    return resolveLateTier(group.tiers, daysSince);
+}
+
+/**
+ * Returns guidance for a missed/delayed Vivitrol injection.
+ */
+export function getVivitrolGuidance(daysSince: number, indication: VivitrolIndication): GuidanceResult {
+    return resolveLateTier(VIVITROL_TIERS[indication], daysSince);
+}
+
+/**
+ * Returns guidance for a missed/delayed Sublocade injection.
+ */
+export function getSublocadeGuidance(daysSince: number, sublocadeType: SublocadeType): GuidanceResult {
+    return resolveLateTier(SUBLOCADE_TIERS[sublocadeType], daysSince);
+}
+
+/**
+ * Returns guidance for a missed/delayed Brixadi injection.
+ */
+export function getBrixadiGuidance(daysSince: number, brixadiType: BrixadiType): GuidanceResult {
+    return resolveLateTier(BRIXADI_TIERS[brixadiType], daysSince);
 }
