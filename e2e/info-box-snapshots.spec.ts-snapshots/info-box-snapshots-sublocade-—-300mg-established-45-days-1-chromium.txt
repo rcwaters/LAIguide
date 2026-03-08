@@ -1,0 +1,5 @@
+Medication: Sublocade (buprenorphine)
+Guidance Type: Late/Overdue Administration Guidance
+Dose/history: Sublocade 300 mg — 3 or more prior injections without gaps >6 weeks
+Date of last injection: [DATE]
+Time since last injection: 45 days (6 weeks and 3 days)

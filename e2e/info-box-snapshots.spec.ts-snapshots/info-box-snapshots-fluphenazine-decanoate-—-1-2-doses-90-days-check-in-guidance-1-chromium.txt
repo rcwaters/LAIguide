@@ -1,0 +1,5 @@
+Medication: Fluphenazine Decanoate (formerly Prolixin Dec)
+Guidance Type: Late/Overdue Administration Guidance
+Date of last injection: [DATE]
+Prior consecutive injections: 1–2 injections (4–8 weeks into therapy; steady state not yet achieved)
+Time since last injection: 90 days (12 weeks and 6 days)

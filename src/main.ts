@@ -227,7 +227,8 @@ function supplementationBody(guidance: SupplementalGuidanceResult): string {
 function renderField(f: FieldSpec): string {
     const label = `<label for="${f.id}">${f.label} <span class="required">*</span></label>`;
     if (f.type === 'date') {
-        return `${label}\n<input type="date" id="${f.id}" class="date-input" onchange="checkAutoSubmit()">`;
+        const today = new Date().toISOString().split('T')[0];
+        return `${label}\n<input type="date" id="${f.id}" class="date-input" max="${today}" onchange="checkAutoSubmit()">`;
     }
     const onchange = f.onchange ? ` onchange="${f.onchange}"` : ' onchange="checkAutoSubmit()"';
     const opts = f.options.map(o => `<option value="${o.value}">${o.label}</option>`).join('\n');
