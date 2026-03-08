@@ -12,9 +12,6 @@
                 "maxDays": 12,
                 "guidance": {
                     "idealSteps": "The 156 mg is either not due or not significantly overdue. Proceed with original plans and orders.",
-                    "pragmaticVariations": [
-                        "No variations needed - proceed with standard protocol."
-                    ],
                     "providerNotification": "Only if questions remain"
                 }
             },
@@ -61,20 +58,13 @@
                 "maxDays": 27,
                 "guidance": {
                     "idealSteps": "The maintenance injection is not significantly overdue (less than 4 weeks since last injection). Proceed with administering the usual maintenance dose and continue with normal monthly schedule.",
-                    "pragmaticVariations": [
-                        "No variations needed - proceed with standard protocol."
-                    ],
                     "providerNotification": "No provider notification needed for routine administration."
                 }
             },
             {
                 "maxDays": 42,
                 "guidance": {
-                    "idealSteps": "(1) Administer usual Invega Sustenna dose.\n\n(2) Arrange for next usual monthly maintenance dose = 4 weeks later.",
-                    "pragmaticVariations": [
-                        "No change from ideal steps"
-                    ],
-                    "providerNotification": "No need"
+                    "idealSteps": "(1) Administer usual Invega Sustenna dose.\n\n(2) Arrange for next usual monthly maintenance dose = 4 weeks later."
                 }
             },
             {

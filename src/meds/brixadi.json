@@ -14,15 +14,13 @@
                     {
                         "maxDays": 20,
                         "guidance": {
-                            "idealSteps": "The injection is not yet overdue (less than 3 weeks since last administration). Please consult the early administration guidance.",
-                            "providerNotification": "No provider notification needed."
+                            "idealSteps": "The injection is not yet overdue (less than 3 weeks since last administration). Please consult the early administration guidance."
                         }
                     },
                     {
                         "maxDays": 34,
                         "guidance": {
-                            "idealSteps": "**Administer the next injection**, regardless of the level of unregulated opioid use.\n\n*Note: If the patient reports active use of unregulated opioids, discuss a switch to Sublocade 300 mg and consult prescriber if the patient is interested.*",
-                            "providerNotification": "No need."
+                            "idealSteps": "**Administer the next injection**, regardless of the level of unregulated opioid use.\n\n*Note: If the patient reports active use of unregulated opioids, discuss a switch to Sublocade 300 mg and consult prescriber if the patient is interested.*"
                         }
                     },
                     {

@@ -32,8 +32,7 @@
                     {
                         "maxDays": 41,
                         "guidance": {
-                            "idealSteps": "(1) Administer usual fluphenazine decanoate injection.\n\n(2) Arrange for next injection at the previously planned dosing interval.",
-                            "providerNotification": "No need."
+                            "idealSteps": "(1) Administer usual fluphenazine decanoate injection.\n\n(2) Arrange for next injection at the previously planned dosing interval."
                         }
                     },
                     {

@@ -9,11 +9,7 @@
             {
                 "maxDays": 89,
                 "guidance": {
-                    "idealSteps": "Please refer to the early dosing guidance. The Trinza injection is not yet due or overdue.",
-                    "pragmaticVariations": [
-                        "See early dosing guidance section."
-                    ],
-                    "providerNotification": "No provider notification needed."
+                    "idealSteps": "Please refer to the early dosing guidance. The Trinza injection is not yet due or overdue."
                 }
             },
             {

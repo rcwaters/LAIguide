@@ -48,7 +48,7 @@ function resolveLateTier(tiers: LateTier[], daysSince: number, dose?: string): G
         return tier.guidance;
     } catch (err) {
         console.error('[resolveLateTier] Failed to resolve tier for daysSince=%d dose=%s:', daysSince, dose, err);
-        return { idealSteps: '', providerNotification: '' };
+        return { idealSteps: '' };
     }
 }
 
@@ -128,7 +128,7 @@ function buildCoreDef(json: any): CoreDef {
         case 'aristada': {
             const notDueBeforeDays = lg['notDueBeforeDays'] as number;
             const notDueMessage    = lg['notDueMessage']    as string;
-            const doseConfigs = (lg['doseConfigs'] as { dose: string; tiers: { maxDays: number | null; supplementation: string; providerNotification: string }[] }[])
+            const doseConfigs = (lg['doseConfigs'] as { dose: string; tiers: { maxDays: number | null; supplementation?: string; providerNotification?: string }[] }[])
                 .map(dc => ({ dose: dc.dose, tiers: dc.tiers.map(t => ({ maxDays: days(t.maxDays), supplementation: t.supplementation, providerNotification: t.providerNotification })) }));
             return { ...base, getLateGuidance: ({ daysSince, dose }): SupplementalGuidanceResult => {
                 if (daysSince! < notDueBeforeDays) return { notDue: true, message: notDueMessage };

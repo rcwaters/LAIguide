@@ -6,12 +6,10 @@
     "lateGuidance": {
         "kind": "abilify",
         "notDueGuidance": {
-            "idealSteps": "The Abilify Maintena injection is not due. Please consult guidance on early dosing.",
-            "providerNotification": "No provider notification needed."
+            "idealSteps": "The Abilify Maintena injection is not due. Please consult guidance on early dosing."
         },
         "routineGuidance": {
-            "idealSteps": "(1) Administer usual Abilify Maintena monthly dose\n\n(2) Arrange for next usual monthly dose in 4 weeks",
-            "providerNotification": "No need"
+            "idealSteps": "(1) Administer usual Abilify Maintena monthly dose\n\n(2) Arrange for next usual monthly dose in 4 weeks"
         },
         "reinitiateGuidance": {
             "idealSteps": "Re-initiate:\n\n(1) Administer usual Abilify Maintena monthly dose\n\n(2) Notify patient of the options recommended for reinitiation: either (a) receive a 2nd Abilify Maintena dose at the same time as the first (in step 1) or within days, or (b) resume oral aripiprazole (10-20 mg) for 14 days",

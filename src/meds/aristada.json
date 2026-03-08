@@ -12,9 +12,7 @@
                 "dose": "441",
                 "tiers": [
                     {
-                        "maxDays": 42,
-                        "supplementation": "No supplementation required",
-                        "providerNotification": "No need"
+                        "maxDays": 42
                     },
                     {
                         "maxDays": 49,
@@ -32,9 +30,7 @@
                 "dose": "662",
                 "tiers": [
                     {
-                        "maxDays": 56,
-                        "supplementation": "No supplementation required",
-                        "providerNotification": "No need"
+                        "maxDays": 56
                     },
                     {
                         "maxDays": 84,
@@ -52,9 +48,7 @@
                 "dose": "882",
                 "tiers": [
                     {
-                        "maxDays": 56,
-                        "supplementation": "No supplementation required",
-                        "providerNotification": "No need"
+                        "maxDays": 56
                     },
                     {
                         "maxDays": 84,
@@ -72,9 +66,7 @@
                 "dose": "1064",
                 "tiers": [
                     {
-                        "maxDays": 70,
-                        "supplementation": "No supplementation required",
-                        "providerNotification": "No need"
+                        "maxDays": 70
                     },
                     {
                         "maxDays": 84,

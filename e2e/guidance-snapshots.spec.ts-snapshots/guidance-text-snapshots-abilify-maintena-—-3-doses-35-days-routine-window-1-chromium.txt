@@ -8,4 +8,4 @@ Next steps:
 
 When to notify provider:
 
-No need
+No provider notification needed.

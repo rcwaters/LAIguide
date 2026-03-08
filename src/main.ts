@@ -3,6 +3,7 @@ import { MED_REGISTRY } from './medLoader';
 import type { MedicationKey, FormGroupSpec, FieldSpec } from './interfaces/med';
 import type { SubmitContext, GuidanceResult, SupplementalGuidanceResult, CategoricalGuidanceResult } from './interfaces/guidance';
 import { md, daysSinceDate, formatDate } from './utils';
+import { NO_PROVIDER_NOTIFICATION, NO_SUPPLEMENTATION } from './constants';
 
 // ─── Form Field Visibility ────────────────────────────────────────────────────
 
@@ -181,7 +182,7 @@ function threePartGuidance(guidance: GuidanceResult): string {
         </div>${pragmaticBlock}
         <div class="guidance-content">
             <h3 class="guidance-heading">When to notify provider:</h3>
-            <div class="guidance-text">${md(guidance.providerNotification)}</div>
+            <div class="guidance-text">${md(guidance.providerNotification ?? NO_PROVIDER_NOTIFICATION)}</div>
         </div>`;
 }
 
@@ -296,11 +297,11 @@ function supplementationBody(guidance: SupplementalGuidanceResult): string {
             </div>
             <div class="guidance-content">
                 <h3 class="guidance-heading">Recommended supplementation:</h3>
-                <div class="guidance-text">${md(guidance.supplementation)}</div>
+                <div class="guidance-text">${md(guidance.supplementation ?? NO_SUPPLEMENTATION)}</div>
             </div>
             <div class="guidance-content">
                 <h3 class="guidance-heading">When to notify provider:</h3>
-                <div class="guidance-text">${md(guidance.providerNotification)}</div>
+                <div class="guidance-text">${md(guidance.providerNotification ?? NO_PROVIDER_NOTIFICATION)}</div>
             </div>`;
 }
 // ─── Form Initialisation ──────────────────────────────────────────────────────

@@ -186,7 +186,7 @@ describe('getInvegaMaintenanceGuidance', () => {
         (['156-or-less', '234'] as const).forEach(dose => {
             const r = getInvegaMaintenanceGuidance(35, dose);
             expect(r.idealSteps).toContain('4 weeks later');
-            expect(r.providerNotification).toContain('No need');
+            expect(r.providerNotification).toBeUndefined();
         });
     });
 
@@ -294,7 +294,7 @@ describe('getAbilifyMaintenaGuidance', () => {
     it('1-2 doses, 4–5 weeks: routine administration', () => {
         const r = getAbilifyMaintenaGuidance(5, '1-2');
         expect(r.idealSteps).toContain('usual Abilify Maintena monthly dose');
-        expect(r.providerNotification).toContain('No need');
+        expect(r.providerNotification).toBeUndefined();
     });
 
     it('1-2 doses, 6+ weeks: reinitiation required', () => {
@@ -306,7 +306,7 @@ describe('getAbilifyMaintenaGuidance', () => {
     it('3+ doses, 4–6 weeks: routine administration', () => {
         const r = getAbilifyMaintenaGuidance(6, '3+');
         expect(r.idealSteps).toContain('usual Abilify Maintena monthly dose');
-        expect(r.providerNotification).toContain('No need');
+        expect(r.providerNotification).toBeUndefined();
     });
 
     it('3+ doses, 7+ weeks: reinitiation required', () => {
@@ -326,7 +326,7 @@ describe('getAristadaGuidance', () => {
         it('29–42 days: no supplementation', () => {
             const r = getAristadaGuidance(35, '441');
             expect(r.notDue).toBe(false);
-            if (!r.notDue) expect(r.supplementation).toContain('No supplementation');
+            if (!r.notDue) expect(r.supplementation).toBeUndefined();
         });
 
         it('43–49 days: 7-day oral or Initio', () => {
@@ -346,10 +346,10 @@ describe('getAristadaGuidance', () => {
             expect(getAristadaGuidance(27, '441').notDue).toBe(true);
             // day 28 → no supplementation (maxDays:42)
             const r28 = getAristadaGuidance(28, '441'); expect(r28.notDue).toBe(false);
-            if (!r28.notDue) expect(r28.supplementation).toContain('No supplementation');
+            if (!r28.notDue) expect(r28.supplementation).toBeUndefined();
             // day 42 → no supplementation (still maxDays:42)
             const r42 = getAristadaGuidance(42, '441'); expect(r42.notDue).toBe(false);
-            if (!r42.notDue) expect(r42.supplementation).toContain('No supplementation');
+            if (!r42.notDue) expect(r42.supplementation).toBeUndefined();
             // day 43 → 7-day supplementation (maxDays:49)
             const r43 = getAristadaGuidance(43, '441'); expect(r43.notDue).toBe(false);
             if (!r43.notDue) expect(r43.supplementation).toContain('7 days');
@@ -366,7 +366,7 @@ describe('getAristadaGuidance', () => {
         it('29–56 days: no supplementation', () => {
             const r = getAristadaGuidance(50, '662');
             expect(r.notDue).toBe(false);
-            if (!r.notDue) expect(r.supplementation).toContain('No supplementation');
+            if (!r.notDue) expect(r.supplementation).toBeUndefined();
         });
 
         it('57–84 days: 7-day oral or Initio', () => {
@@ -384,7 +384,7 @@ describe('getAristadaGuidance', () => {
         it('exact tier boundaries (not-due: <28; maxDays: 56, 84, Infinity)', () => {
             // day 56 → no supplementation (maxDays:56)
             const r56 = getAristadaGuidance(56, '662'); expect(r56.notDue).toBe(false);
-            if (!r56.notDue) expect(r56.supplementation).toContain('No supplementation');
+            if (!r56.notDue) expect(r56.supplementation).toBeUndefined();
             // day 57 → 7-day supplementation (maxDays:84)
             const r57 = getAristadaGuidance(57, '662'); expect(r57.notDue).toBe(false);
             if (!r57.notDue) expect(r57.supplementation).toContain('7 days');
@@ -401,7 +401,7 @@ describe('getAristadaGuidance', () => {
         it('29–56 days: no supplementation', () => {
             const r = getAristadaGuidance(50, '882');
             expect(r.notDue).toBe(false);
-            if (!r.notDue) expect(r.supplementation).toContain('No supplementation');
+            if (!r.notDue) expect(r.supplementation).toBeUndefined();
         });
 
         it('85+ days: 21-day oral or Initio', () => {
@@ -413,7 +413,7 @@ describe('getAristadaGuidance', () => {
         it('exact tier boundaries (identical to 662: maxDays 56, 84, Infinity)', () => {
             // day 56 → no supplementation (maxDays:56)
             const r56 = getAristadaGuidance(56, '882'); expect(r56.notDue).toBe(false);
-            if (!r56.notDue) expect(r56.supplementation).toContain('No supplementation');
+            if (!r56.notDue) expect(r56.supplementation).toBeUndefined();
             // day 57 → 7-day supplementation (maxDays:84)
             const r57 = getAristadaGuidance(57, '882'); expect(r57.notDue).toBe(false);
             if (!r57.notDue) expect(r57.supplementation).toContain('7 days');
@@ -430,7 +430,7 @@ describe('getAristadaGuidance', () => {
         it('29–70 days: no supplementation', () => {
             const r = getAristadaGuidance(60, '1064');
             expect(r.notDue).toBe(false);
-            if (!r.notDue) expect(r.supplementation).toContain('No supplementation');
+            if (!r.notDue) expect(r.supplementation).toBeUndefined();
         });
 
         it('71–84 days: 7-day oral or Initio', () => {
@@ -448,7 +448,7 @@ describe('getAristadaGuidance', () => {
         it('exact tier boundaries (not-due: <28; maxDays: 70, 84, Infinity)', () => {
             // day 70 → no supplementation (maxDays:70)
             const r70 = getAristadaGuidance(70, '1064'); expect(r70.notDue).toBe(false);
-            if (!r70.notDue) expect(r70.supplementation).toContain('No supplementation');
+            if (!r70.notDue) expect(r70.supplementation).toBeUndefined();
             // day 71 → 7-day supplementation (maxDays:84)
             const r71 = getAristadaGuidance(71, '1064'); expect(r71.notDue).toBe(false);
             if (!r71.notDue) expect(r71.supplementation).toContain('7 days');

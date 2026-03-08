@@ -3,9 +3,10 @@
 /** Standard three-part guidance returned by most late-injection functions. */
 export interface GuidanceResult {
     idealSteps: string;
-    /** Omit or leave empty when there are no meaningful pragmatic variations. */
+    /** Omit when there are no meaningful pragmatic variations. */
     pragmaticVariations?: string[];
-    providerNotification: string;
+    /** Omit when no provider notification is needed; defaults to "No provider notification needed." */
+    providerNotification?: string;
 }
 
 /**
@@ -20,7 +21,7 @@ export type CategoricalGuidanceResult = 'early' | 'on-time' | 'consult';
  */
 export type SupplementalGuidanceResult =
     | { notDue: true;  message: string }
-    | { notDue: false; supplementation: string; providerNotification: string };
+    | { notDue: false; supplementation?: string; providerNotification?: string };
 
 // ─── Late Guidance Tier Types ─────────────────────────────────────────────────
 
