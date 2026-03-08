@@ -3,7 +3,8 @@
 /** Standard three-part guidance returned by most late-injection functions. */
 export interface GuidanceResult {
     idealSteps: string;
-    pragmaticVariations: string;
+    /** Omit or leave empty when there are no meaningful pragmatic variations. */
+    pragmaticVariations?: string[];
     providerNotification: string;
 }
 

@@ -167,13 +167,13 @@ function infoRow(label: string, value: string): string {
 }
 
 function threePartGuidance(guidance: GuidanceResult): string {
-    const isSame = /^same\.?$/i.test(guidance.pragmaticVariations.trim());
-    const idealTitle = isSame ? 'Next steps:' : 'Ideal steps (if possible):';
-    const pragmaticBlock = isSame ? '' : `
+    const hasPragmatic = !!guidance.pragmaticVariations?.length;
+    const idealTitle = hasPragmatic ? 'Ideal steps (if possible):' : 'Next steps:';
+    const pragmaticBlock = hasPragmatic ? `
         <div class="guidance-content">
             <h3 class="guidance-heading">Acceptable pragmatic variations (if ideal is not possible):</h3>
-            <div class="guidance-text">${md(guidance.pragmaticVariations)}</div>
-        </div>`;
+            <div class="guidance-text">${guidance.pragmaticVariations!.map(v => md(v)).join('')}</div>
+        </div>` : '';
     return `
         <div class="guidance-content">
             <h3 class="guidance-heading">${idealTitle}</h3>

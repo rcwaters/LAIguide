@@ -162,12 +162,16 @@ describe('getInvegaInitiationGuidance', () => {
         expect(r365.providerNotification).toContain('Before any injection');
     });
 
-    it('has all three required fields', () => {
+    it('has all required fields', () => {
         [0, 20, 35, 100, 200].forEach(d => {
             const r = getInvegaInitiationGuidance(d);
             expect(r).toHaveProperty('idealSteps');
-            expect(r).toHaveProperty('pragmaticVariations');
             expect(r).toHaveProperty('providerNotification');
+            // pragmaticVariations is optional — present only when non-empty
+            if (r.pragmaticVariations !== undefined) {
+                expect(Array.isArray(r.pragmaticVariations)).toBe(true);
+                expect(r.pragmaticVariations.length).toBeGreaterThan(0);
+            }
         });
     });
 });

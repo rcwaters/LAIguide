@@ -13,7 +13,6 @@
                         "maxDays": 20,
                         "guidance": {
                             "idealSteps": "Vivitrol is not yet overdue. Please consult the early administration guidance (no sooner than 3 weeks after the last injection).",
-                            "pragmaticVariations": "Same.",
                             "providerNotification": "No provider notification needed."
                         }
                     },
@@ -21,7 +20,6 @@
                         "maxDays": 27,
                         "guidance": {
                             "idealSteps": "**Administer Vivitrol 380 mg IM** as long as the patient meets criteria for \"minimal or no fentanyl dependence\". No UDS required at this interval.\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\n*If there is ongoing active fentanyl or other unregulated opioid use, discuss a switch to buprenorphine for more robust OUD treatment.*",
-                            "pragmaticVariations": "Same.",
                             "providerNotification": "Do not administer and consult provider if patient does not meet criteria for \"minimal or no fentanyl dependence\"."
                         }
                     },
@@ -29,7 +27,6 @@
                         "maxDays": 34,
                         "guidance": {
                             "idealSteps": "First, assess fentanyl dependence using the criteria below — if not met, do **NOT** administer and consult provider.\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\n**If NO intentional fentanyl use reported:** Administer Vivitrol (no UDS needed), provided patient meets criteria above.\n\n**If intentional fentanyl use IS reported:** Obtain a point-of-care UDS (document in chasers):\n\n- UDS **Negative** → Administer Vivitrol (if patient meets criteria above).\n\n- UDS **Positive** → Consult provider. If history truly confirms no/minimal withdrawal and no significant fentanyl effects, may administer or consider naloxone challenge.",
-                            "pragmaticVariations": "Same.",
                             "providerNotification": "Consult provider if UDS positive, or if patient does not meet \"minimal or no fentanyl dependence\" criteria."
                         }
                     },
@@ -37,7 +34,6 @@
                         "maxDays": 55,
                         "guidance": {
                             "idealSteps": "First, assess fentanyl dependence using the criteria below — if not met, do **NOT** administer and consult provider.\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\n**Obtain a point-of-care UDS** (consult provider if unable to perform UDS):\n\n- UDS **Negative** → Administer Vivitrol (if patient meets criteria above).\n\n- UDS **Positive** → Do NOT administer. Further discussion needed on degree of opioid dependence. Consult provider.",
-                            "pragmaticVariations": "Same.",
                             "providerNotification": "Consult provider if unable to obtain UDS, if UDS is positive, or if patient does not meet \"minimal or no fentanyl dependence\" criteria."
                         }
                     },
@@ -45,7 +41,6 @@
                         "maxDays": null,
                         "guidance": {
                             "idealSteps": "**Consult provider before administering Vivitrol.** The injection is more than 8 weeks overdue. Provider guidance is required before proceeding.",
-                            "pragmaticVariations": "Same.",
                             "providerNotification": "Consult provider before any injection."
                         }
                     }
@@ -58,7 +53,6 @@
                         "maxDays": 20,
                         "guidance": {
                             "idealSteps": "Vivitrol is not yet overdue. Please consult the early administration guidance (no sooner than 3 weeks after the last injection).",
-                            "pragmaticVariations": "Same.",
                             "providerNotification": "No provider notification needed."
                         }
                     },
@@ -66,7 +60,6 @@
                         "maxDays": 34,
                         "guidance": {
                             "idealSteps": "**Administer Vivitrol 380 mg IM** as long as the patient has no intentional daily use of opioids. No UDS required at this interval.\n\nIf there is regular opioid use, do **NOT** administer — consult provider.",
-                            "pragmaticVariations": "Same.",
                             "providerNotification": "Consult provider if patient has regular opioid use."
                         }
                     },
@@ -74,7 +67,6 @@
                         "maxDays": 41,
                         "guidance": {
                             "idealSteps": "Obtain a point-of-care UDS unless you have strong confidence the patient has not used opioids (document in chasers).\n\n- UDS **Negative** → Administer Vivitrol (if patient meets criteria for minimal/no fentanyl dependence).\n\n- UDS **Positive** → Consult provider. If history truly confirms no/minimal withdrawal, may administer or consider naloxone challenge.\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD",
-                            "pragmaticVariations": "Same.",
                             "providerNotification": "Consult provider if UDS positive or if there is concern about opioid dependence."
                         }
                     },
@@ -82,7 +74,6 @@
                         "maxDays": 55,
                         "guidance": {
                             "idealSteps": "**Obtain a point-of-care UDS** (consult provider if unable).\n\n- UDS **Negative** → Administer Vivitrol (if patient meets criteria for minimal/no fentanyl dependence).\n\n- UDS **Positive** → Do NOT administer. Consult provider.\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD",
-                            "pragmaticVariations": "Same.",
                             "providerNotification": "Consult provider if unable to obtain UDS, if UDS is positive, or if there is concern about opioid dependence."
                         }
                     },
@@ -90,7 +81,6 @@
                         "maxDays": null,
                         "guidance": {
                             "idealSteps": "**Consult provider before administering Vivitrol.** The injection is more than 8 weeks overdue. Provider guidance is required before proceeding.",
-                            "pragmaticVariations": "Same.",
                             "providerNotification": "Consult provider before any injection."
                         }
                     }

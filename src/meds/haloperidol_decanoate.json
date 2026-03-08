@@ -14,7 +14,9 @@
                         "maxDays": 84,
                         "guidance": {
                             "idealSteps": "(1) Administer usual haloperidol decanoate injection **if the dose is 200 mg or less**.\n\n> If the dose is greater than 200 mg, consult provider *before* administering.\n\n(2) If symptoms of psychosis have returned or worsened, recommend oral haloperidol supplementation (consult provider for order).\n\n(3) Schedule a check-in with patient in **6–7 days** (near peak dose) to assess for haloperidol-related adverse effects.",
-                            "pragmaticVariations": "Same, no change from ideal steps.",
+                            "pragmaticVariations": [
+                                "Same, no change from ideal steps."
+                            ],
                             "providerNotification": "**Pre-injection:** Consult provider only if haloperidol decanoate dose is greater than 200 mg.\n\n**Post-injection:** Notify provider of the situation and request an order for oral supplementation if needed (returned or worsened psychosis symptoms)."
                         }
                     },
@@ -22,7 +24,6 @@
                         "maxDays": null,
                         "guidance": {
                             "idealSteps": "Do not administer. Reinitiation is required. **Consult provider BEFORE any injection.**",
-                            "pragmaticVariations": "Same.",
                             "providerNotification": "**Before any injection:** Consult provider in all cases."
                         }
                     }
@@ -35,7 +36,6 @@
                         "maxDays": 41,
                         "guidance": {
                             "idealSteps": "(1) Administer usual haloperidol decanoate injection.\n\n(2) Arrange for next injection in 4 weeks.",
-                            "pragmaticVariations": "Same.",
                             "providerNotification": "No need."
                         }
                     },
@@ -43,7 +43,9 @@
                         "maxDays": 84,
                         "guidance": {
                             "idealSteps": "(1) Administer usual haloperidol decanoate injection **if the dose is 200 mg or less**.\n\n> If the dose is greater than 200 mg, consult provider *before* administering.\n\n(2) If symptoms of psychosis have returned or worsened, recommend oral haloperidol supplementation (consult provider for order).\n\n(3) Schedule a check-in with patient in **6–7 days** (near peak dose) to assess for haloperidol-related adverse effects.",
-                            "pragmaticVariations": "Same, no change from ideal steps.",
+                            "pragmaticVariations": [
+                                "Same, no change from ideal steps."
+                            ],
                             "providerNotification": "**Pre-injection:** Consult provider only if haloperidol decanoate dose is greater than 200 mg.\n\n**Post-injection:** Notify provider of the situation and request an order for oral supplementation if needed (returned or worsened psychosis symptoms)."
                         }
                     },
@@ -51,7 +53,6 @@
                         "maxDays": null,
                         "guidance": {
                             "idealSteps": "Do not administer. Reinitiation is required. **Consult provider BEFORE any injection.**",
-                            "pragmaticVariations": "Same.",
                             "providerNotification": "**Before any injection:** Consult provider in all cases."
                         }
                     }

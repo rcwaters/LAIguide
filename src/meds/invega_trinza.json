@@ -10,7 +10,9 @@
                 "maxDays": 89,
                 "guidance": {
                     "idealSteps": "Please refer to the early dosing guidance. The Trinza injection is not yet due or overdue.",
-                    "pragmaticVariations": "See early dosing guidance section.",
+                    "pragmaticVariations": [
+                        "See early dosing guidance section."
+                    ],
                     "providerNotification": "No provider notification needed."
                 }
             },
@@ -18,7 +20,6 @@
                 "maxDays": 120,
                 "guidance": {
                     "idealSteps": "(1) Administer next usual Invega Trinza dose",
-                    "pragmaticVariations": "Same",
                     "providerNotification": "No need but notify full care team of importance of avoiding missed doses of Trinza."
                 }
             },
@@ -27,17 +28,23 @@
                 "guidanceByDose": {
                     "410": {
                         "idealSteps": "(1) Do not administer Trinza dose\n\n(2) Administer Invega **Sustenna** 117 mg\n\n(3) Arrange for a 2nd Invega Sustenna 117 mg injection 7 days after step 2.\n\n(4) Arrange for a 410 mg Invega **Trinza** injection 4 weeks after step 3.",
-                        "pragmaticVariations": "None. Consult provider prior to deviating from ideal steps.",
+                        "pragmaticVariations": [
+                            "None. Consult provider prior to deviating from ideal steps."
+                        ],
                         "providerNotification": "Consult provider in all cases."
                     },
                     "546": {
                         "idealSteps": "(1) Do not administer Trinza dose\n\n(2) Administer Invega **Sustenna** 156 mg\n\n(3) Arrange for a 2nd Invega Sustenna 156 mg injection 7 days after step 2.\n\n(4) Arrange for the usual Invega **Trinza** injection 4 weeks after step 3.",
-                        "pragmaticVariations": "None. Consult provider prior to deviating from ideal steps.",
+                        "pragmaticVariations": [
+                            "None. Consult provider prior to deviating from ideal steps."
+                        ],
                         "providerNotification": "Consult provider in all cases."
                     },
                     "819": {
                         "idealSteps": "(1) Do not administer Trinza dose\n\n(2) Administer Invega **Sustenna** 156 mg\n\n(3) Arrange for a 2nd Invega Sustenna 156 mg injection 7 days after step 2.\n\n(4) Arrange for the usual Invega **Trinza** injection 4 weeks after step 3.",
-                        "pragmaticVariations": "None. Consult provider prior to deviating from ideal steps.",
+                        "pragmaticVariations": [
+                            "None. Consult provider prior to deviating from ideal steps."
+                        ],
                         "providerNotification": "Consult provider in all cases."
                     }
                 }
@@ -46,7 +53,6 @@
                 "maxDays": null,
                 "guidance": {
                     "idealSteps": "Consult provider. Reinitiation is necessary",
-                    "pragmaticVariations": "Same",
                     "providerNotification": "Consult provider in all cases"
                 }
             }
