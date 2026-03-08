@@ -66,6 +66,21 @@ export type LateGuidanceOutput = GuidanceResult | SupplementalGuidanceResult | C
 
 export type RenderType = 'three-part' | 'categorical' | 'supplementation';
 
+/** Spec row used by buildStandardDef to auto-generate buildLateInfoRows */
+export type InfoRowSpec =
+    | { label: string; field: string; format: 'date' | 'option-label' }
+    | { label: string; format: 'days-weeks' | 'days-months' | 'days-weeks-months' };
+
+/** Auto-derives validateLate / buildLateParams / buildLateInfoRows from JSON data */
+export interface LateSpec {
+    requiredFields:     { id: string; message: string }[];
+    dateField:          string;
+    paramKey?:          'dose' | 'variant';
+    paramField?:        string;
+    includeWeeksSince?: boolean;
+    infoRows:           InfoRowSpec[];
+}
+
 /** A single option in a select field */
 export interface SelectOption { value: string; label: string; }
 
@@ -270,37 +285,66 @@ function withGroups(spec: FormGroupSpec[]) {
     };
 }
 
+// ─── Standard definition builder ────────────────────────────────────────────
+
+/**
+ * Reads optgroupLabel, renderType, formGroupsSpec, and lateSpec from a JSON
+ * file and returns everything except displayName, earlyGuidance, getLateGuidance.
+ * Used by all meds except invega_sustenna (which has custom sub-group branching).
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildStandardDef(json: any): Omit<MedDefinition, 'displayName' | 'earlyGuidance' | 'getLateGuidance'> {
+    const spec: LateSpec = json.lateSpec;
+    const optionsByField: Record<string, SelectOption[]> = Object.fromEntries(
+        (json.formGroupsSpec as FormGroupSpec[])
+            .flatMap((g: FormGroupSpec) => g.fields)
+            .filter((f: FieldSpec): f is Extract<FieldSpec, { type: 'select' }> => f.type === 'select')
+            .map((f: Extract<FieldSpec, { type: 'select' }>) => [f.id, f.options]),
+    );
+    return {
+        optgroupLabel: json.optgroupLabel as string,
+        renderType:    json.renderType    as RenderType,
+        ...withGroups(json.formGroupsSpec as FormGroupSpec[]),
+        validateLate: (ctx) => {
+            for (const { id, message } of spec.requiredFields) {
+                if (!ctx[id]) return message;
+            }
+            return null;
+        },
+        buildLateParams: (ctx) => {
+            const daysSince = daysSinceDate(ctx[spec.dateField]);
+            const params: LateGuidanceParams = { daysSince };
+            if (spec.paramKey && spec.paramField) params[spec.paramKey] = ctx[spec.paramField];
+            if (spec.includeWeeksSince) params.weeksSince = Math.floor(daysSince / 7);
+            return params;
+        },
+        buildLateInfoRows: (ctx, daysSince) => (spec.infoRows as InfoRowSpec[]).map((row): [string, string] => {
+            if ('field' in row) {
+                const raw = ctx[row.field];
+                const value = row.format === 'date'
+                    ? formatDate(raw)
+                    : (optionsByField[row.field]?.find(o => o.value === raw)?.label ?? raw);
+                return [row.label, value];
+            }
+            const time = row.format === 'days-months'
+                ? `${daysSince} days (approximately ${Math.floor(daysSince / 30.44)} months)`
+                : row.format === 'days-weeks-months'
+                    ? `${daysSince} days (${formatWeeksAndDays(daysSince)} or approximately ${Math.floor(daysSince / 30.44)} months)`
+                    : `${daysSince} days (${formatWeeksAndDays(daysSince)})`;
+            return [row.label, time];
+        }),
+    };
+}
+
 // ─── Registry ─────────────────────────────────────────────────────────────────
 
 export const MED_REGISTRY: Record<MedicationKey, MedDefinition> = {
 
     invega_sustenna: {
         ...buildInvegaSustenna(),
-        optgroupLabel: 'Antipsychotics - Currently Used at DESC',
-        ...withGroups([
-            {
-                groupId: 'invega-sustenna-options',
-                fields: [{ type: 'select', id: 'invega-type', label: 'Invega Sustenna Injection Type', placeholder: 'Select injection type...', onchange: 'handleInvegaTypeChange()', options: [
-                    { value: 'initiation',  label: 'Missed/delayed 2nd initiation (156 mg) injection' },
-                    { value: 'maintenance', label: 'Missed/delayed monthly maintenance injection' },
-                ] }],
-            },
-            {
-                groupId: 'first-injection-date',
-                fields: [{ type: 'date', id: 'first-injection', label: 'Date of first (234 mg) injection' }],
-            },
-            {
-                groupId: 'maintenance-fields',
-                fields: [
-                    { type: 'date',   id: 'last-maintenance', label: 'Date of last maintenance injection' },
-                    { type: 'select', id: 'maintenance-dose', label: 'Monthly maintenance injection dose', placeholder: 'Select dose...', options: [
-                        { value: '156-or-less', label: '156 mg or less' },
-                        { value: '234',         label: '234 mg' },
-                    ] },
-                ],
-            },
-        ]),
-        renderType: 'three-part',
+        optgroupLabel: invegaSustennaJson.optgroupLabel,
+        renderType:    invegaSustennaJson.renderType as RenderType,
+        ...withGroups(invegaSustennaJson.formGroupsSpec as unknown as FormGroupSpec[]),
         handleSubGroupChange: (invegaType, show, hide, clear) => {
             if (invegaType === 'initiation') {
                 show('first-injection-date');
@@ -348,285 +392,52 @@ export const MED_REGISTRY: Record<MedicationKey, MedDefinition> = {
 
     invega_trinza: {
         ...buildFromTiers(invegaTrinzaJson),
-        optgroupLabel: 'Antipsychotics - Currently Used at DESC',
-        ...withGroups([{
-            groupId: 'trinza-fields',
-            fields: [
-                { type: 'date',   id: 'last-trinza', label: 'Date of last Trinza injection' },
-                { type: 'select', id: 'trinza-dose',  label: 'Trinza injection dose', placeholder: 'Select dose...', options: [
-                    { value: '410', label: '410 mg' },
-                    { value: '546', label: '546 mg' },
-                    { value: '819', label: '819 mg' },
-                ] },
-            ],
-        }]),
-        renderType: 'three-part',
-        validateLate: (ctx) => {
-            if (!ctx['last-trinza']) return 'Please enter the date of last Trinza injection.';
-            if (!ctx['trinza-dose']) return 'Please select the Trinza injection dose.';
-            return null;
-        },
-        buildLateParams:   (ctx) => ({ daysSince: daysSinceDate(ctx['last-trinza']), dose: ctx['trinza-dose'] }),
-        buildLateInfoRows: (ctx, daysSince) => [
-            ['Date of last Trinza injection:',    formatDate(ctx['last-trinza'])],
-            ['Trinza injection dose:',            `${ctx['trinza-dose']} mg`],
-            ['Time since last Trinza injection:', `${daysSince} days (approximately ${Math.floor(daysSince / 30.44)} months)`],
-        ],
+        ...buildStandardDef(invegaTrinzaJson),
     },
 
     invega_hafyera: {
         ...buildInvegaHafyera(),
-        optgroupLabel: 'Antipsychotics - Currently Used at DESC',
-        ...withGroups([{
-            groupId: 'hafyera-fields',
-            fields: [{ type: 'date', id: 'last-hafyera', label: 'Date of last Hafyera injection' }],
-        }]),
-        renderType: 'categorical',
-        validateLate:      (ctx) => ctx['last-hafyera'] ? null : 'Please enter the date of last Hafyera injection.',
-        buildLateParams:   (ctx) => ({ daysSince: daysSinceDate(ctx['last-hafyera']) }),
-        buildLateInfoRows: (ctx, daysSince) => [
-            ['Date of last Hafyera injection:', formatDate(ctx['last-hafyera'])],
-            ['Time since last injection:',      `${daysSince} days (${formatWeeksAndDays(daysSince)} or approximately ${Math.floor(daysSince / 30.44)} months)`],
-        ],
+        ...buildStandardDef(invegaHafyeraJson),
     },
 
     abilify_maintena: {
         ...buildAbilifyMaintena(),
-        optgroupLabel: 'Antipsychotics - Currently Used at DESC',
-        ...withGroups([{
-            groupId: 'abilify-fields',
-            fields: [
-                { type: 'date',   id: 'last-abilify',  label: 'Date of last Abilify Maintena injection' },
-                { type: 'select', id: 'abilify-doses',  label: 'Number of prior consecutive monthly Abilify Maintena injections received', placeholder: 'Select number...', options: [
-                    { value: '1-2', label: '1 or 2 monthly doses' },
-                    { value: '3+',  label: '3 or more monthly doses' },
-                ] },
-            ],
-        }]),
-        renderType: 'three-part',
-        validateLate: (ctx) => {
-            if (!ctx['last-abilify'])  return 'Please enter the date of last Abilify Maintena injection.';
-            if (!ctx['abilify-doses']) return 'Please select the number of prior consecutive monthly injections.';
-            return null;
-        },
-        buildLateParams: (ctx) => {
-            const daysSince = daysSinceDate(ctx['last-abilify']);
-            return { daysSince, weeksSince: Math.floor(daysSince / 7), variant: ctx['abilify-doses'] };
-        },
-        buildLateInfoRows: (ctx, daysSince) => [
-            ['Date of last injection:',    formatDate(ctx['last-abilify'])],
-            ['Prior consecutive doses:',   ctx['abilify-doses'] === '1-2' ? '1 or 2 monthly doses' : '3 or more monthly doses'],
-            ['Time since last injection:', `${daysSince} days (${formatWeeksAndDays(daysSince)})`],
-        ],
+        ...buildStandardDef(abilifyMaintenaJson),
     },
 
     aristada: {
         ...buildAristada(),
-        optgroupLabel: 'Antipsychotics - Currently Used at DESC',
-        ...withGroups([{
-            groupId: 'aristada-fields',
-            fields: [
-                { type: 'date',   id: 'last-aristada', label: 'Date of last Aristada injection' },
-                { type: 'select', id: 'aristada-dose',  label: 'Dose of last Aristada injection', placeholder: 'Select dose...', options: [
-                    { value: '441',  label: '441 mg' },
-                    { value: '662',  label: '662 mg' },
-                    { value: '882',  label: '882 mg' },
-                    { value: '1064', label: '1064 mg' },
-                ] },
-            ],
-        }]),
-        renderType: 'supplementation',
-        validateLate: (ctx) => {
-            if (!ctx['last-aristada']) return 'Please enter the date of last Aristada injection.';
-            if (!ctx['aristada-dose']) return 'Please select the dose of last Aristada injection.';
-            return null;
-        },
-        buildLateParams:   (ctx) => ({ daysSince: daysSinceDate(ctx['last-aristada']), dose: ctx['aristada-dose'] }),
-        buildLateInfoRows: (ctx, daysSince) => [
-            ['Date of last injection:',    formatDate(ctx['last-aristada'])],
-            ['Dose of last injection:',    `${ctx['aristada-dose']} mg`],
-            ['Time since last injection:', `${daysSince} days (${formatWeeksAndDays(daysSince)})`],
-        ],
+        ...buildStandardDef(aristadaJson),
     },
 
     uzedy: {
         ...buildFromTiers(uzedyJson),
-        optgroupLabel: 'Antipsychotics - Currently Used at DESC',
-        ...withGroups([{
-            groupId: 'uzedy-fields',
-            fields: [
-                { type: 'date',   id: 'last-uzedy', label: 'Date of last Uzedy injection' },
-                { type: 'select', id: 'uzedy-dose',  label: 'Uzedy maintenance dose', placeholder: 'Select dose...', options: [
-                    { value: '150-or-less', label: '150 mg or less' },
-                    { value: '200-or-more', label: '200 mg or more' },
-                ] },
-            ],
-        }]),
-        renderType: 'three-part',
-        validateLate: (ctx) => {
-            if (!ctx['last-uzedy']) return 'Please enter the date of last Uzedy injection.';
-            if (!ctx['uzedy-dose']) return 'Please select the Uzedy maintenance dose.';
-            return null;
-        },
-        buildLateParams:   (ctx) => ({ daysSince: daysSinceDate(ctx['last-uzedy']), dose: ctx['uzedy-dose'] }),
-        buildLateInfoRows: (ctx, daysSince) => [
-            ['Date of last injection:',    formatDate(ctx['last-uzedy'])],
-            ['Uzedy maintenance dose:',    ctx['uzedy-dose'] === '150-or-less' ? '150 mg or less' : '200 mg or more'],
-            ['Time since last injection:', `${daysSince} days (${formatWeeksAndDays(daysSince)})`],
-        ],
+        ...buildStandardDef(uzedyJson),
     },
 
     haloperidol_decanoate: {
         ...buildFromPriorDoseGroups(haloperidolDecJson),
-        optgroupLabel: 'Antipsychotics - Currently Used at DESC',
-        ...withGroups([{
-            groupId: 'haloperidol-fields',
-            fields: [
-                { type: 'date',   id: 'last-haloperidol',       label: 'Date of last Haloperidol Decanoate injection' },
-                { type: 'select', id: 'haloperidol-prior-doses', label: 'Prior consecutive monthly Haloperidol Decanoate injections received', placeholder: 'Select number...', options: [
-                    { value: '1-3', label: '1\u20133 injections (steady state not yet likely achieved)' },
-                    { value: '4+',  label: '4 or more injections (steady state likely achieved)' },
-                ] },
-            ],
-        }]),
-        renderType: 'three-part',
-        validateLate: (ctx) => {
-            if (!ctx['last-haloperidol'])        return 'Please enter the date of last Haloperidol Decanoate injection.';
-            if (!ctx['haloperidol-prior-doses']) return 'Please select the number of prior Haloperidol Decanoate injections.';
-            return null;
-        },
-        buildLateParams:   (ctx) => ({ daysSince: daysSinceDate(ctx['last-haloperidol']), variant: ctx['haloperidol-prior-doses'] }),
-        buildLateInfoRows: (ctx, daysSince) => [
-            ['Date of last injection:',        formatDate(ctx['last-haloperidol'])],
-            ['Prior consecutive injections:',  ctx['haloperidol-prior-doses'] === '1-3' ? '1\u20133 monthly injections' : '4 or more monthly injections'],
-            ['Time since last injection:',     `${daysSince} days (${formatWeeksAndDays(daysSince)})`],
-        ],
+        ...buildStandardDef(haloperidolDecJson),
     },
 
     fluphenazine_decanoate: {
         ...buildFromPriorDoseGroups(fluphenazineDecJson),
-        optgroupLabel: 'Antipsychotics - Currently Used at DESC',
-        ...withGroups([{
-            groupId: 'fluphenazine-fields',
-            fields: [
-                { type: 'date',   id: 'last-fluphenazine',       label: 'Date of last Fluphenazine Decanoate injection' },
-                { type: 'select', id: 'fluphenazine-prior-doses', label: 'Prior consecutive Fluphenazine Decanoate injections received', placeholder: 'Select number...', options: [
-                    { value: '1-2', label: '1\u20132 injections (4\u20138 weeks into therapy; steady state not yet achieved)' },
-                    { value: '3+',  label: '3 or more injections (beyond ~6\u20138 weeks; steady state likely achieved)' },
-                ] },
-            ],
-        }]),
-        renderType: 'three-part',
-        validateLate: (ctx) => {
-            if (!ctx['last-fluphenazine'])        return 'Please enter the date of last Fluphenazine Decanoate injection.';
-            if (!ctx['fluphenazine-prior-doses']) return 'Please select the number of prior Fluphenazine Decanoate injections.';
-            return null;
-        },
-        buildLateParams:   (ctx) => ({ daysSince: daysSinceDate(ctx['last-fluphenazine']), variant: ctx['fluphenazine-prior-doses'] }),
-        buildLateInfoRows: (ctx, daysSince) => [
-            ['Date of last injection:',        formatDate(ctx['last-fluphenazine'])],
-            ['Prior consecutive injections:',  ctx['fluphenazine-prior-doses'] === '1-2' ? '1\u20132 injections' : '3 or more injections'],
-            ['Time since last injection:',     `${daysSince} days (${formatWeeksAndDays(daysSince)})`],
-        ],
+        ...buildStandardDef(fluphenazineDecJson),
     },
 
     vivitrol: {
         ...buildFromKeyedTiers(vivitrolJson),
-        optgroupLabel: 'Addiction Medicine',
-        ...withGroups([{
-            groupId: 'vivitrol-fields',
-            fields: [
-                { type: 'date',   id: 'last-vivitrol',      label: 'Date of last Vivitrol injection' },
-                { type: 'select', id: 'vivitrol-indication', label: 'Indication for Vivitrol', placeholder: 'Select indication...', options: [
-                    { value: 'oud',                 label: 'OUD treatment' },
-                    { value: 'overdose-prevention', label: 'Overdose prevention (not OUD)' },
-                ] },
-            ],
-        }]),
-        renderType: 'three-part',
-        validateLate: (ctx) => {
-            if (!ctx['last-vivitrol'])       return 'Please enter the date of last Vivitrol injection.';
-            if (!ctx['vivitrol-indication']) return 'Please select the Vivitrol indication.';
-            return null;
-        },
-        buildLateParams:   (ctx) => ({ daysSince: daysSinceDate(ctx['last-vivitrol']), variant: ctx['vivitrol-indication'] }),
-        buildLateInfoRows: (ctx, daysSince) => [
-            ['Indication:',                ctx['vivitrol-indication'] === 'oud' ? 'OUD treatment' : 'Overdose prevention (not OUD)'],
-            ['Date of last injection:',    formatDate(ctx['last-vivitrol'])],
-            ['Time since last injection:', `${daysSince} days (${formatWeeksAndDays(daysSince)})`],
-        ],
+        ...buildStandardDef(vivitrolJson),
     },
 
     sublocade: {
         ...buildFromKeyedTiers(sublocadeJson),
-        optgroupLabel: 'Addiction Medicine',
-        ...withGroups([{
-            groupId: 'sublocade-fields',
-            fields: [
-                { type: 'date',   id: 'last-sublocade', label: 'Date of last Sublocade injection' },
-                { type: 'select', id: 'sublocade-type',  label: 'Sublocade dose and history', placeholder: 'Select dose/history...', options: [
-                    { value: '100mg',             label: 'Sublocade 100 mg' },
-                    { value: '300mg-few',         label: 'Sublocade 300 mg \u2014 1 or 2 prior injections without gaps >6 weeks' },
-                    { value: '300mg-established', label: 'Sublocade 300 mg \u2014 3 or more prior injections without gaps >6 weeks' },
-                ] },
-            ],
-        }]),
-        renderType: 'three-part',
-        validateLate: (ctx) => {
-            if (!ctx['last-sublocade']) return 'Please enter the date of last Sublocade injection.';
-            if (!ctx['sublocade-type']) return 'Please select the Sublocade dose and history.';
-            return null;
-        },
-        buildLateParams:   (ctx) => ({ daysSince: daysSinceDate(ctx['last-sublocade']), variant: ctx['sublocade-type'] }),
-        buildLateInfoRows: (ctx, daysSince) => {
-            const typeLabels: Record<string, string> = {
-                '100mg':             'Sublocade 100 mg',
-                '300mg-few':         'Sublocade 300 mg (1\u20132 prior injections)',
-                '300mg-established': 'Sublocade 300 mg (3+ prior injections)',
-            };
-            return [
-                ['Dose/history:',              typeLabels[ctx['sublocade-type']] ?? ctx['sublocade-type']],
-                ['Date of last injection:',    formatDate(ctx['last-sublocade'])],
-                ['Time since last injection:', `${daysSince} days (${formatWeeksAndDays(daysSince)})`],
-            ];
-        },
+        ...buildStandardDef(sublocadeJson),
     },
 
     brixadi: {
         ...buildFromKeyedTiers(brixadiJson),
-        optgroupLabel: 'Addiction Medicine',
-        ...withGroups([{
-            groupId: 'brixadi-fields',
-            fields: [
-                { type: 'date',   id: 'last-brixadi', label: 'Date of last Brixadi injection' },
-                { type: 'select', id: 'brixadi-type',  label: 'Brixadi formulation and dose', placeholder: 'Select formulation/dose...', options: [
-                    { value: 'monthly-64',  label: 'Monthly 64 mg' },
-                    { value: 'monthly-96',  label: 'Monthly 96 mg' },
-                    { value: 'monthly-128', label: 'Monthly 128 mg' },
-                    { value: 'weekly',      label: 'Weekly 24 mg or 32 mg (high-dose)' },
-                ] },
-            ],
-        }]),
-        renderType: 'three-part',
-        validateLate: (ctx) => {
-            if (!ctx['last-brixadi']) return 'Please enter the date of last Brixadi injection.';
-            if (!ctx['brixadi-type']) return 'Please select the Brixadi formulation and dose.';
-            return null;
-        },
-        buildLateParams:   (ctx) => ({ daysSince: daysSinceDate(ctx['last-brixadi']), variant: ctx['brixadi-type'] }),
-        buildLateInfoRows: (ctx, daysSince) => {
-            const typeLabels: Record<string, string> = {
-                'monthly-64':  'Monthly 64 mg',
-                'monthly-96':  'Monthly 96 mg',
-                'monthly-128': 'Monthly 128 mg',
-                'weekly':      'Weekly 24 mg or 32 mg',
-            };
-            return [
-                ['Formulation/dose:',          typeLabels[ctx['brixadi-type']] ?? ctx['brixadi-type']],
-                ['Date of last injection:',    formatDate(ctx['last-brixadi'])],
-                ['Time since last injection:', `${daysSince} days (${formatWeeksAndDays(daysSince)})`],
-            ];
-        },
+        ...buildStandardDef(brixadiJson),
     },
 };
 

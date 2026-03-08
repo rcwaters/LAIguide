@@ -88,5 +88,30 @@
                 }
             }
         ]
-    }
+    },
+    "optgroupLabel": "Antipsychotics - Currently Used at DESC",
+    "renderType": "three-part",
+    "formGroupsSpec": [
+        {
+            "groupId": "invega-sustenna-options",
+            "fields": [{ "type": "select", "id": "invega-type", "label": "Invega Sustenna Injection Type", "placeholder": "Select injection type...", "onchange": "handleInvegaTypeChange()", "options": [
+                { "value": "initiation",  "label": "Missed/delayed 2nd initiation (156 mg) injection" },
+                { "value": "maintenance", "label": "Missed/delayed monthly maintenance injection" }
+            ]}]
+        },
+        {
+            "groupId": "first-injection-date",
+            "fields": [{ "type": "date", "id": "first-injection", "label": "Date of first (234 mg) injection" }]
+        },
+        {
+            "groupId": "maintenance-fields",
+            "fields": [
+                { "type": "date",   "id": "last-maintenance",  "label": "Date of last maintenance injection" },
+                { "type": "select", "id": "maintenance-dose",  "label": "Monthly maintenance injection dose", "placeholder": "Select dose...", "options": [
+                    { "value": "156-or-less", "label": "156 mg or less" },
+                    { "value": "234",         "label": "234 mg" }
+                ]}
+            ]
+        }
+    ]
 }

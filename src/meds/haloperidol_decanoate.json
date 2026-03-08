@@ -56,5 +56,33 @@
                 ]
             }
         ]
+    },
+    "optgroupLabel": "Antipsychotics - Currently Used at DESC",
+    "renderType": "three-part",
+    "formGroupsSpec": [
+        {
+            "groupId": "haloperidol-fields",
+            "fields": [
+                { "type": "date",   "id": "last-haloperidol",       "label": "Date of last Haloperidol Decanoate injection" },
+                { "type": "select", "id": "haloperidol-prior-doses", "label": "Prior consecutive monthly Haloperidol Decanoate injections received", "placeholder": "Select number...", "options": [
+                    { "value": "1-3", "label": "1\u20133 injections (steady state not yet likely achieved)" },
+                    { "value": "4+",  "label": "4 or more injections (steady state likely achieved)" }
+                ]}
+            ]
+        }
+    ],
+    "lateSpec": {
+        "requiredFields": [
+            { "id": "last-haloperidol",       "message": "Please enter the date of last Haloperidol Decanoate injection." },
+            { "id": "haloperidol-prior-doses", "message": "Please select the number of prior Haloperidol Decanoate injections." }
+        ],
+        "dateField": "last-haloperidol",
+        "paramKey": "variant",
+        "paramField": "haloperidol-prior-doses",
+        "infoRows": [
+            { "label": "Date of last injection:",        "field": "last-haloperidol",       "format": "date" },
+            { "label": "Prior consecutive injections:",  "field": "haloperidol-prior-doses", "format": "option-label" },
+            { "label": "Time since last injection:",     "format": "days-weeks" }
+        ]
     }
 }

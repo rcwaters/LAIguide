@@ -45,5 +45,33 @@
                 }
             }
         ]
+    },
+    "optgroupLabel": "Antipsychotics - Currently Used at DESC",
+    "renderType": "three-part",
+    "formGroupsSpec": [
+        {
+            "groupId": "uzedy-fields",
+            "fields": [
+                { "type": "date",   "id": "last-uzedy", "label": "Date of last Uzedy injection" },
+                { "type": "select", "id": "uzedy-dose",  "label": "Uzedy maintenance dose", "placeholder": "Select dose...", "options": [
+                    { "value": "150-or-less", "label": "150 mg or less" },
+                    { "value": "200-or-more", "label": "200 mg or more" }
+                ]}
+            ]
+        }
+    ],
+    "lateSpec": {
+        "requiredFields": [
+            { "id": "last-uzedy", "message": "Please enter the date of last Uzedy injection." },
+            { "id": "uzedy-dose", "message": "Please select the Uzedy maintenance dose." }
+        ],
+        "dateField": "last-uzedy",
+        "paramKey": "dose",
+        "paramField": "uzedy-dose",
+        "infoRows": [
+            { "label": "Date of last injection:",    "field": "last-uzedy", "format": "date" },
+            { "label": "Uzedy maintenance dose:",    "field": "uzedy-dose", "format": "option-label" },
+            { "label": "Time since last injection:", "format": "days-weeks" }
+        ]
     }
 }

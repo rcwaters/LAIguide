@@ -96,5 +96,33 @@
                 ]
             }
         ]
+    },
+    "optgroupLabel": "Addiction Medicine",
+    "renderType": "three-part",
+    "formGroupsSpec": [
+        {
+            "groupId": "vivitrol-fields",
+            "fields": [
+                { "type": "date",   "id": "last-vivitrol",      "label": "Date of last Vivitrol injection" },
+                { "type": "select", "id": "vivitrol-indication", "label": "Indication for Vivitrol", "placeholder": "Select indication...", "options": [
+                    { "value": "oud",                 "label": "OUD treatment" },
+                    { "value": "overdose-prevention", "label": "Overdose prevention (not OUD)" }
+                ]}
+            ]
+        }
+    ],
+    "lateSpec": {
+        "requiredFields": [
+            { "id": "last-vivitrol",       "message": "Please enter the date of last Vivitrol injection." },
+            { "id": "vivitrol-indication", "message": "Please select the Vivitrol indication." }
+        ],
+        "dateField": "last-vivitrol",
+        "paramKey": "variant",
+        "paramField": "vivitrol-indication",
+        "infoRows": [
+            { "label": "Indication:",                "field": "vivitrol-indication", "format": "option-label" },
+            { "label": "Date of last injection:",    "field": "last-vivitrol",       "format": "date" },
+            { "label": "Time since last injection:", "format": "days-weeks" }
+        ]
     }
 }

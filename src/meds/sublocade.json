@@ -144,5 +144,34 @@
                 ]
             }
         ]
+    },
+    "optgroupLabel": "Addiction Medicine",
+    "renderType": "three-part",
+    "formGroupsSpec": [
+        {
+            "groupId": "sublocade-fields",
+            "fields": [
+                { "type": "date",   "id": "last-sublocade", "label": "Date of last Sublocade injection" },
+                { "type": "select", "id": "sublocade-type",  "label": "Sublocade dose and history", "placeholder": "Select dose/history...", "options": [
+                    { "value": "100mg",             "label": "Sublocade 100 mg" },
+                    { "value": "300mg-few",         "label": "Sublocade 300 mg \u2014 1 or 2 prior injections without gaps >6 weeks" },
+                    { "value": "300mg-established", "label": "Sublocade 300 mg \u2014 3 or more prior injections without gaps >6 weeks" }
+                ]}
+            ]
+        }
+    ],
+    "lateSpec": {
+        "requiredFields": [
+            { "id": "last-sublocade", "message": "Please enter the date of last Sublocade injection." },
+            { "id": "sublocade-type", "message": "Please select the Sublocade dose and history." }
+        ],
+        "dateField": "last-sublocade",
+        "paramKey": "variant",
+        "paramField": "sublocade-type",
+        "infoRows": [
+            { "label": "Dose/history:",              "field": "sublocade-type",  "format": "option-label" },
+            { "label": "Date of last injection:",    "field": "last-sublocade",  "format": "date" },
+            { "label": "Time since last injection:", "format": "days-weeks" }
+        ]
     }
 }

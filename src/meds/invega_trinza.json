@@ -50,5 +50,34 @@
                 }
             }
         ]
+    },
+    "optgroupLabel": "Antipsychotics - Currently Used at DESC",
+    "renderType": "three-part",
+    "formGroupsSpec": [
+        {
+            "groupId": "trinza-fields",
+            "fields": [
+                { "type": "date",   "id": "last-trinza", "label": "Date of last Trinza injection" },
+                { "type": "select", "id": "trinza-dose",  "label": "Trinza injection dose", "placeholder": "Select dose...", "options": [
+                    { "value": "410", "label": "410 mg" },
+                    { "value": "546", "label": "546 mg" },
+                    { "value": "819", "label": "819 mg" }
+                ]}
+            ]
+        }
+    ],
+    "lateSpec": {
+        "requiredFields": [
+            { "id": "last-trinza", "message": "Please enter the date of last Trinza injection." },
+            { "id": "trinza-dose", "message": "Please select the Trinza injection dose." }
+        ],
+        "dateField": "last-trinza",
+        "paramKey": "dose",
+        "paramField": "trinza-dose",
+        "infoRows": [
+            { "label": "Date of last Trinza injection:",    "field": "last-trinza", "format": "date" },
+            { "label": "Trinza injection dose:",            "field": "trinza-dose", "format": "option-label" },
+            { "label": "Time since last Trinza injection:", "format": "days-months" }
+        ]
     }
 }

@@ -56,5 +56,33 @@
                 ]
             }
         ]
+    },
+    "optgroupLabel": "Antipsychotics - Currently Used at DESC",
+    "renderType": "three-part",
+    "formGroupsSpec": [
+        {
+            "groupId": "fluphenazine-fields",
+            "fields": [
+                { "type": "date",   "id": "last-fluphenazine",       "label": "Date of last Fluphenazine Decanoate injection" },
+                { "type": "select", "id": "fluphenazine-prior-doses", "label": "Prior consecutive Fluphenazine Decanoate injections received", "placeholder": "Select number...", "options": [
+                    { "value": "1-2", "label": "1\u20132 injections (4\u20138 weeks into therapy; steady state not yet achieved)" },
+                    { "value": "3+",  "label": "3 or more injections (beyond ~6\u20138 weeks; steady state likely achieved)" }
+                ]}
+            ]
+        }
+    ],
+    "lateSpec": {
+        "requiredFields": [
+            { "id": "last-fluphenazine",       "message": "Please enter the date of last Fluphenazine Decanoate injection." },
+            { "id": "fluphenazine-prior-doses", "message": "Please select the number of prior Fluphenazine Decanoate injections." }
+        ],
+        "dateField": "last-fluphenazine",
+        "paramKey": "variant",
+        "paramField": "fluphenazine-prior-doses",
+        "infoRows": [
+            { "label": "Date of last injection:",        "field": "last-fluphenazine",       "format": "date" },
+            { "label": "Prior consecutive injections:",  "field": "fluphenazine-prior-doses", "format": "option-label" },
+            { "label": "Time since last injection:",     "format": "days-weeks" }
+        ]
     }
 }
