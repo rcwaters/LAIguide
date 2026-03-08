@@ -101,7 +101,10 @@ describe('handleGuidanceTypeChange', () => {
 // ─── handleInvegaTypeChange ───────────────────────────────────────────────────
 
 describe('handleInvegaTypeChange', () => {
-    beforeEach(setupDOM);
+    beforeEach(() => {
+        setupDOM();
+        setField('medication', 'invega_sustenna');
+    });
 
     test('initiation → shows first-injection-date, hides maintenance-fields', () => {
         setField('invega-type', 'initiation');

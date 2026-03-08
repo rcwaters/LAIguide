@@ -2,17 +2,43 @@ import { describe, it, expect } from 'vitest';
 import {
     getMedicationDisplayName,
     getEarlyGuidanceContent,
+    getLateGuidance,
     formatWeeksAndDays,
     daysSinceDate,
     formatDate,
-    getInvegaInitiationGuidance,
-    getInvegaMaintenanceGuidance,
-    getInvegaTrinzaGuidance,
-    getInvegaHafyeraGuidanceCategory,
-    getAbilifyMaintenaGuidance,
-    getAristadaGuidance,
-    getUzedyGuidance,
+    type GuidanceResult,
+    type AristadaGuidanceResult,
+    type HafyeraCategory,
+    type MaintenanceDose,
+    type TrinzaDose,
+    type AbilifyDoses,
+    type AristadaDose,
+    type UzedyDose,
 } from '../logic';
+
+// Local wrappers that preserve the original test call signatures
+function getInvegaInitiationGuidance(days: number): GuidanceResult {
+    return getLateGuidance('invega_sustenna', { daysSince: days, variant: 'initiation' }) as GuidanceResult;
+}
+function getInvegaMaintenanceGuidance(days: number, dose: MaintenanceDose): GuidanceResult {
+    return getLateGuidance('invega_sustenna', { daysSince: days, variant: 'maintenance', dose }) as GuidanceResult;
+}
+function getInvegaTrinzaGuidance(days: number, dose: TrinzaDose): GuidanceResult {
+    return getLateGuidance('invega_trinza', { daysSince: days, dose }) as GuidanceResult;
+}
+function getInvegaHafyeraGuidanceCategory(days: number): HafyeraCategory {
+    return getLateGuidance('invega_hafyera', { daysSince: days }) as HafyeraCategory;
+}
+function getAbilifyMaintenaGuidance(weeks: number, doses: AbilifyDoses): GuidanceResult {
+    return getLateGuidance('abilify_maintena', { weeksSince: weeks, variant: doses }) as GuidanceResult;
+}
+function getAristadaGuidance(days: number, dose: AristadaDose): AristadaGuidanceResult {
+    return getLateGuidance('aristada', { daysSince: days, dose }) as AristadaGuidanceResult;
+}
+function getUzedyGuidance(days: number, dose: UzedyDose): GuidanceResult {
+    return getLateGuidance('uzedy', { daysSince: days, dose }) as GuidanceResult;
+}
+
 
 /** Returns a YYYY-MM-DD string for N days ago in local time. */
 function localDaysAgo(n: number): string {

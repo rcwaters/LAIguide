@@ -1,32 +1,12 @@
 import {
     getMedicationDisplayName,
     getEarlyGuidanceContent,
-    daysSinceDate,
-    formatDate,
-    formatWeeksAndDays,
-    getInvegaInitiationGuidance,
-    getInvegaMaintenanceGuidance,
-    getInvegaTrinzaGuidance,
-    getInvegaHafyeraGuidanceCategory,
-    getAbilifyMaintenaGuidance,
-    getAristadaGuidance,
-    getUzedyGuidance,
-    getHaloperidolGuidance,
-    getFluphenazineGuidance,
-    getVivitrolGuidance,
-    getSublocadeGuidance,
-    getBrixadiGuidance,
+    MED_REGISTRY,
+    type SubmitContext,
+    type MedicationKey,
     type GuidanceResult,
-    type MaintenanceDose,
-    type TrinzaDose,
-    type AbilifyDoses,
-    type AristadaDose,
-    type UzedyDose,
-    type HaloperidolPriorDoses,
-    type FluphenazinePriorDoses,
-    type VivitrolIndication,
-    type SublocadeType,
-    type BrixadiType,
+    type AristadaGuidanceResult,
+    type HafyeraCategory,
 } from './logic';
 
 // ─── Form Field Visibility ────────────────────────────────────────────────────
@@ -48,216 +28,68 @@ export function handleGuidanceTypeChange(): void {
     const medication   = val('medication');
     const guidanceType = val('guidance-type');
 
-    const conditionalGroups = [
-        'invega-sustenna-options', 'trinza-fields', 'hafyera-fields',
-        'abilify-fields', 'aristada-fields', 'uzedy-fields',
-        'haloperidol-fields', 'fluphenazine-fields', 'vivitrol-fields',
-        'sublocade-fields', 'brixadi-fields',
-    ];
-    conditionalGroups.forEach(hide);
+    // Hide all late-guidance field groups (and any associated sub-field groups)
+    Object.values(MED_REGISTRY).forEach(e => {
+        hide(e.lateFieldsGroup);
+        e.subFieldGroups?.forEach(hide);
+    });
 
-    const fieldsToClear = [
-        'invega-type', 'first-injection', 'last-maintenance', 'maintenance-dose',
-        'last-trinza', 'trinza-dose', 'last-hafyera', 'last-abilify', 'abilify-doses',
-        'last-aristada', 'aristada-dose', 'last-uzedy', 'uzedy-dose',
-        'last-haloperidol', 'haloperidol-prior-doses',
-        'last-fluphenazine', 'fluphenazine-prior-doses',
-        'last-vivitrol', 'vivitrol-indication',
-        'last-sublocade', 'sublocade-type',
-        'last-brixadi', 'brixadi-type',
-    ];
-    fieldsToClear.forEach(clear);
-    hide('first-injection-date');
-    hide('maintenance-fields');
+    Object.values(MED_REGISTRY).flatMap(e => e.formFieldIds).forEach(clear);
 
     if (guidanceType !== 'late') return;
 
-    const fieldMap: Record<string, string> = {
-        invega_sustenna:        'invega-sustenna-options',
-        invega_trinza:          'trinza-fields',
-        invega_hafyera:         'hafyera-fields',
-        abilify_maintena:       'abilify-fields',
-        aristada:               'aristada-fields',
-        uzedy:                  'uzedy-fields',
-        haloperidol_decanoate:  'haloperidol-fields',
-        fluphenazine_decanoate: 'fluphenazine-fields',
-        vivitrol:               'vivitrol-fields',
-        sublocade:              'sublocade-fields',
-        brixadi:                'brixadi-fields',
-    };
-
-    if (fieldMap[medication]) show(fieldMap[medication]);
+    const entry = MED_REGISTRY[medication as MedicationKey];
+    if (entry) show(entry.lateFieldsGroup);
 }
 
 export function handleInvegaTypeChange(): void {
-    const invegaType = val('invega-type');
-
-    if (invegaType === 'initiation') {
-        show('first-injection-date');
-        hide('maintenance-fields');
-        clear('last-maintenance');
-        clear('maintenance-dose');
-    } else if (invegaType === 'maintenance') {
-        hide('first-injection-date');
-        show('maintenance-fields');
-        clear('first-injection');
-    } else {
-        hide('first-injection-date');
-        hide('maintenance-fields');
-        clear('first-injection');
-        clear('last-maintenance');
-        clear('maintenance-dose');
-    }
-}
-
-// ─── Form Validation ──────────────────────────────────────────────────────────
-
-interface FormFields {
-    medication: string;
-    guidanceType: string;
-    invegaType: string;
-    firstInjectionDate: string;
-    lastMaintenanceDate: string;
-    maintenanceDose: string;
-    lastTrinzaDate: string;
-    trinzaDose: string;
-    lastHafyeraDate: string;
-    lastAbilifyDate: string;
-    abilifyDoses: string;
-    lastAristadaDate: string;
-    aristadaDose: string;
-    lastUzedyDate: string;
-    uzedyDose: string;
-    haloperidolDate: string;
-    haloperidolPriorDoses: string;
-    fluphenazineDate: string;
-    fluphenazinePriorDoses: string;
-    vivitrolDate: string;
-    vivitrolIndication: string;
-    sublocadeDate: string;
-    sublocadeType: string;
-    brixadiDate: string;
-    brixadiType: string;
-}
-
-function validateForm(f: FormFields): boolean {
-    if (!f.medication)   { alert('Please select a medication.');    return false; }
-    if (!f.guidanceType) { alert('Please select a guidance type.'); return false; }
-
-    if (f.medication === 'invega_sustenna' && f.guidanceType === 'late') {
-        if (!f.invegaType) { alert('Please select the Invega Sustenna injection type.'); return false; }
-        if (f.invegaType === 'initiation' && !f.firstInjectionDate) {
-            alert('Please enter the date of first (234 mg) injection.'); return false;
-        }
-        if (f.invegaType === 'maintenance') {
-            if (!f.lastMaintenanceDate) { alert('Please enter the date of last maintenance injection.'); return false; }
-            if (!f.maintenanceDose)     { alert('Please select the monthly maintenance injection dose.'); return false; }
-        }
-    }
-    if (f.medication === 'invega_trinza' && f.guidanceType === 'late') {
-        if (!f.lastTrinzaDate) { alert('Please enter the date of last Trinza injection.'); return false; }
-        if (!f.trinzaDose)     { alert('Please select the Trinza injection dose.'); return false; }
-    }
-    if (f.medication === 'invega_hafyera' && f.guidanceType === 'late') {
-        if (!f.lastHafyeraDate) { alert('Please enter the date of last Hafyera injection.'); return false; }
-    }
-    if (f.medication === 'abilify_maintena' && f.guidanceType === 'late') {
-        if (!f.lastAbilifyDate) { alert('Please enter the date of last Abilify Maintena injection.'); return false; }
-        if (!f.abilifyDoses)    { alert('Please select the number of prior consecutive monthly injections.'); return false; }
-    }
-    if (f.medication === 'aristada' && f.guidanceType === 'late') {
-        if (!f.lastAristadaDate) { alert('Please enter the date of last Aristada injection.'); return false; }
-        if (!f.aristadaDose)     { alert('Please select the dose of last Aristada injection.'); return false; }
-    }
-    if (f.medication === 'uzedy' && f.guidanceType === 'late') {
-        if (!f.lastUzedyDate) { alert('Please enter the date of last Uzedy injection.'); return false; }
-        if (!f.uzedyDose)     { alert('Please select the Uzedy maintenance dose.'); return false; }
-    }
-    if (f.medication === 'haloperidol_decanoate' && f.guidanceType === 'late') {
-        if (!f.haloperidolDate)       { alert('Please enter the date of last Haloperidol Decanoate injection.'); return false; }
-        if (!f.haloperidolPriorDoses) { alert('Please select the number of prior Haloperidol Decanoate injections.'); return false; }
-    }
-    if (f.medication === 'fluphenazine_decanoate' && f.guidanceType === 'late') {
-        if (!f.fluphenazineDate)       { alert('Please enter the date of last Fluphenazine Decanoate injection.'); return false; }
-        if (!f.fluphenazinePriorDoses) { alert('Please select the number of prior Fluphenazine Decanoate injections.'); return false; }
-    }
-    if (f.medication === 'vivitrol' && f.guidanceType === 'late') {
-        if (!f.vivitrolDate)       { alert('Please enter the date of last Vivitrol injection.'); return false; }
-        if (!f.vivitrolIndication) { alert('Please select the Vivitrol indication.'); return false; }
-    }
-    if (f.medication === 'sublocade' && f.guidanceType === 'late') {
-        if (!f.sublocadeDate) { alert('Please enter the date of last Sublocade injection.'); return false; }
-        if (!f.sublocadeType) { alert('Please select the Sublocade dose and history.'); return false; }
-    }
-    if (f.medication === 'brixadi' && f.guidanceType === 'late') {
-        if (!f.brixadiDate) { alert('Please enter the date of last Brixadi injection.'); return false; }
-        if (!f.brixadiType) { alert('Please select the Brixadi formulation and dose.'); return false; }
-    }
-    return true;
+    const entry = MED_REGISTRY[val('medication') as MedicationKey];
+    if (!entry?.subGroupSelectorId) return;
+    entry.handleSubGroupChange?.(val(entry.subGroupSelectorId), show, hide, clear);
 }
 
 // ─── Form Submit Handler ──────────────────────────────────────────────────────
 
 export function handleSubmit(): void {
-    const f: FormFields = {
-        medication:          val('medication'),
-        guidanceType:        val('guidance-type'),
-        invegaType:          val('invega-type'),
-        firstInjectionDate:  val('first-injection'),
-        lastMaintenanceDate: val('last-maintenance'),
-        maintenanceDose:     val('maintenance-dose'),
-        lastTrinzaDate:      val('last-trinza'),
-        trinzaDose:          val('trinza-dose'),
-        lastHafyeraDate:     val('last-hafyera'),
-        lastAbilifyDate:     val('last-abilify'),
-        abilifyDoses:        val('abilify-doses'),
-        lastAristadaDate:    val('last-aristada'),
-        aristadaDose:        val('aristada-dose'),
-        lastUzedyDate:       val('last-uzedy'),
-        uzedyDose:           val('uzedy-dose'),
-        haloperidolDate:       val('last-haloperidol'),
-        haloperidolPriorDoses: val('haloperidol-prior-doses'),
-        fluphenazineDate:      val('last-fluphenazine'),
-        fluphenazinePriorDoses: val('fluphenazine-prior-doses'),
-        vivitrolDate:          val('last-vivitrol'),
-        vivitrolIndication:    val('vivitrol-indication'),
-        sublocadeDate:         val('last-sublocade'),
-        sublocadeType:         val('sublocade-type'),
-        brixadiDate:           val('last-brixadi'),
-        brixadiType:           val('brixadi-type'),
-    };
+    const medication   = val('medication');
+    const guidanceType = val('guidance-type');
 
-    if (!validateForm(f)) return;
+    if (!medication)   { alert('Please select a medication.');    return; }
+    if (!guidanceType) { alert('Please select a guidance type.'); return; }
 
-    if (f.guidanceType === 'early') {
-        showEarlyGuidance(f.medication);
-    } else if (f.medication === 'invega_sustenna' && f.invegaType === 'initiation') {
-        showInvegaInitiationGuidance(f.firstInjectionDate);
-    } else if (f.medication === 'invega_sustenna' && f.invegaType === 'maintenance') {
-        showInvegaMaintenanceGuidance(f.lastMaintenanceDate, f.maintenanceDose as MaintenanceDose);
-    } else if (f.medication === 'invega_trinza') {
-        showInvegaTrinzaGuidance(f.lastTrinzaDate, f.trinzaDose as TrinzaDose);
-    } else if (f.medication === 'invega_hafyera') {
-        showInvegaHafyeraGuidance(f.lastHafyeraDate);
-    } else if (f.medication === 'abilify_maintena') {
-        showAbilifyMaintenaGuidance(f.lastAbilifyDate, f.abilifyDoses as AbilifyDoses);
-    } else if (f.medication === 'aristada') {
-        showAristadaGuidance(f.lastAristadaDate, f.aristadaDose as AristadaDose);
-    } else if (f.medication === 'uzedy') {
-        showUzedyGuidance(f.lastUzedyDate, f.uzedyDose as UzedyDose);
-    } else if (f.medication === 'haloperidol_decanoate') {
-        showHaloperidolGuidance(f.haloperidolDate, f.haloperidolPriorDoses as HaloperidolPriorDoses);
-    } else if (f.medication === 'fluphenazine_decanoate') {
-        showFluphenazineGuidance(f.fluphenazineDate, f.fluphenazinePriorDoses as FluphenazinePriorDoses);
-    } else if (f.medication === 'vivitrol') {
-        showVivitrolGuidance(f.vivitrolDate, f.vivitrolIndication as VivitrolIndication);
-    } else if (f.medication === 'sublocade') {
-        showSublocadeGuidance(f.sublocadeDate, f.sublocadeType as SublocadeType);
-    } else if (f.medication === 'brixadi') {
-        showBrixadiGuidance(f.brixadiDate, f.brixadiType as BrixadiType);
-    } else {
-        alert('Late/overdue guidance for this medication is coming soon!');
+    const ctx: SubmitContext = Object.fromEntries(
+        Object.values(MED_REGISTRY).flatMap(e => e.formFieldIds).map(id => [id, val(id)])
+    );
+
+    if (guidanceType === 'early') {
+        showEarlyGuidance(medication);
+        return;
     }
+
+    const entry = MED_REGISTRY[medication as MedicationKey];
+    if (!entry) { alert('Late/overdue guidance for this medication is coming soon!'); return; }
+
+    const validationErr = entry.validateLate(ctx);
+    if (validationErr) { alert(validationErr); return; }
+
+    const params    = entry.buildLateParams(ctx);
+    const guidance  = entry.getLateGuidance(params);
+    const daysSince = params.daysSince!;
+
+    const rows = infoRow('Medication:', getMedicationDisplayName(medication))
+               + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
+               + entry.buildLateInfoRows(ctx, daysSince).map(([label, value]) => infoRow(label, value)).join('');
+
+    let body: string;
+    if (entry.renderType === 'hafyera-category') {
+        body = hafyeraCategoryBody(guidance as HafyeraCategory);
+    } else if (entry.renderType === 'aristada') {
+        body = aristadaBody(guidance as AristadaGuidanceResult);
+    } else {
+        body = threePartGuidance(guidance as GuidanceResult);
+    }
+
+    injectGuidanceSection(rows, body);
 }
 
 // ─── Guidance Rendering Helpers ───────────────────────────────────────────────
@@ -320,239 +152,50 @@ function showEarlyGuidance(medication: string): void {
     injectGuidanceSection(rows, body);
 }
 
-function showInvegaInitiationGuidance(firstInjectionDate: string): void {
-    const days     = daysSinceDate(firstInjectionDate);
-    const guidance = getInvegaInitiationGuidance(days);
-
-    const rows = infoRow('Medication:', 'Invega Sustenna (paliperidone palmitate)')
-               + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
-               + infoRow('Injection Type:', 'Missed/delayed 2nd initiation (156 mg) injection')
-               + infoRow('Date of first (234 mg) injection:', formatDate(firstInjectionDate))
-               + infoRow('Time since first (234 mg) injection:', `${days} days (${formatWeeksAndDays(days)})`);
-
-    injectGuidanceSection(rows, threePartGuidance(guidance));
-}
-
-function showInvegaMaintenanceGuidance(lastMaintenanceDate: string, maintenanceDose: MaintenanceDose): void {
-    const days      = daysSinceDate(lastMaintenanceDate);
-    const guidance  = getInvegaMaintenanceGuidance(days, maintenanceDose);
-    const doseLabel = maintenanceDose === '156-or-less' ? '156 mg or less' : '234 mg';
-
-    const rows = infoRow('Medication:', 'Invega Sustenna (paliperidone palmitate)')
-               + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
-               + infoRow('Injection Type:', 'Missed/delayed monthly maintenance injection')
-               + infoRow('Date of last maintenance injection:', formatDate(lastMaintenanceDate))
-               + infoRow('Monthly maintenance dose:', doseLabel)
-               + infoRow('Time since last maintenance injection:', `${days} days (${formatWeeksAndDays(days)})`);
-
-    injectGuidanceSection(rows, threePartGuidance(guidance));
-}
-
-function showInvegaTrinzaGuidance(lastTrinzaDate: string, trinzaDose: TrinzaDose): void {
-    const days        = daysSinceDate(lastTrinzaDate);
-    const monthsSince = Math.floor(days / 30.44);
-    const guidance    = getInvegaTrinzaGuidance(days, trinzaDose);
-
-    const rows = infoRow('Medication:', 'Invega Trinza (paliperidone palmitate 3-month)')
-               + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
-               + infoRow('Date of last Trinza injection:', formatDate(lastTrinzaDate))
-               + infoRow('Trinza injection dose:', `${trinzaDose} mg`)
-               + infoRow('Time since last Trinza injection:', `${days} days (approximately ${monthsSince} months)`);
-
-    injectGuidanceSection(rows, threePartGuidance(guidance));
-}
-
-function showInvegaHafyeraGuidance(lastHafyeraDate: string): void {
-    const days        = daysSinceDate(lastHafyeraDate);
-    const monthsSince = Math.floor(days / 30.44);
-    const category    = getInvegaHafyeraGuidanceCategory(days);
-
-    const guidanceTextMap: Record<string, string> = {
+function hafyeraCategoryBody(category: HafyeraCategory): string {
+    const textMap: Record<HafyeraCategory, string> = {
         'early':   '<p>The Hafyera injection is not yet overdue. Please consult guidance on early dosing.</p>',
         'on-time': '<p>Proceed with administering the Hafyera injection. Plan for the subsequent injection in 6 months.</p>',
         'consult': `<p><strong>CONSULT PROVIDER REQUIRED</strong></p>
                     <p>The patient is presenting more than 6 months and 3 weeks after the last Hafyera dose.</p>
                     <p>Please consult a provider prior to proceeding with any injection.</p>`,
     };
-
-    const body = `
+    return `
         <div class="guidance-content">
             <h3 class="guidance-heading">Guidance:</h3>
-            <div class="guidance-text">${guidanceTextMap[category]}</div>
+            <div class="guidance-text">${textMap[category]}</div>
         </div>`;
-
-    const rows = infoRow('Medication:', 'Invega Hafyera (paliperidone palmitate 6-month)')
-               + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
-               + infoRow('Date of last Hafyera injection:', formatDate(lastHafyeraDate))
-               + infoRow('Time since last injection:', `${days} days (${formatWeeksAndDays(days)} or approximately ${monthsSince} months)`);
-
-    injectGuidanceSection(rows, body);
 }
 
-function showAbilifyMaintenaGuidance(lastAbilifyDate: string, abilifyDoses: AbilifyDoses): void {
-    const days       = daysSinceDate(lastAbilifyDate);
-    const weeks      = Math.floor(days / 7);
-    const guidance   = getAbilifyMaintenaGuidance(weeks, abilifyDoses);
-    const dosesLabel = abilifyDoses === '1-2' ? '1 or 2 monthly doses' : '3 or more monthly doses';
-
-    const rows = infoRow('Medication:', 'Abilify Maintena (aripiprazole)')
-               + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
-               + infoRow('Date of last injection:', formatDate(lastAbilifyDate))
-               + infoRow('Prior consecutive doses:', dosesLabel)
-               + infoRow('Time since last injection:', `${days} days (${formatWeeksAndDays(days)})`);
-
-    injectGuidanceSection(rows, threePartGuidance(guidance));
-}
-
-function showAristadaGuidance(lastAristadaDate: string, aristadaDose: AristadaDose): void {
-    const days     = daysSinceDate(lastAristadaDate);
-    const guidance = getAristadaGuidance(days, aristadaDose);
-
-    const rows = infoRow('Medication:', 'Aristada (aripiprazole lauroxil)')
-               + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
-               + infoRow('Date of last injection:', formatDate(lastAristadaDate))
-               + infoRow('Dose of last injection:', `${aristadaDose} mg`)
-               + infoRow('Time since last injection:', `${days} days (${formatWeeksAndDays(days)})`);
-
-    let body: string;
+function aristadaBody(guidance: AristadaGuidanceResult): string {
     if (guidance.notDue) {
-        body = `<div class="guidance-content">
+        return `<div class="guidance-content">
                     <h3 class="guidance-heading">Guidance:</h3>
                     <div class="guidance-text">${guidance.message}</div>
                 </div>`;
-    } else {
-        body = `<div class="guidance-content">
-                    <h3 class="guidance-heading">Administer the usual Aristada dose as soon as possible, then assess the need for supplementation.</h3>
-                </div>
-                <div class="guidance-content">
-                    <h3 class="guidance-heading">Recommended supplementation:</h3>
-                    <div class="guidance-text">${guidance.supplementation}</div>
-                </div>
-                <div class="guidance-content">
-                    <h3 class="guidance-heading">When to notify provider:</h3>
-                    <div class="guidance-text">${guidance.providerNotification}</div>
-                </div>`;
     }
-
-    injectGuidanceSection(rows, body);
+    return `<div class="guidance-content">
+                <h3 class="guidance-heading">Administer the usual Aristada dose as soon as possible, then assess the need for supplementation.</h3>
+            </div>
+            <div class="guidance-content">
+                <h3 class="guidance-heading">Recommended supplementation:</h3>
+                <div class="guidance-text">${guidance.supplementation}</div>
+            </div>
+            <div class="guidance-content">
+                <h3 class="guidance-heading">When to notify provider:</h3>
+                <div class="guidance-text">${guidance.providerNotification}</div>
+            </div>`;
 }
-
-function showUzedyGuidance(lastUzedyDate: string, uzedyDose: UzedyDose): void {
-    const days      = daysSinceDate(lastUzedyDate);
-    const guidance  = getUzedyGuidance(days, uzedyDose);
-    const doseLabel = uzedyDose === '150-or-less' ? '150 mg or less' : '200 mg or more';
-
-    const rows = infoRow('Medication:', 'Uzedy (risperidone subcutaneous)')
-               + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
-               + infoRow('Date of last injection:', formatDate(lastUzedyDate))
-               + infoRow('Uzedy maintenance dose:', doseLabel)
-               + infoRow('Time since last injection:', `${days} days (${formatWeeksAndDays(days)})`);
-
-    injectGuidanceSection(rows, threePartGuidance(guidance));
-}
-
-function showHaloperidolGuidance(lastDate: string, priorDoses: HaloperidolPriorDoses): void {
-    const days       = daysSinceDate(lastDate);
-    const guidance   = getHaloperidolGuidance(days, priorDoses);
-    const dosesLabel = priorDoses === '1-3' ? '1–3 monthly injections' : '4 or more monthly injections';
-
-    const rows = infoRow('Medication:', 'Haloperidol Decanoate (Haldol Dec)')
-               + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
-               + infoRow('Date of last injection:', formatDate(lastDate))
-               + infoRow('Prior consecutive injections:', dosesLabel)
-               + infoRow('Time since last injection:', `${days} days (${formatWeeksAndDays(days)})`);
-
-    injectGuidanceSection(rows, threePartGuidance(guidance));
-}
-
-function showFluphenazineGuidance(lastDate: string, priorDoses: FluphenazinePriorDoses): void {
-    const days       = daysSinceDate(lastDate);
-    const guidance   = getFluphenazineGuidance(days, priorDoses);
-    const dosesLabel = priorDoses === '1-2' ? '1–2 injections' : '3 or more injections';
-
-    const rows = infoRow('Medication:', 'Fluphenazine Decanoate (formerly Prolixin Dec)')
-               + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
-               + infoRow('Date of last injection:', formatDate(lastDate))
-               + infoRow('Prior consecutive injections:', dosesLabel)
-               + infoRow('Time since last injection:', `${days} days (${formatWeeksAndDays(days)})`);
-
-    injectGuidanceSection(rows, threePartGuidance(guidance));
-}
-
-function showVivitrolGuidance(lastDate: string, indication: VivitrolIndication): void {
-    const days            = daysSinceDate(lastDate);
-    const guidance        = getVivitrolGuidance(days, indication);
-    const indicationLabel = indication === 'oud' ? 'OUD treatment' : 'Overdose prevention (not OUD)';
-
-    const rows = infoRow('Medication:', 'Vivitrol (naltrexone)')
-               + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
-               + infoRow('Indication:', indicationLabel)
-               + infoRow('Date of last injection:', formatDate(lastDate))
-               + infoRow('Time since last injection:', `${days} days (${formatWeeksAndDays(days)})`);
-
-    injectGuidanceSection(rows, threePartGuidance(guidance));
-}
-
-function showSublocadeGuidance(lastDate: string, sublocadeType: SublocadeType): void {
-    const days = daysSinceDate(lastDate);
-    const guidance = getSublocadeGuidance(days, sublocadeType);
-    const typeLabels: Record<SublocadeType, string> = {
-        '100mg':             'Sublocade 100 mg',
-        '300mg-few':         'Sublocade 300 mg (1–2 prior injections)',
-        '300mg-established': 'Sublocade 300 mg (3+ prior injections)',
-    };
-
-    const rows = infoRow('Medication:', 'Sublocade (buprenorphine)')
-               + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
-               + infoRow('Dose/history:', typeLabels[sublocadeType])
-               + infoRow('Date of last injection:', formatDate(lastDate))
-               + infoRow('Time since last injection:', `${days} days (${formatWeeksAndDays(days)})`);
-
-    injectGuidanceSection(rows, threePartGuidance(guidance));
-}
-
-function showBrixadiGuidance(lastDate: string, brixadiType: BrixadiType): void {
-    const days = daysSinceDate(lastDate);
-    const guidance = getBrixadiGuidance(days, brixadiType);
-    const typeLabels: Record<BrixadiType, string> = {
-        'monthly-64':  'Monthly 64 mg',
-        'monthly-96':  'Monthly 96 mg',
-        'monthly-128': 'Monthly 128 mg',
-        'weekly':      'Weekly 24 mg or 32 mg',
-    };
-
-    const rows = infoRow('Medication:', 'Brixadi (buprenorphine)')
-               + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
-               + infoRow('Formulation/dose:', typeLabels[brixadiType])
-               + infoRow('Date of last injection:', formatDate(lastDate))
-               + infoRow('Time since last injection:', `${days} days (${formatWeeksAndDays(days)})`);
-
-    injectGuidanceSection(rows, threePartGuidance(guidance));
-}
-
 // ─── Start Over ───────────────────────────────────────────────────────────────
 
 export function startOver(): void {
-    const fieldIds = [
-        'medication', 'guidance-type', 'invega-type', 'first-injection',
-        'last-maintenance', 'maintenance-dose', 'last-trinza', 'trinza-dose',
-        'last-hafyera', 'last-abilify', 'abilify-doses', 'last-aristada',
-        'aristada-dose', 'last-uzedy', 'uzedy-dose',
-        'last-haloperidol', 'haloperidol-prior-doses',
-        'last-fluphenazine', 'fluphenazine-prior-doses',
-        'last-vivitrol', 'vivitrol-indication',
-        'last-sublocade', 'sublocade-type',
-        'last-brixadi', 'brixadi-type',
-    ];
-    fieldIds.forEach(clear);
+    ['medication', 'guidance-type', ...Object.values(MED_REGISTRY).flatMap(e => e.formFieldIds)]
+        .forEach(clear);
 
-    const hiddenGroups = [
-        'invega-sustenna-options', 'first-injection-date', 'maintenance-fields',
-        'trinza-fields', 'hafyera-fields', 'abilify-fields', 'aristada-fields', 'uzedy-fields',
-        'haloperidol-fields', 'fluphenazine-fields', 'vivitrol-fields',
-        'sublocade-fields', 'brixadi-fields',
-    ];
-    hiddenGroups.forEach(hide);
+    Object.values(MED_REGISTRY).forEach(e => {
+        hide(e.lateFieldsGroup);
+        e.subFieldGroups?.forEach(hide);
+    });
 
     document.querySelector('.guidance-section')?.remove();
     document.querySelector<HTMLElement>('.form-section')!.style.display = 'block';

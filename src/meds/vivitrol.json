@@ -1,0 +1,100 @@
+{
+    "key": "vivitrol",
+    "displayName": "Vivitrol (naltrexone)",
+    "earlyGuidance": "No sooner than 3 weeks after last injection",
+    "lateGuidance": {
+        "kind": "keyed-tiers",
+        "variants": [
+            {
+                "key": "oud",
+                "tiers": [
+                    {
+                        "maxDays": 20,
+                        "guidance": {
+                            "idealSteps": "<p>Vivitrol is not yet overdue. Please consult the early administration guidance (no sooner than 3 weeks after the last injection).</p>",
+                            "pragmaticVariations": "<p>Same.</p>",
+                            "providerNotification": "<p>No provider notification needed.</p>"
+                        }
+                    },
+                    {
+                        "maxDays": 27,
+                        "guidance": {
+                            "idealSteps": "\n<p><strong>Administer Vivitrol 380 mg IM</strong> as long as the patient meets criteria for \"minimal or no fentanyl dependence\". No UDS required at this interval.</p>\n\n<p><strong>Criteria for \"minimal or no fentanyl dependence\" — all must apply:</strong></p>\n<ul>\n  <li>Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)</li>\n  <li>Client does not feel significant effects of fentanyl if they use it</li>\n  <li>Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal</li>\n  <li>Client's fentanyl use remains \"much less\" than before starting MOUD</li>\n</ul>\n<p><em>If there is ongoing active fentanyl or other unregulated opioid use, discuss a switch to buprenorphine for more robust OUD treatment.</em></p>",
+                            "pragmaticVariations": "<p>Same.</p>",
+                            "providerNotification": "<p>Do not administer and consult provider if patient does not meet criteria for \"minimal or no fentanyl dependence\".</p>"
+                        }
+                    },
+                    {
+                        "maxDays": 34,
+                        "guidance": {
+                            "idealSteps": "\n<p>First, assess fentanyl dependence using the criteria below — if not met, do <strong>NOT</strong> administer and consult provider.</p>\n\n<p><strong>Criteria for \"minimal or no fentanyl dependence\" — all must apply:</strong></p>\n<ul>\n  <li>Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)</li>\n  <li>Client does not feel significant effects of fentanyl if they use it</li>\n  <li>Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal</li>\n  <li>Client's fentanyl use remains \"much less\" than before starting MOUD</li>\n</ul>\n<p><strong>If NO intentional fentanyl use reported:</strong> Administer Vivitrol (no UDS needed), provided patient meets criteria above.</p>\n<p><strong>If intentional fentanyl use IS reported:</strong> Obtain a point-of-care UDS (document in chasers):</p>\n<ul>\n  <li>UDS <strong>Negative</strong> → Administer Vivitrol (if patient meets criteria above).</li>\n  <li>UDS <strong>Positive</strong> → Consult provider. If history truly confirms no/minimal withdrawal and no significant fentanyl effects, may administer or consider naloxone challenge.</li>\n</ul>",
+                            "pragmaticVariations": "<p>Same.</p>",
+                            "providerNotification": "<p>Consult provider if UDS positive, or if patient does not meet \"minimal or no fentanyl dependence\" criteria.</p>"
+                        }
+                    },
+                    {
+                        "maxDays": 55,
+                        "guidance": {
+                            "idealSteps": "\n<p>First, assess fentanyl dependence using the criteria below — if not met, do <strong>NOT</strong> administer and consult provider.</p>\n\n<p><strong>Criteria for \"minimal or no fentanyl dependence\" — all must apply:</strong></p>\n<ul>\n  <li>Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)</li>\n  <li>Client does not feel significant effects of fentanyl if they use it</li>\n  <li>Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal</li>\n  <li>Client's fentanyl use remains \"much less\" than before starting MOUD</li>\n</ul>\n<p><strong>Obtain a point-of-care UDS</strong> (consult provider if unable to perform UDS):</p>\n<ul>\n  <li>UDS <strong>Negative</strong> → Administer Vivitrol (if patient meets criteria above).</li>\n  <li>UDS <strong>Positive</strong> → Do NOT administer. Further discussion needed on degree of opioid dependence. Consult provider.</li>\n</ul>",
+                            "pragmaticVariations": "<p>Same.</p>",
+                            "providerNotification": "<p>Consult provider if unable to obtain UDS, if UDS is positive, or if patient does not meet \"minimal or no fentanyl dependence\" criteria.</p>"
+                        }
+                    },
+                    {
+                        "maxDays": null,
+                        "guidance": {
+                            "idealSteps": "<p><strong>Consult provider before administering Vivitrol.</strong> The injection is more than 8 weeks overdue. Provider guidance is required before proceeding.</p>",
+                            "pragmaticVariations": "<p>Same.</p>",
+                            "providerNotification": "<p>Consult provider before any injection.</p>"
+                        }
+                    }
+                ]
+            },
+            {
+                "key": "overdose-prevention",
+                "tiers": [
+                    {
+                        "maxDays": 20,
+                        "guidance": {
+                            "idealSteps": "<p>Vivitrol is not yet overdue. Please consult the early administration guidance (no sooner than 3 weeks after the last injection).</p>",
+                            "pragmaticVariations": "<p>Same.</p>",
+                            "providerNotification": "<p>No provider notification needed.</p>"
+                        }
+                    },
+                    {
+                        "maxDays": 34,
+                        "guidance": {
+                            "idealSteps": "\n<p><strong>Administer Vivitrol 380 mg IM</strong> as long as the patient has no intentional daily use of opioids. No UDS required at this interval.</p>\n<p>If there is regular opioid use, do <strong>NOT</strong> administer — consult provider.</p>",
+                            "pragmaticVariations": "<p>Same.</p>",
+                            "providerNotification": "<p>Consult provider if patient has regular opioid use.</p>"
+                        }
+                    },
+                    {
+                        "maxDays": 41,
+                        "guidance": {
+                            "idealSteps": "\n<p>Obtain a point-of-care UDS unless you have strong confidence the patient has not used opioids (document in chasers).</p>\n<ul>\n  <li>UDS <strong>Negative</strong> → Administer Vivitrol (if patient meets criteria for minimal/no fentanyl dependence).</li>\n  <li>UDS <strong>Positive</strong> → Consult provider. If history truly confirms no/minimal withdrawal, may administer or consider naloxone challenge.</li>\n</ul>\n\n<p><strong>Criteria for \"minimal or no fentanyl dependence\" — all must apply:</strong></p>\n<ul>\n  <li>Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)</li>\n  <li>Client does not feel significant effects of fentanyl if they use it</li>\n  <li>Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal</li>\n  <li>Client's fentanyl use remains \"much less\" than before starting MOUD</li>\n</ul>",
+                            "pragmaticVariations": "<p>Same.</p>",
+                            "providerNotification": "<p>Consult provider if UDS positive or if there is concern about opioid dependence.</p>"
+                        }
+                    },
+                    {
+                        "maxDays": 55,
+                        "guidance": {
+                            "idealSteps": "\n<p><strong>Obtain a point-of-care UDS</strong> (consult provider if unable).</p>\n<ul>\n  <li>UDS <strong>Negative</strong> → Administer Vivitrol (if patient meets criteria for minimal/no fentanyl dependence).</li>\n  <li>UDS <strong>Positive</strong> → Do NOT administer. Consult provider.</li>\n</ul>\n\n<p><strong>Criteria for \"minimal or no fentanyl dependence\" — all must apply:</strong></p>\n<ul>\n  <li>Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)</li>\n  <li>Client does not feel significant effects of fentanyl if they use it</li>\n  <li>Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal</li>\n  <li>Client's fentanyl use remains \"much less\" than before starting MOUD</li>\n</ul>",
+                            "pragmaticVariations": "<p>Same.</p>",
+                            "providerNotification": "<p>Consult provider if unable to obtain UDS, if UDS is positive, or if there is concern about opioid dependence.</p>"
+                        }
+                    },
+                    {
+                        "maxDays": null,
+                        "guidance": {
+                            "idealSteps": "<p><strong>Consult provider before administering Vivitrol.</strong> The injection is more than 8 weeks overdue. Provider guidance is required before proceeding.</p>",
+                            "pragmaticVariations": "<p>Same.</p>",
+                            "providerNotification": "<p>Consult provider before any injection.</p>"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -96,3 +96,8 @@ export interface FluphenazinePriorDoseGroup {
 export type VivitrolIndication = 'oud' | 'overdose-prevention';
 export type SublocadeType      = '100mg' | '300mg-few' | '300mg-established';
 export type BrixadiType        = 'monthly-64' | 'monthly-96' | 'monthly-128' | 'weekly';
+
+// ─── UI helpers ───────────────────────────────────────────────────────────────
+
+/** All form field values keyed by HTML element ID, passed to registry UI methods. */
+export type SubmitContext = Record<string, string>;
