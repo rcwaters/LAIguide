@@ -11,7 +11,10 @@ function daysAgo(n: number): string {
 async function selectField(page: Page, id: string, value: string): Promise<void> {
     const radio = page.locator(`input[name="${id}"][value="${value}"]`);
     if (await radio.count() > 0) {
-        await radio.click();
+        await page.evaluate(({ id, value }) => {
+            const input = document.querySelector<HTMLInputElement>(`input[name="${id}"][value="${value}"]`);
+            if (input) { input.checked = true; input.dispatchEvent(new Event('change', { bubbles: true })); }
+        }, { id, value });
     } else {
         await page.selectOption(`#${id}`, value);
     }
@@ -19,6 +22,7 @@ async function selectField(page: Page, id: string, value: string): Promise<void>
 
 async function fillDate(page: Page, id: string, value: string): Promise<void> {
     await page.fill(`#${id}`, value);
+    await page.dispatchEvent(`#${id}`, 'change');
 }
 
 // ─── CSS loading ─────────────────────────────────────────────────────────────
@@ -61,18 +65,6 @@ test.describe('CSS loading', () => {
         // With CSS applied the select fills its container; without CSS it is
         // only as wide as its longest option text (~200 px on most platforms).
         expect(selectWidth).toBeCloseTo(containerWidth, -1); // within 10 px
-    });
-
-    test('submit button has custom blue background (not default grey)', async ({ page }) => {
-        // Default <button> background is a grey system colour.
-        // Our CSS applies a blue gradient; the computed background-color of the
-        // gradient start stop is rgb(44, 90, 160).
-        const bgColor = await page.locator('button.btn').first().evaluate(
-            (el) => getComputedStyle(el).backgroundColor,
-        );
-        expect(bgColor).not.toBe('rgba(0, 0, 0, 0)');
-        // Must not be the default grey button colour
-        expect(bgColor).not.toMatch(/^rgb\(2[0-1]\d/); // rules out ~200-219 grey range
     });
 });
 
@@ -169,73 +161,6 @@ test.describe('conditional field visibility', () => {
     });
 });
 
-// ─── Validation ───────────────────────────────────────────────────────────────
-
-test.describe('form validation', () => {
-    test.beforeEach(async ({ page }) => {
-        await page.goto('/');
-    });
-
-    async function expectAlert(page: Page, trigger: () => Promise<void>, expectedMessage: string): Promise<void> {
-        let message = '';
-        page.once('dialog', async dialog => {
-            message = dialog.message();
-            await dialog.dismiss();
-        });
-        await trigger();
-        expect(message).toBe(expectedMessage);
-    }
-
-    test('alerts when no medication selected', async ({ page }) => {
-        await expectAlert(
-            page,
-            () => page.click('button:has-text("Submit")'),
-            'Please select a medication.',
-        );
-    });
-
-    test('alerts when no guidance type selected', async ({ page }) => {
-        await selectField(page, 'medication', 'uzedy');
-        await expectAlert(
-            page,
-            () => page.click('button:has-text("Submit")'),
-            'Please select a guidance type.',
-        );
-    });
-
-    test('uzedy + late: alerts when no date entered', async ({ page }) => {
-        await selectField(page, 'medication', 'uzedy');
-        await selectField(page, 'guidance-type', 'late');
-        await expectAlert(
-            page,
-            () => page.click('button:has-text("Submit")'),
-            'Please enter the date of last Uzedy injection.',
-        );
-    });
-
-    test('uzedy + late: alerts when no dose selected', async ({ page }) => {
-        await selectField(page, 'medication', 'uzedy');
-        await selectField(page, 'guidance-type', 'late');
-        await fillDate(page, 'last-uzedy', daysAgo(35));
-        await expectAlert(
-            page,
-            () => page.click('button:has-text("Submit")'),
-            'Please select the Uzedy maintenance dose.',
-        );
-    });
-
-    test('aristada + late: alerts when no dose selected', async ({ page }) => {
-        await selectField(page, 'medication', 'aristada');
-        await selectField(page, 'guidance-type', 'late');
-        await fillDate(page, 'last-aristada', daysAgo(50));
-        await expectAlert(
-            page,
-            () => page.click('button:has-text("Submit")'),
-            'Please select the dose of last Aristada injection.',
-        );
-    });
-});
-
 // ─── Early guidance flow ──────────────────────────────────────────────────────
 
 test.describe('early guidance flow', () => {
@@ -253,7 +178,6 @@ test.describe('early guidance flow', () => {
         test(`${med}: shows guidance and hides form`, async ({ page }) => {
             await selectField(page, 'medication', med);
             await selectField(page, 'guidance-type', 'early');
-            await page.click('button:has-text("Submit")');
 
             await expect(page.locator('.guidance-section')).toBeVisible();
             await expect(page.locator('.form-section')).not.toBeVisible();
@@ -271,7 +195,6 @@ test.describe('late guidance — Invega Sustenna', () => {
         await selectField(page, 'guidance-type', 'late');
         await selectField(page, 'invega-type', 'initiation');
         await fillDate(page, 'first-injection', daysAgo(30));
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('Invega Sustenna');
@@ -284,7 +207,6 @@ test.describe('late guidance — Invega Sustenna', () => {
         await selectField(page, 'invega-type', 'maintenance');
         await fillDate(page, 'last-maintenance', daysAgo(50));
         await selectField(page, 'maintenance-dose', '234');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('234 mg');
@@ -296,7 +218,6 @@ test.describe('late guidance — Invega Sustenna', () => {
         await selectField(page, 'invega-type', 'maintenance');
         await fillDate(page, 'last-maintenance', daysAgo(50));
         await selectField(page, 'maintenance-dose', '156-or-less');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
     });
@@ -310,7 +231,6 @@ test.describe('late guidance — Invega Trinza', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-trinza', daysAgo(100));
         await selectField(page, 'trinza-dose', '546');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('Invega Trinza');
@@ -325,7 +245,6 @@ test.describe('late guidance — Invega Hafyera', () => {
         await selectField(page, 'medication', 'invega_hafyera');
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-hafyera', daysAgo(190));
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Proceed with administering');
@@ -335,7 +254,6 @@ test.describe('late guidance — Invega Hafyera', () => {
         await selectField(page, 'medication', 'invega_hafyera');
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-hafyera', daysAgo(210));
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('CONSULT PROVIDER REQUIRED');
@@ -350,7 +268,6 @@ test.describe('late guidance — Abilify Maintena', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-abilify', daysAgo(35));
         await selectField(page, 'abilify-doses', '3+');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('Abilify Maintena');
@@ -361,7 +278,6 @@ test.describe('late guidance — Abilify Maintena', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-abilify', daysAgo(50));
         await selectField(page, 'abilify-doses', '1-2');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Re-initiate');
@@ -376,7 +292,6 @@ test.describe('late guidance — Aristada', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-aristada', daysAgo(50));
         await selectField(page, 'aristada-dose', '662');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('No supplementation required');
@@ -387,7 +302,6 @@ test.describe('late guidance — Aristada', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-aristada', daysAgo(45));
         await selectField(page, 'aristada-dose', '441');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('7 days');
@@ -402,7 +316,6 @@ test.describe('late guidance — Uzedy', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-uzedy', daysAgo(35));
         await selectField(page, 'uzedy-dose', '150-or-less');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('Uzedy');
@@ -413,7 +326,6 @@ test.describe('late guidance — Uzedy', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-uzedy', daysAgo(200));
         await selectField(page, 'uzedy-dose', '200-or-more');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('contact prescriber');
@@ -433,71 +345,11 @@ test.describe('early guidance flow — remaining medications', () => {
         test(`${med}: shows guidance and hides form`, async ({ page }) => {
             await selectField(page, 'medication', med);
             await selectField(page, 'guidance-type', 'early');
-            await page.click('button:has-text("Submit")');
 
             await expect(page.locator('.guidance-section')).toBeVisible();
             await expect(page.locator('.form-section')).not.toBeVisible();
         });
     }
-});
-
-// ─── Validation — new medications ────────────────────────────────────────────
-
-test.describe('form validation — new medications', () => {
-    test.beforeEach(async ({ page }) => { await page.goto('/'); });
-
-    async function expectAlertMsg(page: Page, trigger: () => Promise<void>, expected: string): Promise<void> {
-        let message = '';
-        page.once('dialog', async dialog => { message = dialog.message(); await dialog.dismiss(); });
-        await trigger();
-        expect(message).toBe(expected);
-    }
-
-    test('haloperidol + late: alerts when no date entered', async ({ page }) => {
-        await selectField(page, 'medication', 'haloperidol_decanoate');
-        await selectField(page, 'guidance-type', 'late');
-        await expectAlertMsg(page, () => page.click('button:has-text("Submit")'),
-            'Please enter the date of last Haloperidol Decanoate injection.');
-    });
-
-    test('haloperidol + late: alerts when no prior doses selected', async ({ page }) => {
-        await selectField(page, 'medication', 'haloperidol_decanoate');
-        await selectField(page, 'guidance-type', 'late');
-        await fillDate(page, 'last-haloperidol', daysAgo(60));
-        await expectAlertMsg(page, () => page.click('button:has-text("Submit")'),
-            'Please select the number of prior Haloperidol Decanoate injections.');
-    });
-
-    test('fluphenazine + late: alerts when no date entered', async ({ page }) => {
-        await selectField(page, 'medication', 'fluphenazine_decanoate');
-        await selectField(page, 'guidance-type', 'late');
-        await expectAlertMsg(page, () => page.click('button:has-text("Submit")'),
-            'Please enter the date of last Fluphenazine Decanoate injection.');
-    });
-
-    test('vivitrol + late: alerts when no indication selected', async ({ page }) => {
-        await selectField(page, 'medication', 'vivitrol');
-        await selectField(page, 'guidance-type', 'late');
-        await fillDate(page, 'last-vivitrol', daysAgo(25));
-        await expectAlertMsg(page, () => page.click('button:has-text("Submit")'),
-            'Please select the Vivitrol indication.');
-    });
-
-    test('sublocade + late: alerts when no type selected', async ({ page }) => {
-        await selectField(page, 'medication', 'sublocade');
-        await selectField(page, 'guidance-type', 'late');
-        await fillDate(page, 'last-sublocade', daysAgo(25));
-        await expectAlertMsg(page, () => page.click('button:has-text("Submit")'),
-            'Please select the Sublocade dose and history.');
-    });
-
-    test('brixadi + late: alerts when no type selected', async ({ page }) => {
-        await selectField(page, 'medication', 'brixadi');
-        await selectField(page, 'guidance-type', 'late');
-        await fillDate(page, 'last-brixadi', daysAgo(7));
-        await expectAlertMsg(page, () => page.click('button:has-text("Submit")'),
-            'Please select the Brixadi formulation and dose.');
-    });
 });
 
 // ─── Late guidance — Haloperidol Decanoate ────────────────────────────────────
@@ -510,7 +362,6 @@ test.describe('late guidance — Haloperidol Decanoate', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-haloperidol', daysAgo(60));
         await selectField(page, 'haloperidol-prior-doses', '1-3');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('Haloperidol Decanoate');
@@ -523,7 +374,6 @@ test.describe('late guidance — Haloperidol Decanoate', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-haloperidol', daysAgo(30));
         await selectField(page, 'haloperidol-prior-doses', '4+');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('4 weeks');
@@ -534,7 +384,6 @@ test.describe('late guidance — Haloperidol Decanoate', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-haloperidol', daysAgo(60));
         await selectField(page, 'haloperidol-prior-doses', '4+');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('200 mg or less');
@@ -545,7 +394,6 @@ test.describe('late guidance — Haloperidol Decanoate', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-haloperidol', daysAgo(90));
         await selectField(page, 'haloperidol-prior-doses', '1-3');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('BEFORE any injection');
@@ -562,7 +410,6 @@ test.describe('late guidance — Fluphenazine Decanoate', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-fluphenazine', daysAgo(90));
         await selectField(page, 'fluphenazine-prior-doses', '1-2');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('Fluphenazine Decanoate');
@@ -575,7 +422,6 @@ test.describe('late guidance — Fluphenazine Decanoate', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-fluphenazine', daysAgo(30));
         await selectField(page, 'fluphenazine-prior-doses', '3+');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('previously planned dosing interval');
@@ -586,7 +432,6 @@ test.describe('late guidance — Fluphenazine Decanoate', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-fluphenazine', daysAgo(90));
         await selectField(page, 'fluphenazine-prior-doses', '3+');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('50 mg or less');
@@ -597,7 +442,6 @@ test.describe('late guidance — Fluphenazine Decanoate', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-fluphenazine', daysAgo(130));
         await selectField(page, 'fluphenazine-prior-doses', '1-2');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('BEFORE any injection');
@@ -614,7 +458,6 @@ test.describe('late guidance — Vivitrol', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-vivitrol', daysAgo(25));
         await selectField(page, 'vivitrol-indication', 'oud');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('Vivitrol');
@@ -626,7 +469,6 @@ test.describe('late guidance — Vivitrol', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-vivitrol', daysAgo(31));
         await selectField(page, 'vivitrol-indication', 'oud');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('intentional fentanyl use');
@@ -637,7 +479,6 @@ test.describe('late guidance — Vivitrol', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-vivitrol', daysAgo(45));
         await selectField(page, 'vivitrol-indication', 'oud');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('point-of-care UDS');
@@ -648,7 +489,6 @@ test.describe('late guidance — Vivitrol', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-vivitrol', daysAgo(65));
         await selectField(page, 'vivitrol-indication', 'oud');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Consult provider before');
@@ -659,7 +499,6 @@ test.describe('late guidance — Vivitrol', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-vivitrol', daysAgo(25));
         await selectField(page, 'vivitrol-indication', 'overdose-prevention');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('no intentional daily use');
@@ -670,7 +509,6 @@ test.describe('late guidance — Vivitrol', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-vivitrol', daysAgo(65));
         await selectField(page, 'vivitrol-indication', 'overdose-prevention');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Consult provider before');
@@ -681,7 +519,6 @@ test.describe('late guidance — Vivitrol', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-vivitrol', daysAgo(10));
         await selectField(page, 'vivitrol-indication', 'oud');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('not yet overdue');
@@ -698,7 +535,6 @@ test.describe('late guidance — Sublocade', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-sublocade', daysAgo(25));
         await selectField(page, 'sublocade-type', '100mg');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('Sublocade');
@@ -710,7 +546,6 @@ test.describe('late guidance — Sublocade', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-sublocade', daysAgo(38));
         await selectField(page, 'sublocade-type', '100mg');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('fentanyl dependence assessment');
@@ -722,7 +557,6 @@ test.describe('late guidance — Sublocade', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-sublocade', daysAgo(48));
         await selectField(page, 'sublocade-type', '100mg');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('fentanyl dependence assessment');
@@ -733,7 +567,6 @@ test.describe('late guidance — Sublocade', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-sublocade', daysAgo(60));
         await selectField(page, 'sublocade-type', '100mg');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Consult a prescriber in real-time');
@@ -744,7 +577,6 @@ test.describe('late guidance — Sublocade', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-sublocade', daysAgo(45));
         await selectField(page, 'sublocade-type', '300mg-established');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Administer the next injection');
@@ -755,7 +587,6 @@ test.describe('late guidance — Sublocade', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-sublocade', daysAgo(75));
         await selectField(page, 'sublocade-type', '300mg-established');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Consult a prescriber in real-time');
@@ -772,7 +603,6 @@ test.describe('late guidance — Brixadi', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-brixadi', daysAgo(25));
         await selectField(page, 'brixadi-type', 'monthly-64');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('Brixadi');
@@ -784,7 +614,6 @@ test.describe('late guidance — Brixadi', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-brixadi', daysAgo(38));
         await selectField(page, 'brixadi-type', 'monthly-128');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('fentanyl dependence assessment');
@@ -796,7 +625,6 @@ test.describe('late guidance — Brixadi', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-brixadi', daysAgo(60));
         await selectField(page, 'brixadi-type', 'monthly-96');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Consult a prescriber in real-time');
@@ -807,7 +635,6 @@ test.describe('late guidance — Brixadi', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-brixadi', daysAgo(7));
         await selectField(page, 'brixadi-type', 'weekly');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('9 days');
@@ -818,7 +645,6 @@ test.describe('late guidance — Brixadi', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-brixadi', daysAgo(12));
         await selectField(page, 'brixadi-type', 'weekly');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('per prescriber guidance');
@@ -835,7 +661,6 @@ test.describe('late guidance — Invega Trinza additional tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-trinza', daysAgo(150));
         await selectField(page, 'trinza-dose', '410');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('410 mg');
@@ -847,7 +672,6 @@ test.describe('late guidance — Invega Trinza additional tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-trinza', daysAgo(150));
         await selectField(page, 'trinza-dose', '819');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('819 mg');
@@ -859,7 +683,6 @@ test.describe('late guidance — Invega Trinza additional tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-trinza', daysAgo(280));
         await selectField(page, 'trinza-dose', '546');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Reinitiation');
@@ -870,7 +693,6 @@ test.describe('late guidance — Invega Trinza additional tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-trinza', daysAgo(100));
         await selectField(page, 'trinza-dose', '546');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Administer next usual Invega Trinza dose');
@@ -888,7 +710,6 @@ test.describe('late guidance — Invega Sustenna maintenance additional tiers', 
         await selectField(page, 'invega-type', 'maintenance');
         await fillDate(page, 'last-maintenance', daysAgo(190));
         await selectField(page, 'maintenance-dose', '234');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('reinitiation');
@@ -900,7 +721,6 @@ test.describe('late guidance — Invega Sustenna maintenance additional tiers', 
         await selectField(page, 'invega-type', 'maintenance');
         await fillDate(page, 'last-maintenance', daysAgo(38));
         await selectField(page, 'maintenance-dose', '234');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Administer usual Invega Sustenna dose');
@@ -917,7 +737,6 @@ test.describe('late guidance — Abilify Maintena additional tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-abilify', daysAgo(50));
         await selectField(page, 'abilify-doses', '3+');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Re-initiate');
@@ -928,7 +747,6 @@ test.describe('late guidance — Abilify Maintena additional tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-abilify', daysAgo(20));
         await selectField(page, 'abilify-doses', '3+');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('not due');
@@ -945,7 +763,6 @@ test.describe('late guidance — Aristada additional doses and tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-aristada', daysAgo(50));
         await selectField(page, 'aristada-dose', '882');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('No supplementation required');
@@ -956,7 +773,6 @@ test.describe('late guidance — Aristada additional doses and tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-aristada', daysAgo(70));
         await selectField(page, 'aristada-dose', '882');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('7 days');
@@ -967,7 +783,6 @@ test.describe('late guidance — Aristada additional doses and tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-aristada', daysAgo(100));
         await selectField(page, 'aristada-dose', '882');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('21 days');
@@ -978,7 +793,6 @@ test.describe('late guidance — Aristada additional doses and tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-aristada', daysAgo(65));
         await selectField(page, 'aristada-dose', '1064');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('No supplementation required');
@@ -989,7 +803,6 @@ test.describe('late guidance — Aristada additional doses and tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-aristada', daysAgo(78));
         await selectField(page, 'aristada-dose', '1064');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('7 days');
@@ -1000,7 +813,6 @@ test.describe('late guidance — Aristada additional doses and tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-aristada', daysAgo(95));
         await selectField(page, 'aristada-dose', '1064');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('21 days');
@@ -1011,7 +823,6 @@ test.describe('late guidance — Aristada additional doses and tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-aristada', daysAgo(60));
         await selectField(page, 'aristada-dose', '441');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('21 days');
@@ -1022,7 +833,6 @@ test.describe('late guidance — Aristada additional doses and tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-aristada', daysAgo(90));
         await selectField(page, 'aristada-dose', '662');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('21 days');
@@ -1033,7 +843,6 @@ test.describe('late guidance — Aristada additional doses and tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-aristada', daysAgo(20));
         await selectField(page, 'aristada-dose', '662');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('not yet due');
@@ -1050,7 +859,6 @@ test.describe('late guidance — Uzedy additional tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-uzedy', daysAgo(20));
         await selectField(page, 'uzedy-dose', '150-or-less');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('not yet due');
@@ -1061,7 +869,6 @@ test.describe('late guidance — Uzedy additional tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-uzedy', daysAgo(60));
         await selectField(page, 'uzedy-dose', '150-or-less');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Administer usual Uzedy maintenance dose');
@@ -1072,7 +879,6 @@ test.describe('late guidance — Uzedy additional tiers', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-uzedy', daysAgo(150));
         await selectField(page, 'uzedy-dose', '200-or-more');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('sedation');
@@ -1086,7 +892,6 @@ test.describe('start over', () => {
         await page.goto('/');
         await selectField(page, 'medication', 'uzedy');
         await selectField(page, 'guidance-type', 'early');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
 
@@ -1102,12 +907,10 @@ test.describe('start over', () => {
         await page.goto('/');
         await selectField(page, 'medication', 'uzedy');
         await selectField(page, 'guidance-type', 'early');
-        await page.click('button:has-text("Submit")');
         await page.click('button:has-text("Start Over")');
 
         await selectField(page, 'medication', 'aristada');
         await selectField(page, 'guidance-type', 'early');
-        await page.click('button:has-text("Submit")');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('Aristada');

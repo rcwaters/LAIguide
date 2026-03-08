@@ -1,3 +1,4 @@
+import './styles.css';
 import { MED_REGISTRY } from './medLoader';
 import type { MedicationKey, FormGroupSpec, FieldSpec } from './interfaces/med';
 import type { SubmitContext, GuidanceResult, SupplementalGuidanceResult, CategoricalGuidanceResult } from './interfaces/guidance';
@@ -26,6 +27,11 @@ export function handleGuidanceTypeChange(): void {
     const medication   = val('medication');
     const guidanceType = val('guidance-type');
 
+    // Show/hide the guidance-type selector based on whether a medication is chosen
+    const gtGroup = document.getElementById('guidance-type-group') as HTMLElement | null;
+    if (gtGroup) gtGroup.style.display = medication ? 'block' : 'none';
+    if (!medication) { clear('guidance-type'); }
+
     // Hide all late-guidance field groups (and any associated sub-field groups)
     Object.values(MED_REGISTRY).forEach(e => {
         hide(e.lateFieldsGroup);
@@ -34,16 +40,43 @@ export function handleGuidanceTypeChange(): void {
 
     Object.values(MED_REGISTRY).flatMap(e => e.formFieldIds).forEach(clear);
 
-    if (guidanceType !== 'late') return;
+    if (guidanceType === 'late') {
+        const entry = MED_REGISTRY[medication as MedicationKey];
+        if (entry) show(entry.lateFieldsGroup);
+    }
 
-    const entry = MED_REGISTRY[medication as MedicationKey];
-    if (entry) show(entry.lateFieldsGroup);
+    checkAutoSubmit();
 }
 
 export function handleInvegaTypeChange(): void {
     const entry = MED_REGISTRY[val('medication') as MedicationKey];
     if (!entry?.subGroupSelectorId) return;
     entry.handleSubGroupChange?.(val(entry.subGroupSelectorId), show, hide, clear);
+    checkAutoSubmit();
+}
+
+// ─── Auto-submit ─────────────────────────────────────────────────────────────
+
+export function checkAutoSubmit(): void {
+    // If guidance is already displayed, don't re-submit
+    if (document.querySelector('.guidance-section')) return;
+    const medication   = val('medication');
+    const guidanceType = val('guidance-type');
+    if (!medication || !guidanceType) return;
+
+    if (guidanceType === 'early') { handleSubmit(); return; }
+
+    // Late: every visible required field (date inputs + selects, excluding
+    // the guidance-type segmented control) must have a value before submitting.
+    const groups = document.querySelectorAll<HTMLElement>('.input-group[id]');
+    for (const group of groups) {
+        if (group.id === 'guidance-type-group') continue;
+        if (group.style.display === 'none') continue;
+        for (const input of group.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input[type="date"], select')) {
+            if (!input.value) return;
+        }
+    }
+    handleSubmit();
 }
 
 // ─── Form Submit Handler ──────────────────────────────────────────────────────
@@ -194,9 +227,9 @@ function supplementationBody(guidance: SupplementalGuidanceResult): string {
 function renderField(f: FieldSpec): string {
     const label = `<label for="${f.id}">${f.label} <span class="required">*</span></label>`;
     if (f.type === 'date') {
-        return `${label}\n<input type="date" id="${f.id}" class="date-input">`;
+        return `${label}\n<input type="date" id="${f.id}" class="date-input" onchange="checkAutoSubmit()">`;
     }
-    const onchange = f.onchange ? ` onchange="${f.onchange}"` : '';
+    const onchange = f.onchange ? ` onchange="${f.onchange}"` : ' onchange="checkAutoSubmit()"';
     const opts = f.options.map(o => `<option value="${o.value}">${o.label}</option>`).join('\n');
     return `${label}\n<select id="${f.id}"${onchange}>\n<option value="">${f.placeholder ?? 'Select...'}</option>\n${opts}\n</select>`;
 }
@@ -227,13 +260,13 @@ export function initForm(): void {
         }
         medSelect.innerHTML = optHtml;
 
-        // Inject all form field groups before the submit button
-        const submitDiv = document.querySelector<HTMLElement>('.form-submit')!;
+        // Inject all form field groups inside the form section
+        const formSection = document.querySelector<HTMLElement>('.form-section')!;
         const groupsHtml = Object.values(MED_REGISTRY)
             .flatMap(e => e.formGroupsSpec)
             .map(renderFieldGroup)
             .join('\n');
-        submitDiv.insertAdjacentHTML('beforebegin', groupsHtml);
+        formSection.insertAdjacentHTML('beforeend', groupsHtml);
     } catch (err) {
         console.error('[initForm] Unexpected error:', err);
     }
@@ -253,6 +286,9 @@ export function startOver(): void {
             e.subFieldGroups?.forEach(hide);
         });
 
+        const gtGroup = document.getElementById('guidance-type-group') as HTMLElement | null;
+        if (gtGroup) gtGroup.style.display = 'none';
+
         document.querySelector('.guidance-section')?.remove();
         document.querySelector<HTMLElement>('.form-section')!.style.display = 'block';
         window.scrollTo(0, 0);
@@ -267,10 +303,12 @@ declare global { interface Window {
     handleGuidanceTypeChange: typeof handleGuidanceTypeChange;
     handleInvegaTypeChange: typeof handleInvegaTypeChange;
     handleSubmit: typeof handleSubmit;
+    checkAutoSubmit: typeof checkAutoSubmit;
     startOver: typeof startOver;
 } }
 
 window.handleGuidanceTypeChange = handleGuidanceTypeChange;
 window.handleInvegaTypeChange   = handleInvegaTypeChange;
 window.handleSubmit             = handleSubmit;
+window.checkAutoSubmit          = checkAutoSubmit;
 window.startOver                = startOver;

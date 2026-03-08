@@ -11,7 +11,10 @@ function daysAgo(n: number): string {
 async function selectField(page: Page, id: string, value: string): Promise<void> {
     const radio = page.locator(`input[name="${id}"][value="${value}"]`);
     if (await radio.count() > 0) {
-        await radio.click();
+        await page.evaluate(({ id, value }) => {
+            const input = document.querySelector<HTMLInputElement>(`input[name="${id}"][value="${value}"]`);
+            if (input) { input.checked = true; input.dispatchEvent(new Event('change', { bubbles: true })); }
+        }, { id, value });
     } else {
         await page.selectOption(`#${id}`, value);
     }
@@ -19,10 +22,10 @@ async function selectField(page: Page, id: string, value: string): Promise<void>
 
 async function fillDate(page: Page, id: string, value: string): Promise<void> {
     await page.fill(`#${id}`, value);
+    await page.dispatchEvent(`#${id}`, 'change');
 }
 
 async function submit(page: Page): Promise<void> {
-    await page.click('button:has-text("Submit")');
     await page.locator('.guidance-section').waitFor();
 }
 

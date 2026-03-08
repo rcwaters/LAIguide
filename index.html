@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DESC LAI Medication Standing Order Tool</title>
-  <script type="module" crossorigin src="./assets/index-D2ofal4i.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DBIB36zM.css">
 </head>
 <body>
     <div class="app-container">
@@ -25,27 +23,21 @@
                 </select>
             </div>
 
-            <div class="input-group">
+            <div class="input-group" id="guidance-type-group" style="display:none">
                 <label>Choose Guidance Type <span class="required">*</span></label>
-                <div class="radio-group">
-                    <label class="radio-card">
+                <div class="seg-group" role="group" aria-label="Guidance type">
+                    <label class="seg-opt">
                         <input type="radio" name="guidance-type" value="early" onchange="handleGuidanceTypeChange()">
-                        <span class="radio-card-title">Early</span>
-                        <span class="radio-card-desc">Patient requesting injection before scheduled date</span>
+                        <span>Early Administration</span>
                     </label>
-                    <label class="radio-card">
+                    <label class="seg-opt">
                         <input type="radio" name="guidance-type" value="late" onchange="handleGuidanceTypeChange()">
-                        <span class="radio-card-title">Late / Overdue</span>
-                        <span class="radio-card-desc">Patient is late or overdue for injection</span>
+                        <span>Late / Overdue Administration</span>
                     </label>
                 </div>
             </div>
 
             <!-- Medication-specific form field groups are injected here by main.ts -->
-
-            <div class="form-submit" style="text-align: center; margin-top: 30px;">
-                <button type="button" class="btn" onclick="handleSubmit()">Submit</button>
-            </div>
         </div>
 
         <div class="disclaimer">

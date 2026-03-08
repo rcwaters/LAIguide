@@ -263,6 +263,52 @@ describe('handleSubmit — validation', () => {
         handleSubmit();
         expect(window.alert).toHaveBeenCalledWith('Please select the Uzedy maintenance dose.');
     });
+
+    test('haloperidol_decanoate + late: alerts when no date entered', () => {
+        setField('medication', 'haloperidol_decanoate');
+        setField('guidance-type', 'late');
+        handleSubmit();
+        expect(window.alert).toHaveBeenCalledWith('Please enter the date of last Haloperidol Decanoate injection.');
+    });
+
+    test('haloperidol_decanoate + late: alerts when no prior doses selected', () => {
+        setField('medication', 'haloperidol_decanoate');
+        setField('guidance-type', 'late');
+        setField('last-haloperidol', daysAgo(60));
+        handleSubmit();
+        expect(window.alert).toHaveBeenCalledWith('Please select the number of prior Haloperidol Decanoate injections.');
+    });
+
+    test('fluphenazine_decanoate + late: alerts when no date entered', () => {
+        setField('medication', 'fluphenazine_decanoate');
+        setField('guidance-type', 'late');
+        handleSubmit();
+        expect(window.alert).toHaveBeenCalledWith('Please enter the date of last Fluphenazine Decanoate injection.');
+    });
+
+    test('vivitrol + late: alerts when no indication selected', () => {
+        setField('medication', 'vivitrol');
+        setField('guidance-type', 'late');
+        setField('last-vivitrol', daysAgo(25));
+        handleSubmit();
+        expect(window.alert).toHaveBeenCalledWith('Please select the Vivitrol indication.');
+    });
+
+    test('sublocade + late: alerts when no type selected', () => {
+        setField('medication', 'sublocade');
+        setField('guidance-type', 'late');
+        setField('last-sublocade', daysAgo(25));
+        handleSubmit();
+        expect(window.alert).toHaveBeenCalledWith('Please select the Sublocade dose and history.');
+    });
+
+    test('brixadi + late: alerts when no type selected', () => {
+        setField('medication', 'brixadi');
+        setField('guidance-type', 'late');
+        setField('last-brixadi', daysAgo(7));
+        handleSubmit();
+        expect(window.alert).toHaveBeenCalledWith('Please select the Brixadi formulation and dose.');
+    });
 });
 
 // ─── handleSubmit — guidance rendering ───────────────────────────────────────
