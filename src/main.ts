@@ -1,10 +1,6 @@
-import {
-    getMedicationDisplayName,
-    getEarlyGuidanceContent,
-} from './handler';
-import { MED_REGISTRY } from './data/loader';
-import type { MedicationKey, FormGroupSpec, FieldSpec } from './data/types';
-import type { SubmitContext, GuidanceResult, SupplementalGuidanceResult, CategoricalGuidanceResult } from './types';
+import { MED_REGISTRY } from './medLoader';
+import type { MedicationKey, FormGroupSpec, FieldSpec } from './interfaces/med';
+import type { SubmitContext, GuidanceResult, SupplementalGuidanceResult, CategoricalGuidanceResult } from './interfaces/guidance';
 import { md } from './utils';
 
 // ─── Form Field Visibility ────────────────────────────────────────────────────
@@ -17,10 +13,6 @@ function show(id: string): void { el(id).style.display = 'block'; }
 function hide(id: string): void { el(id).style.display = 'none';  }
 function val(id: string):  string { return (el<HTMLInputElement | HTMLSelectElement>(id)).value; }
 function clear(id: string): void  { (el<HTMLInputElement | HTMLSelectElement>(id)).value = ''; }
-
-export function handleMedicationChange(): void {
-    handleGuidanceTypeChange();
-}
 
 export function handleGuidanceTypeChange(): void {
     const medication   = val('medication');
@@ -49,45 +41,49 @@ export function handleInvegaTypeChange(): void {
 // ─── Form Submit Handler ──────────────────────────────────────────────────────
 
 export function handleSubmit(): void {
-    const medication   = val('medication');
-    const guidanceType = val('guidance-type');
+    try {
+        const medication   = val('medication');
+        const guidanceType = val('guidance-type');
 
-    if (!medication)   { alert('Please select a medication.');    return; }
-    if (!guidanceType) { alert('Please select a guidance type.'); return; }
+        if (!medication)   { alert('Please select a medication.');    return; }
+        if (!guidanceType) { alert('Please select a guidance type.'); return; }
 
-    const ctx: SubmitContext = Object.fromEntries(
-        Object.values(MED_REGISTRY).flatMap(e => e.formFieldIds).map(id => [id, val(id)])
-    );
+        const ctx: SubmitContext = Object.fromEntries(
+            Object.values(MED_REGISTRY).flatMap(e => e.formFieldIds).map(id => [id, val(id)])
+        );
 
-    if (guidanceType === 'early') {
-        showEarlyGuidance(medication);
-        return;
+        if (guidanceType === 'early') {
+            showEarlyGuidance(medication);
+            return;
+        }
+
+        const entry = MED_REGISTRY[medication as MedicationKey];
+        if (!entry) { alert('Late/overdue guidance for this medication is coming soon!'); return; }
+
+        const validationErr = entry.validateLate(ctx);
+        if (validationErr) { alert(validationErr); return; }
+
+        const params    = entry.buildLateParams(ctx);
+        const guidance  = entry.getLateGuidance(params);
+        const daysSince = params.daysSince!;
+
+        const rows = infoRow('Medication:', entry.displayName)
+                   + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
+                   + entry.buildLateInfoRows(ctx, daysSince).map(([label, value]) => infoRow(label, value)).join('');
+
+        let body: string;
+        if (entry.renderType === 'categorical') {
+            body = categoricalBody(guidance as CategoricalGuidanceResult);
+        } else if (entry.renderType === 'supplementation') {
+            body = supplementationBody(guidance as SupplementalGuidanceResult);
+        } else {
+            body = threePartGuidance(guidance as GuidanceResult);
+        }
+
+        injectGuidanceSection(rows, body);
+    } catch (err) {
+        console.error('[handleSubmit] Unexpected error:', err);
     }
-
-    const entry = MED_REGISTRY[medication as MedicationKey];
-    if (!entry) { alert('Late/overdue guidance for this medication is coming soon!'); return; }
-
-    const validationErr = entry.validateLate(ctx);
-    if (validationErr) { alert(validationErr); return; }
-
-    const params    = entry.buildLateParams(ctx);
-    const guidance  = entry.getLateGuidance(params);
-    const daysSince = params.daysSince!;
-
-    const rows = infoRow('Medication:', getMedicationDisplayName(medication))
-               + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
-               + entry.buildLateInfoRows(ctx, daysSince).map(([label, value]) => infoRow(label, value)).join('');
-
-    let body: string;
-    if (entry.renderType === 'categorical') {
-        body = categoricalBody(guidance as CategoricalGuidanceResult);
-    } else if (entry.renderType === 'supplementation') {
-        body = supplementationBody(guidance as SupplementalGuidanceResult);
-    } else {
-        body = threePartGuidance(guidance as GuidanceResult);
-    }
-
-    injectGuidanceSection(rows, body);
 }
 
 // ─── Guidance Rendering Helpers ───────────────────────────────────────────────
@@ -135,13 +131,14 @@ function injectGuidanceSection(infoRows: string, bodyHTML: string): void {
 // ─── Guidance Display Functions ───────────────────────────────────────────────
 
 function showEarlyGuidance(medication: string): void {
-    const rows = infoRow('Medication:', getMedicationDisplayName(medication))
+    const entry = MED_REGISTRY[medication as MedicationKey];
+    const rows = infoRow('Medication:', entry.displayName)
                + infoRow('Guidance Type:', 'Early Administration Guidance');
 
     const body = `
         <div class="guidance-content">
             <h3 class="guidance-heading">Time frame acceptable to give an "early" injection without seeking provider consult:</h3>
-            <div class="guidance-text">${md(getEarlyGuidanceContent(medication))}</div>
+            <div class="guidance-text">${md(entry.earlyGuidance)}</div>
         </div>
         <div class="important-note">
             <strong>⚠️ Important:</strong> If there may be a reason to administer even earlier than the specified timeframe, provider approval must be obtained.
@@ -204,28 +201,32 @@ function renderFieldGroup(spec: FormGroupSpec): string {
 }
 
 export function initForm(): void {
-    const medSelect = document.getElementById('medication') as HTMLSelectElement | null;
-    if (!medSelect) return; // guard for test environments
+    try {
+        const medSelect = document.getElementById('medication') as HTMLSelectElement | null;
+        if (!medSelect) return; // guard for test environments
 
-    // Build the medication dropdown
-    const groups = new Map<string, string[]>();
-    for (const [key, entry] of Object.entries(MED_REGISTRY)) {
-        if (!groups.has(entry.optgroupLabel)) groups.set(entry.optgroupLabel, []);
-        groups.get(entry.optgroupLabel)!.push(`<option value="${key}">${entry.displayName}</option>`);
-    }
-    let optHtml = '<option value="">Select medication...</option>';
-    for (const [groupLabel, opts] of groups) {
-        optHtml += `<optgroup label="${groupLabel}">${opts.join('')}</optgroup>`;
-    }
-    medSelect.innerHTML = optHtml;
+        // Build the medication dropdown
+        const groups = new Map<string, string[]>();
+        for (const [key, entry] of Object.entries(MED_REGISTRY)) {
+            if (!groups.has(entry.optgroupLabel)) groups.set(entry.optgroupLabel, []);
+            groups.get(entry.optgroupLabel)!.push(`<option value="${key}">${entry.displayName}</option>`);
+        }
+        let optHtml = '<option value="">Select medication...</option>';
+        for (const [groupLabel, opts] of groups) {
+            optHtml += `<optgroup label="${groupLabel}">${opts.join('')}</optgroup>`;
+        }
+        medSelect.innerHTML = optHtml;
 
-    // Inject all form field groups before the submit button
-    const submitDiv = document.querySelector<HTMLElement>('.form-submit')!;
-    const groupsHtml = Object.values(MED_REGISTRY)
-        .flatMap(e => e.formGroupsSpec)
-        .map(renderFieldGroup)
-        .join('\n');
-    submitDiv.insertAdjacentHTML('beforebegin', groupsHtml);
+        // Inject all form field groups before the submit button
+        const submitDiv = document.querySelector<HTMLElement>('.form-submit')!;
+        const groupsHtml = Object.values(MED_REGISTRY)
+            .flatMap(e => e.formGroupsSpec)
+            .map(renderFieldGroup)
+            .join('\n');
+        submitDiv.insertAdjacentHTML('beforebegin', groupsHtml);
+    } catch (err) {
+        console.error('[initForm] Unexpected error:', err);
+    }
 }
 
 initForm();
@@ -233,30 +234,32 @@ initForm();
 // ─── Start Over ───────────────────────────────────────────────────────────────
 
 export function startOver(): void {
-    ['medication', 'guidance-type', ...Object.values(MED_REGISTRY).flatMap(e => e.formFieldIds)]
-        .forEach(clear);
+    try {
+        ['medication', 'guidance-type', ...Object.values(MED_REGISTRY).flatMap(e => e.formFieldIds)]
+            .forEach(clear);
 
-    Object.values(MED_REGISTRY).forEach(e => {
-        hide(e.lateFieldsGroup);
-        e.subFieldGroups?.forEach(hide);
-    });
+        Object.values(MED_REGISTRY).forEach(e => {
+            hide(e.lateFieldsGroup);
+            e.subFieldGroups?.forEach(hide);
+        });
 
-    document.querySelector('.guidance-section')?.remove();
-    document.querySelector<HTMLElement>('.form-section')!.style.display = 'block';
-    window.scrollTo(0, 0);
+        document.querySelector('.guidance-section')?.remove();
+        document.querySelector<HTMLElement>('.form-section')!.style.display = 'block';
+        window.scrollTo(0, 0);
+    } catch (err) {
+        console.error('[startOver] Unexpected error:', err);
+    }
 }
 
 // ─── Expose to HTML onclick handlers ─────────────────────────────────────────
 
 declare global { interface Window {
-    handleMedicationChange: typeof handleMedicationChange;
     handleGuidanceTypeChange: typeof handleGuidanceTypeChange;
     handleInvegaTypeChange: typeof handleInvegaTypeChange;
     handleSubmit: typeof handleSubmit;
     startOver: typeof startOver;
 } }
 
-window.handleMedicationChange  = handleMedicationChange;
 window.handleGuidanceTypeChange = handleGuidanceTypeChange;
 window.handleInvegaTypeChange   = handleInvegaTypeChange;
 window.handleSubmit             = handleSubmit;

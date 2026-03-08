@@ -1,9 +1,7 @@
-/** Parses med JSONs into MedDefinition closures and exports MED_REGISTRY. */
-
-import type { LateTier, GuidanceResult, CategoricalGuidanceResult, SupplementalGuidanceResult, SubmitContext } from '../types';
-import type { MedicationKey, LateGuidanceParams, RenderType, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition, RawTier, CoreDef } from './types';
-import { DAYS_PER_MONTH } from './types';
-import { daysSinceDate, formatDate, formatWeeksAndDays } from '../utils';
+import type { LateTier, GuidanceResult, CategoricalGuidanceResult, SupplementalGuidanceResult, SubmitContext } from './interfaces/guidance';
+import type { MedicationKey, LateGuidanceParams, RenderType, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition, RawTier, CoreDef } from './interfaces/med';
+import { DAYS_PER_MONTH } from './interfaces/med';
+import { daysSinceDate, formatDate, formatWeeksAndDays } from './utils';
 
 // ─── JSON imports (all med files in ./meds/ loaded eagerly) ─────────────────
 
@@ -26,9 +24,19 @@ function buildTier(raw: RawTier): LateTier {
 function buildTiers(raws: RawTier[]): LateTier[] { return raws.map(buildTier); }
 
 function resolveLateTier(tiers: LateTier[], daysSince: number, dose?: string): GuidanceResult {
-    const tier = tiers.find(t => daysSince <= t.maxDays) ?? tiers[tiers.length - 1];
-    if (tier.type === 'dose-variant') return tier.guidanceByDose[dose!];
-    return tier.guidance;
+    try {
+        const tier = tiers.find(t => daysSince <= t.maxDays) ?? tiers[tiers.length - 1];
+        if (tier.type === 'dose-variant') {
+            if (!dose || !(dose in tier.guidanceByDose)) {
+                console.error('[resolveLateTier] Missing or unknown dose:', dose, '— available:', Object.keys(tier.guidanceByDose));
+            }
+            return tier.guidanceByDose[dose!];
+        }
+        return tier.guidance;
+    } catch (err) {
+        console.error('[resolveLateTier] Failed to resolve tier for daysSince=%d dose=%s:', daysSince, dose, err);
+        return { idealSteps: '', pragmaticVariations: '', providerNotification: '' };
+    }
 }
 
 // ─── Core guidance logic (dispatches on lateGuidance.kind) ───────────────────
@@ -158,11 +166,12 @@ function buildStandardDef(json: any): Omit<MedDefinition, 'displayName' | 'early
                 : (optionsByField[row.field]?.find(o => o.value === raw)?.label ?? raw)];
         }
         const approxMonths = Math.floor(daysSince / DAYS_PER_MONTH);
+        const breakdown    = daysSince > 0;  // skip parenthetical for 0 / negative (future date)
         const t = row.format === 'days-months'
-            ? `${daysSince} days (approximately ${approxMonths} months)`
+            ? `${daysSince} days${breakdown ? ` (approximately ${approxMonths} months)` : ''}`
             : row.format === 'days-weeks-months'
-                ? `${daysSince} days (${formatWeeksAndDays(daysSince)} or approximately ${approxMonths} months)`
-                : `${daysSince} days (${formatWeeksAndDays(daysSince)})`;
+                ? `${daysSince} days${breakdown ? ` (${formatWeeksAndDays(daysSince)} or approximately ${approxMonths} months)` : ''}`
+                : `${daysSince} days${breakdown ? ` (${formatWeeksAndDays(daysSince)})` : ''}`;
         return [row.label, t];
     }
 
@@ -228,4 +237,11 @@ function buildStandardDef(json: any): Omit<MedDefinition, 'displayName' | 'early
 
 export const MED_REGISTRY: Record<MedicationKey, MedDefinition> =
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Object.fromEntries(ALL_MED_JSONS.map((json: any) => [json.key, { ...buildCoreDef(json), ...buildStandardDef(json) } as MedDefinition])) as Record<MedicationKey, MedDefinition>;
+    Object.fromEntries(ALL_MED_JSONS.flatMap((json: any) => {
+        try {
+            return [[json.key, { ...buildCoreDef(json), ...buildStandardDef(json) } as MedDefinition]];
+        } catch (err) {
+            console.error('[MED_REGISTRY] Failed to build definition for med:', json?.key ?? '(unknown)', err);
+            return [];
+        }
+    })) as Record<MedicationKey, MedDefinition>;

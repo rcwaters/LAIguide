@@ -19,7 +19,7 @@
 
             <div class="input-group">
                 <label for="medication">LAI Medication <span class="required">*</span></label>
-                <select id="medication" onchange="handleMedicationChange()">
+                <select id="medication" onchange="handleGuidanceTypeChange()">
                     <option value="">Select medication...</option>
                 </select>
             </div>
@@ -37,7 +37,7 @@
                 </p>
             </div>
 
-            <!-- Medication-specific form field groups are injected here by app.ts -->
+            <!-- Medication-specific form field groups are injected here by main.ts -->
 
             <div class="form-submit" style="text-align: center; margin-top: 30px;">
                 <button type="button" class="btn" onclick="handleSubmit()">Submit</button>
@@ -49,6 +49,6 @@
         </div>
     </div>
 
-    <script type="module" src="/src/app.ts"></script>
+    <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

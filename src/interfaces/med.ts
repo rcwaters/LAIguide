@@ -1,11 +1,9 @@
-/** Shared types and interfaces for the medication registry. */
-
 import type {
     GuidanceResult,
     CategoricalGuidanceResult,
     SupplementalGuidanceResult,
     SubmitContext,
-} from '../types';
+} from './guidance';
 
 // ─── Registry key ─────────────────────────────────────────────────────────────
 
@@ -69,7 +67,7 @@ export interface MedDefinition {
     earlyGuidance: string;
     getLateGuidance(params: LateGuidanceParams): LateGuidanceOutput;
 
-    // UI config: used by app.ts to generically handle form interaction
+    // UI config: used by main.ts to generically handle form interaction
     optgroupLabel:   string;           // medication <select> optgroup label
     formGroupsSpec:  FormGroupSpec[];  // declarative spec; drives runtime HTML generation
     lateFieldsGroup: string;

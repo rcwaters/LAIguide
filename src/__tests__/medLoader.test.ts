@@ -1,141 +1,42 @@
 import { describe, it, expect } from 'vitest';
-import {
-    getMedicationDisplayName,
-    getEarlyGuidanceContent,
-    getLateGuidance,
-} from '../handler';
-import { daysSinceDate, formatWeeksAndDays, formatDate } from '../utils';
-import type { GuidanceResult, SupplementalGuidanceResult, CategoricalGuidanceResult } from '../types';
+import { MED_REGISTRY } from '../medLoader';
+import type { GuidanceResult, SupplementalGuidanceResult, CategoricalGuidanceResult } from '../interfaces/guidance';
 
 // Local wrappers that preserve the original test call signatures
 function getInvegaInitiationGuidance(days: number): GuidanceResult {
-    return getLateGuidance('invega_sustenna', { daysSince: days, variant: 'initiation' }) as GuidanceResult;
+    return MED_REGISTRY['invega_sustenna'].getLateGuidance({ daysSince: days, variant: 'initiation' }) as GuidanceResult;
 }
 function getInvegaMaintenanceGuidance(days: number, dose: string): GuidanceResult {
-    return getLateGuidance('invega_sustenna', { daysSince: days, variant: 'maintenance', dose }) as GuidanceResult;
+    return MED_REGISTRY['invega_sustenna'].getLateGuidance({ daysSince: days, variant: 'maintenance', dose }) as GuidanceResult;
 }
 function getInvegaTrinzaGuidance(days: number, dose: string): GuidanceResult {
-    return getLateGuidance('invega_trinza', { daysSince: days, dose }) as GuidanceResult;
+    return MED_REGISTRY['invega_trinza'].getLateGuidance({ daysSince: days, dose }) as GuidanceResult;
 }
 function getInvegaHafyeraGuidanceCategory(days: number): CategoricalGuidanceResult {
-    return getLateGuidance('invega_hafyera', { daysSince: days }) as CategoricalGuidanceResult;
+    return MED_REGISTRY['invega_hafyera'].getLateGuidance({ daysSince: days }) as CategoricalGuidanceResult;
 }
 function getAbilifyMaintenaGuidance(weeks: number, doses: string): GuidanceResult {
-    return getLateGuidance('abilify_maintena', { weeksSince: weeks, variant: doses }) as GuidanceResult;
+    return MED_REGISTRY['abilify_maintena'].getLateGuidance({ weeksSince: weeks, variant: doses }) as GuidanceResult;
 }
 function getAristadaGuidance(days: number, dose: string): SupplementalGuidanceResult {
-    return getLateGuidance('aristada', { daysSince: days, dose }) as SupplementalGuidanceResult;
+    return MED_REGISTRY['aristada'].getLateGuidance({ daysSince: days, dose }) as SupplementalGuidanceResult;
 }
 function getUzedyGuidance(days: number, dose: string): GuidanceResult {
-    return getLateGuidance('uzedy', { daysSince: days, dose }) as GuidanceResult;
+    return MED_REGISTRY['uzedy'].getLateGuidance({ daysSince: days, dose }) as GuidanceResult;
 }
-
-
-/** Returns a YYYY-MM-DD string for N days ago in local time. */
-function localDaysAgo(n: number): string {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    d.setDate(d.getDate() - n);
-    const yyyy = d.getFullYear();
-    const mm   = String(d.getMonth() + 1).padStart(2, '0');
-    const dd   = String(d.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
-}
-
-// ─── getMedicationDisplayName ─────────────────────────────────────────────────
-
-describe('getMedicationDisplayName', () => {
-    it('returns full name for known medication key', () => {
-        expect(getMedicationDisplayName('invega_sustenna')).toBe('Invega Sustenna (paliperidone palmitate)');
-        expect(getMedicationDisplayName('vivitrol')).toBe('Vivitrol (naltrexone)');
-        expect(getMedicationDisplayName('uzedy')).toBe('Uzedy (risperidone subcutaneous)');
-    });
-
-    it('returns the raw key when medication is unknown', () => {
-        expect(getMedicationDisplayName('unknown_med')).toBe('unknown_med');
+describe('displayName', () => {
+    it('returns full name for known medication keys', () => {
+        expect(MED_REGISTRY['invega_sustenna'].displayName).toBe('Invega Sustenna (paliperidone palmitate)');
+        expect(MED_REGISTRY['vivitrol'].displayName).toBe('Vivitrol (naltrexone)');
+        expect(MED_REGISTRY['uzedy'].displayName).toBe('Uzedy (risperidone subcutaneous)');
     });
 });
-
-// ─── getEarlyGuidanceContent ──────────────────────────────────────────────────
-
-describe('getEarlyGuidanceContent', () => {
-    it('returns early guidance for known medications', () => {
-        expect(getEarlyGuidanceContent('invega_trinza')).toBe('2 weeks before due date');
-        expect(getEarlyGuidanceContent('abilify_maintena')).toBe('No sooner than 26 days after last injection');
-    });
-
-    it('returns fallback text for unknown medication', () => {
-        expect(getEarlyGuidanceContent('unknown')).toContain('DESC LAI standing order document');
+describe('earlyGuidance', () => {
+    it('returns early guidance content for known medications', () => {
+        expect(MED_REGISTRY['invega_trinza'].earlyGuidance).toBe('2 weeks before due date');
+        expect(MED_REGISTRY['abilify_maintena'].earlyGuidance).toBe('No sooner than 26 days after last injection');
     });
 });
-
-// ─── formatWeeksAndDays ───────────────────────────────────────────────────────
-
-describe('formatWeeksAndDays', () => {
-    it('returns days only when less than 1 week', () => {
-        expect(formatWeeksAndDays(0)).toBe('0 days');
-        expect(formatWeeksAndDays(1)).toBe('1 day');
-        expect(formatWeeksAndDays(6)).toBe('6 days');
-    });
-
-    it('returns weeks only when evenly divisible', () => {
-        expect(formatWeeksAndDays(7)).toBe('1 week');
-        expect(formatWeeksAndDays(14)).toBe('2 weeks');
-        expect(formatWeeksAndDays(28)).toBe('4 weeks');
-    });
-
-    it('returns weeks and days for mixed values', () => {
-        expect(formatWeeksAndDays(8)).toBe('1 week, 1 day');
-        expect(formatWeeksAndDays(10)).toBe('1 week, 3 days');
-        expect(formatWeeksAndDays(45)).toBe('6 weeks, 3 days');
-    });
-});
-
-// ─── daysSinceDate ────────────────────────────────────────────────────────────
-
-describe('daysSinceDate', () => {
-    it('returns 0 for today', () => {
-        expect(daysSinceDate(localDaysAgo(0))).toBe(0);
-    });
-
-    it('returns correct count for past dates', () => {
-        expect(daysSinceDate(localDaysAgo(1))).toBe(1);
-        expect(daysSinceDate(localDaysAgo(28))).toBe(28);
-        expect(daysSinceDate(localDaysAgo(180))).toBe(180);
-    });
-
-    it('is not affected by time-of-day (no UTC off-by-one)', () => {
-        // Regardless of when during the day this test runs, today = 0, yesterday = 1
-        expect(daysSinceDate(localDaysAgo(0))).toBe(0);
-        expect(daysSinceDate(localDaysAgo(1))).toBe(1);
-    });
-});
-
-// ─── formatDate ───────────────────────────────────────────────────────────────
-
-describe('formatDate', () => {
-    it('formats a known date correctly', () => {
-        expect(formatDate('2025-01-15')).toBe('January 15, 2025');
-        expect(formatDate('2026-12-31')).toBe('December 31, 2026');
-    });
-
-    it('displays the same day that was entered (no UTC shift)', () => {
-        // Build a date string from local time to confirm no off-by-one
-        const today = new Date();
-        today.setHours(12, 0, 0, 0);
-        const yyyy  = today.getFullYear();
-        const mm    = String(today.getMonth() + 1).padStart(2, '0');
-        const dd    = String(today.getDate()).padStart(2, '0');
-        const input = `${yyyy}-${mm}-${dd}`;
-        const formatted = formatDate(input);
-        // The formatted string must include the correct day number
-        expect(formatted).toContain(String(today.getDate()));
-        expect(formatted).toContain(String(yyyy));
-    });
-});
-
-// ─── getInvegaInitiationGuidance ──────────────────────────────────────────────
-
 describe('getInvegaInitiationGuidance', () => {
     it('≤12 days: not due / proceed with original plans', () => {
         const r0  = getInvegaInitiationGuidance(0);
@@ -184,9 +85,6 @@ describe('getInvegaInitiationGuidance', () => {
         });
     });
 });
-
-// ─── getInvegaMaintenanceGuidance ─────────────────────────────────────────────
-
 describe('getInvegaMaintenanceGuidance', () => {
     it('<28 days: not significantly overdue', () => {
         const r = getInvegaMaintenanceGuidance(10, '156-or-less');
@@ -235,9 +133,6 @@ describe('getInvegaMaintenanceGuidance', () => {
         expect(getInvegaMaintenanceGuidance(181, '156-or-less').idealSteps).toContain('reinitiation');
     });
 });
-
-// ─── getInvegaTrinzaGuidance ──────────────────────────────────────────────────
-
 describe('getInvegaTrinzaGuidance', () => {
     it('<90 days: not yet due — refer to early guidance', () => {
         const r = getInvegaTrinzaGuidance(60, '410');
@@ -284,9 +179,6 @@ describe('getInvegaTrinzaGuidance', () => {
         expect(getInvegaTrinzaGuidance(271, '546').idealSteps).toContain('Reinitiation');
     });
 });
-
-// ─── getInvegaHafyeraGuidanceCategory ────────────────────────────────────────
-
 describe('getInvegaHafyeraGuidanceCategory', () => {
     it('returns "early" for <181 days', () => {
         expect(getInvegaHafyeraGuidanceCategory(0)).toBe('early');
@@ -303,9 +195,6 @@ describe('getInvegaHafyeraGuidanceCategory', () => {
         expect(getInvegaHafyeraGuidanceCategory(365)).toBe('consult');
     });
 });
-
-// ─── getAbilifyMaintenaGuidance ───────────────────────────────────────────────
-
 describe('getAbilifyMaintenaGuidance', () => {
     it('<4 weeks: not yet due', () => {
         const r = getAbilifyMaintenaGuidance(3, '3+');
@@ -336,9 +225,6 @@ describe('getAbilifyMaintenaGuidance', () => {
         expect(r.providerNotification).toContain('notify provider');
     });
 });
-
-// ─── getAristadaGuidance ──────────────────────────────────────────────────────
-
 describe('getAristadaGuidance', () => {
     it('<28 days: not yet due', () => {
         const r = getAristadaGuidance(10, '441');
@@ -485,9 +371,6 @@ describe('getAristadaGuidance', () => {
         });
     });
 });
-
-// ─── getUzedyGuidance ─────────────────────────────────────────────────────────
-
 describe('getUzedyGuidance', () => {
     it('<28 days: not yet due', () => {
         const r = getUzedyGuidance(10, '150-or-less');

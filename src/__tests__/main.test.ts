@@ -3,13 +3,12 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import {
-    handleMedicationChange,
     handleGuidanceTypeChange,
     handleInvegaTypeChange,
     handleSubmit,
     startOver,
     initForm,
-} from '../app';
+} from '../main';
 
 // ─── jsdom stubs ──────────────────────────────────────────────────────────────
 
@@ -85,7 +84,7 @@ describe('handleGuidanceTypeChange', () => {
         expect(isVisible('invega-sustenna-options')).toBe(true);
 
         setField('medication', 'uzedy');
-        handleMedicationChange();
+        handleGuidanceTypeChange();
         expect(isVisible('invega-sustenna-options')).toBe(false);
         expect(isVisible('uzedy-fields')).toBe(true);
     });
