@@ -7,35 +7,30 @@ import {
     daysSinceDate,
     formatDate,
     type GuidanceResult,
-    type AristadaGuidanceResult,
-    type HafyeraCategory,
-    type MaintenanceDose,
-    type TrinzaDose,
-    type AbilifyDoses,
-    type AristadaDose,
-    type UzedyDose,
+    type SupplementalGuidanceResult,
+    type CategoricalGuidanceResult,
 } from '../logic';
 
 // Local wrappers that preserve the original test call signatures
 function getInvegaInitiationGuidance(days: number): GuidanceResult {
     return getLateGuidance('invega_sustenna', { daysSince: days, variant: 'initiation' }) as GuidanceResult;
 }
-function getInvegaMaintenanceGuidance(days: number, dose: MaintenanceDose): GuidanceResult {
+function getInvegaMaintenanceGuidance(days: number, dose: string): GuidanceResult {
     return getLateGuidance('invega_sustenna', { daysSince: days, variant: 'maintenance', dose }) as GuidanceResult;
 }
-function getInvegaTrinzaGuidance(days: number, dose: TrinzaDose): GuidanceResult {
+function getInvegaTrinzaGuidance(days: number, dose: string): GuidanceResult {
     return getLateGuidance('invega_trinza', { daysSince: days, dose }) as GuidanceResult;
 }
-function getInvegaHafyeraGuidanceCategory(days: number): HafyeraCategory {
-    return getLateGuidance('invega_hafyera', { daysSince: days }) as HafyeraCategory;
+function getInvegaHafyeraGuidanceCategory(days: number): CategoricalGuidanceResult {
+    return getLateGuidance('invega_hafyera', { daysSince: days }) as CategoricalGuidanceResult;
 }
-function getAbilifyMaintenaGuidance(weeks: number, doses: AbilifyDoses): GuidanceResult {
+function getAbilifyMaintenaGuidance(weeks: number, doses: string): GuidanceResult {
     return getLateGuidance('abilify_maintena', { weeksSince: weeks, variant: doses }) as GuidanceResult;
 }
-function getAristadaGuidance(days: number, dose: AristadaDose): AristadaGuidanceResult {
-    return getLateGuidance('aristada', { daysSince: days, dose }) as AristadaGuidanceResult;
+function getAristadaGuidance(days: number, dose: string): SupplementalGuidanceResult {
+    return getLateGuidance('aristada', { daysSince: days, dose }) as SupplementalGuidanceResult;
 }
-function getUzedyGuidance(days: number, dose: UzedyDose): GuidanceResult {
+function getUzedyGuidance(days: number, dose: string): GuidanceResult {
     return getLateGuidance('uzedy', { daysSince: days, dose }) as GuidanceResult;
 }
 

@@ -5,8 +5,10 @@ import {
     type SubmitContext,
     type MedicationKey,
     type GuidanceResult,
-    type AristadaGuidanceResult,
-    type HafyeraCategory,
+    type SupplementalGuidanceResult,
+    type CategoricalGuidanceResult,
+    type FormGroupSpec,
+    type FieldSpec,
 } from './logic';
 
 // ─── Form Field Visibility ────────────────────────────────────────────────────
@@ -81,10 +83,10 @@ export function handleSubmit(): void {
                + entry.buildLateInfoRows(ctx, daysSince).map(([label, value]) => infoRow(label, value)).join('');
 
     let body: string;
-    if (entry.renderType === 'hafyera-category') {
-        body = hafyeraCategoryBody(guidance as HafyeraCategory);
-    } else if (entry.renderType === 'aristada') {
-        body = aristadaBody(guidance as AristadaGuidanceResult);
+    if (entry.renderType === 'categorical') {
+        body = categoricalBody(guidance as CategoricalGuidanceResult);
+    } else if (entry.renderType === 'supplementation') {
+        body = supplementationBody(guidance as SupplementalGuidanceResult);
     } else {
         body = threePartGuidance(guidance as GuidanceResult);
     }
@@ -152,8 +154,8 @@ function showEarlyGuidance(medication: string): void {
     injectGuidanceSection(rows, body);
 }
 
-function hafyeraCategoryBody(category: HafyeraCategory): string {
-    const textMap: Record<HafyeraCategory, string> = {
+function categoricalBody(category: CategoricalGuidanceResult): string {
+    const textMap: Record<CategoricalGuidanceResult, string> = {
         'early':   '<p>The Hafyera injection is not yet overdue. Please consult guidance on early dosing.</p>',
         'on-time': '<p>Proceed with administering the Hafyera injection. Plan for the subsequent injection in 6 months.</p>',
         'consult': `<p><strong>CONSULT PROVIDER REQUIRED</strong></p>
@@ -167,7 +169,7 @@ function hafyeraCategoryBody(category: HafyeraCategory): string {
         </div>`;
 }
 
-function aristadaBody(guidance: AristadaGuidanceResult): string {
+function supplementationBody(guidance: SupplementalGuidanceResult): string {
     if (guidance.notDue) {
         return `<div class="guidance-content">
                     <h3 class="guidance-heading">Guidance:</h3>
@@ -186,6 +188,52 @@ function aristadaBody(guidance: AristadaGuidanceResult): string {
                 <div class="guidance-text">${guidance.providerNotification}</div>
             </div>`;
 }
+// ─── Form Initialisation ──────────────────────────────────────────────────────
+
+function renderField(f: FieldSpec): string {
+    const label = `<label for="${f.id}">${f.label} <span class="required">*</span></label>`;
+    if (f.type === 'date') {
+        return `${label}\n<input type="date" id="${f.id}" class="date-input">`;
+    }
+    const onchange = f.onchange ? ` onchange="${f.onchange}"` : '';
+    const opts = f.options.map(o => `<option value="${o.value}">${o.label}</option>`).join('\n');
+    return `${label}\n<select id="${f.id}"${onchange}>\n<option value="">${f.placeholder ?? 'Select...'}</option>\n${opts}\n</select>`;
+}
+
+function renderFieldGroup(spec: FormGroupSpec): string {
+    const fields = spec.fields
+        .map((f, i) => i === 0 ? renderField(f) : `<div style="margin-top: 15px;">${renderField(f)}</div>`)
+        .join('\n');
+    return `<div class="input-group" id="${spec.groupId}" style="display: none;">\n${fields}\n</div>`;
+}
+
+export function initForm(): void {
+    const medSelect = document.getElementById('medication') as HTMLSelectElement | null;
+    if (!medSelect) return; // guard for test environments
+
+    // Build the medication dropdown
+    const groups = new Map<string, string[]>();
+    for (const [key, entry] of Object.entries(MED_REGISTRY)) {
+        if (!groups.has(entry.optgroupLabel)) groups.set(entry.optgroupLabel, []);
+        groups.get(entry.optgroupLabel)!.push(`<option value="${key}">${entry.displayName}</option>`);
+    }
+    let optHtml = '<option value="">Select medication...</option>';
+    for (const [groupLabel, opts] of groups) {
+        optHtml += `<optgroup label="${groupLabel}">${opts.join('')}</optgroup>`;
+    }
+    medSelect.innerHTML = optHtml;
+
+    // Inject all form field groups before the submit button
+    const submitDiv = document.querySelector<HTMLElement>('.form-submit')!;
+    const groupsHtml = Object.values(MED_REGISTRY)
+        .flatMap(e => e.formGroupsSpec)
+        .map(renderFieldGroup)
+        .join('\n');
+    submitDiv.insertAdjacentHTML('beforebegin', groupsHtml);
+}
+
+initForm();
+
 // ─── Start Over ───────────────────────────────────────────────────────────────
 
 export function startOver(): void {

@@ -7,13 +7,21 @@
  */
 
 import type {
-    MedicationKey,
     LateTier,
     GuidanceResult,
-    AristadaGuidanceResult,
-    HafyeraCategory,
+    CategoricalGuidanceResult,
+    SupplementalGuidanceResult,
     SubmitContext,
 } from '../types';
+
+// ─── Medication registry key ───────────────────────────────────────────────────────────
+
+/** Unique string key for each medication entry in the registry. */
+export type MedicationKey =
+    | 'invega_sustenna' | 'invega_trinza' | 'invega_hafyera'
+    | 'abilify_maintena' | 'aristada' | 'uzedy'
+    | 'haloperidol_decanoate' | 'fluphenazine_decanoate'
+    | 'vivitrol' | 'sublocade' | 'brixadi';
 
 import { daysSinceDate, formatDate, formatWeeksAndDays } from '../utils';
 
@@ -54,9 +62,20 @@ export interface LateGuidanceParams {
     dose?:       string;
 }
 
-export type LateGuidanceOutput = GuidanceResult | AristadaGuidanceResult | HafyeraCategory;
+export type LateGuidanceOutput = GuidanceResult | SupplementalGuidanceResult | CategoricalGuidanceResult;
 
-export type RenderType = 'three-part' | 'hafyera-category' | 'aristada';
+export type RenderType = 'three-part' | 'categorical' | 'supplementation';
+
+/** A single option in a select field */
+export interface SelectOption { value: string; label: string; }
+
+/** Describes one form field (date input or select) */
+export type FieldSpec =
+    | { type: 'date';   id: string; label: string }
+    | { type: 'select'; id: string; label: string; placeholder?: string; onchange?: string; options: SelectOption[] };
+
+/** A named group of fields shown/hidden together */
+export interface FormGroupSpec { groupId: string; fields: FieldSpec[]; }
 
 export interface MedDefinition {
     displayName:   string;
@@ -64,8 +83,10 @@ export interface MedDefinition {
     getLateGuidance(params: LateGuidanceParams): LateGuidanceOutput;
 
     // UI config: used by app.ts to generically handle form interaction
+    optgroupLabel:   string;           // medication <select> optgroup label
+    formGroupsSpec:  FormGroupSpec[];  // declarative spec; drives runtime HTML generation
     lateFieldsGroup: string;
-    subFieldGroups?: string[];   // extra groups to hide on medication change
+    subFieldGroups?: string[];         // extra groups to hide on medication change
     renderType:      RenderType;
     /** All form field IDs this med uses — used to build ctx and clear fields on change */
     formFieldIds: string[];
@@ -168,7 +189,7 @@ function buildInvegaHafyera(): CoreDef {
     return {
         displayName:     invegaHafyeraJson.displayName,
         earlyGuidance:   invegaHafyeraJson.earlyGuidance,
-        getLateGuidance: ({ daysSince }): HafyeraCategory => {
+        getLateGuidance: ({ daysSince }): CategoricalGuidanceResult => {
             if (daysSince! <= earlyMaxDays)  return 'early';
             if (daysSince! <= onTimeMaxDays) return 'on-time';
             return 'consult';
@@ -220,12 +241,32 @@ function buildAristada(): CoreDef {
     return {
         displayName:     aristadaJson.displayName,
         earlyGuidance:   aristadaJson.earlyGuidance,
-        getLateGuidance: ({ daysSince, dose }): AristadaGuidanceResult => {
+        getLateGuidance: ({ daysSince, dose }): SupplementalGuidanceResult => {
             if (daysSince! < notDueBeforeDays) return { notDue: true, message: notDueMessage };
             const config = doseConfigs.find(c => c.dose === dose)!;
             const tier   = config.tiers.find(t => daysSince! <= t.maxDays) ?? config.tiers[config.tiers.length - 1];
             return { notDue: false, supplementation: tier.supplementation, providerNotification: tier.providerNotification };
         },
+    };
+}
+
+// ─── Form spec helper ─────────────────────────────────────────────────────────
+
+/**
+ * Derives lateFieldsGroup, subFieldGroups, formFieldIds, and subGroupSelectorId
+ * from a FormGroupSpec array — the single source of truth for form structure.
+ */
+function withGroups(spec: FormGroupSpec[]) {
+    const firstField = spec[0].fields[0];
+    const subGroupSelectorId =
+        firstField.type === 'select' && 'onchange' in firstField && firstField.onchange
+            ? firstField.id : undefined;
+    return {
+        formGroupsSpec:    spec,
+        lateFieldsGroup:   spec[0].groupId,
+        subFieldGroups:    spec.length > 1 ? spec.slice(1).map(g => g.groupId) : undefined,
+        formFieldIds:      spec.flatMap(g => g.fields.map(f => f.id)),
+        subGroupSelectorId,
     };
 }
 
@@ -235,11 +276,31 @@ export const MED_REGISTRY: Record<MedicationKey, MedDefinition> = {
 
     invega_sustenna: {
         ...buildInvegaSustenna(),
-        lateFieldsGroup:  'invega-sustenna-options',
-        subFieldGroups:   ['first-injection-date', 'maintenance-fields'],
-        renderType:       'three-part',
-        formFieldIds:     ['invega-type', 'first-injection', 'last-maintenance', 'maintenance-dose'],
-        subGroupSelectorId: 'invega-type',
+        optgroupLabel: 'Antipsychotics - Currently Used at DESC',
+        ...withGroups([
+            {
+                groupId: 'invega-sustenna-options',
+                fields: [{ type: 'select', id: 'invega-type', label: 'Invega Sustenna Injection Type', placeholder: 'Select injection type...', onchange: 'handleInvegaTypeChange()', options: [
+                    { value: 'initiation',  label: 'Missed/delayed 2nd initiation (156 mg) injection' },
+                    { value: 'maintenance', label: 'Missed/delayed monthly maintenance injection' },
+                ] }],
+            },
+            {
+                groupId: 'first-injection-date',
+                fields: [{ type: 'date', id: 'first-injection', label: 'Date of first (234 mg) injection' }],
+            },
+            {
+                groupId: 'maintenance-fields',
+                fields: [
+                    { type: 'date',   id: 'last-maintenance', label: 'Date of last maintenance injection' },
+                    { type: 'select', id: 'maintenance-dose', label: 'Monthly maintenance injection dose', placeholder: 'Select dose...', options: [
+                        { value: '156-or-less', label: '156 mg or less' },
+                        { value: '234',         label: '234 mg' },
+                    ] },
+                ],
+            },
+        ]),
+        renderType: 'three-part',
         handleSubGroupChange: (invegaType, show, hide, clear) => {
             if (invegaType === 'initiation') {
                 show('first-injection-date');
@@ -287,9 +348,19 @@ export const MED_REGISTRY: Record<MedicationKey, MedDefinition> = {
 
     invega_trinza: {
         ...buildFromTiers(invegaTrinzaJson),
-        lateFieldsGroup: 'trinza-fields',
-        renderType:      'three-part',
-        formFieldIds:    ['last-trinza', 'trinza-dose'],
+        optgroupLabel: 'Antipsychotics - Currently Used at DESC',
+        ...withGroups([{
+            groupId: 'trinza-fields',
+            fields: [
+                { type: 'date',   id: 'last-trinza', label: 'Date of last Trinza injection' },
+                { type: 'select', id: 'trinza-dose',  label: 'Trinza injection dose', placeholder: 'Select dose...', options: [
+                    { value: '410', label: '410 mg' },
+                    { value: '546', label: '546 mg' },
+                    { value: '819', label: '819 mg' },
+                ] },
+            ],
+        }]),
+        renderType: 'three-part',
         validateLate: (ctx) => {
             if (!ctx['last-trinza']) return 'Please enter the date of last Trinza injection.';
             if (!ctx['trinza-dose']) return 'Please select the Trinza injection dose.';
@@ -305,9 +376,12 @@ export const MED_REGISTRY: Record<MedicationKey, MedDefinition> = {
 
     invega_hafyera: {
         ...buildInvegaHafyera(),
-        lateFieldsGroup: 'hafyera-fields',
-        renderType:      'hafyera-category',
-        formFieldIds:    ['last-hafyera'],
+        optgroupLabel: 'Antipsychotics - Currently Used at DESC',
+        ...withGroups([{
+            groupId: 'hafyera-fields',
+            fields: [{ type: 'date', id: 'last-hafyera', label: 'Date of last Hafyera injection' }],
+        }]),
+        renderType: 'categorical',
         validateLate:      (ctx) => ctx['last-hafyera'] ? null : 'Please enter the date of last Hafyera injection.',
         buildLateParams:   (ctx) => ({ daysSince: daysSinceDate(ctx['last-hafyera']) }),
         buildLateInfoRows: (ctx, daysSince) => [
@@ -318,9 +392,18 @@ export const MED_REGISTRY: Record<MedicationKey, MedDefinition> = {
 
     abilify_maintena: {
         ...buildAbilifyMaintena(),
-        lateFieldsGroup: 'abilify-fields',
-        renderType:      'three-part',
-        formFieldIds:    ['last-abilify', 'abilify-doses'],
+        optgroupLabel: 'Antipsychotics - Currently Used at DESC',
+        ...withGroups([{
+            groupId: 'abilify-fields',
+            fields: [
+                { type: 'date',   id: 'last-abilify',  label: 'Date of last Abilify Maintena injection' },
+                { type: 'select', id: 'abilify-doses',  label: 'Number of prior consecutive monthly Abilify Maintena injections received', placeholder: 'Select number...', options: [
+                    { value: '1-2', label: '1 or 2 monthly doses' },
+                    { value: '3+',  label: '3 or more monthly doses' },
+                ] },
+            ],
+        }]),
+        renderType: 'three-part',
         validateLate: (ctx) => {
             if (!ctx['last-abilify'])  return 'Please enter the date of last Abilify Maintena injection.';
             if (!ctx['abilify-doses']) return 'Please select the number of prior consecutive monthly injections.';
@@ -339,9 +422,20 @@ export const MED_REGISTRY: Record<MedicationKey, MedDefinition> = {
 
     aristada: {
         ...buildAristada(),
-        lateFieldsGroup: 'aristada-fields',
-        renderType:      'aristada',
-        formFieldIds:    ['last-aristada', 'aristada-dose'],
+        optgroupLabel: 'Antipsychotics - Currently Used at DESC',
+        ...withGroups([{
+            groupId: 'aristada-fields',
+            fields: [
+                { type: 'date',   id: 'last-aristada', label: 'Date of last Aristada injection' },
+                { type: 'select', id: 'aristada-dose',  label: 'Dose of last Aristada injection', placeholder: 'Select dose...', options: [
+                    { value: '441',  label: '441 mg' },
+                    { value: '662',  label: '662 mg' },
+                    { value: '882',  label: '882 mg' },
+                    { value: '1064', label: '1064 mg' },
+                ] },
+            ],
+        }]),
+        renderType: 'supplementation',
         validateLate: (ctx) => {
             if (!ctx['last-aristada']) return 'Please enter the date of last Aristada injection.';
             if (!ctx['aristada-dose']) return 'Please select the dose of last Aristada injection.';
@@ -357,9 +451,18 @@ export const MED_REGISTRY: Record<MedicationKey, MedDefinition> = {
 
     uzedy: {
         ...buildFromTiers(uzedyJson),
-        lateFieldsGroup: 'uzedy-fields',
-        renderType:      'three-part',
-        formFieldIds:    ['last-uzedy', 'uzedy-dose'],
+        optgroupLabel: 'Antipsychotics - Currently Used at DESC',
+        ...withGroups([{
+            groupId: 'uzedy-fields',
+            fields: [
+                { type: 'date',   id: 'last-uzedy', label: 'Date of last Uzedy injection' },
+                { type: 'select', id: 'uzedy-dose',  label: 'Uzedy maintenance dose', placeholder: 'Select dose...', options: [
+                    { value: '150-or-less', label: '150 mg or less' },
+                    { value: '200-or-more', label: '200 mg or more' },
+                ] },
+            ],
+        }]),
+        renderType: 'three-part',
         validateLate: (ctx) => {
             if (!ctx['last-uzedy']) return 'Please enter the date of last Uzedy injection.';
             if (!ctx['uzedy-dose']) return 'Please select the Uzedy maintenance dose.';
@@ -375,9 +478,18 @@ export const MED_REGISTRY: Record<MedicationKey, MedDefinition> = {
 
     haloperidol_decanoate: {
         ...buildFromPriorDoseGroups(haloperidolDecJson),
-        lateFieldsGroup: 'haloperidol-fields',
-        renderType:      'three-part',
-        formFieldIds:    ['last-haloperidol', 'haloperidol-prior-doses'],
+        optgroupLabel: 'Antipsychotics - Currently Used at DESC',
+        ...withGroups([{
+            groupId: 'haloperidol-fields',
+            fields: [
+                { type: 'date',   id: 'last-haloperidol',       label: 'Date of last Haloperidol Decanoate injection' },
+                { type: 'select', id: 'haloperidol-prior-doses', label: 'Prior consecutive monthly Haloperidol Decanoate injections received', placeholder: 'Select number...', options: [
+                    { value: '1-3', label: '1\u20133 injections (steady state not yet likely achieved)' },
+                    { value: '4+',  label: '4 or more injections (steady state likely achieved)' },
+                ] },
+            ],
+        }]),
+        renderType: 'three-part',
         validateLate: (ctx) => {
             if (!ctx['last-haloperidol'])        return 'Please enter the date of last Haloperidol Decanoate injection.';
             if (!ctx['haloperidol-prior-doses']) return 'Please select the number of prior Haloperidol Decanoate injections.';
@@ -393,9 +505,18 @@ export const MED_REGISTRY: Record<MedicationKey, MedDefinition> = {
 
     fluphenazine_decanoate: {
         ...buildFromPriorDoseGroups(fluphenazineDecJson),
-        lateFieldsGroup: 'fluphenazine-fields',
-        renderType:      'three-part',
-        formFieldIds:    ['last-fluphenazine', 'fluphenazine-prior-doses'],
+        optgroupLabel: 'Antipsychotics - Currently Used at DESC',
+        ...withGroups([{
+            groupId: 'fluphenazine-fields',
+            fields: [
+                { type: 'date',   id: 'last-fluphenazine',       label: 'Date of last Fluphenazine Decanoate injection' },
+                { type: 'select', id: 'fluphenazine-prior-doses', label: 'Prior consecutive Fluphenazine Decanoate injections received', placeholder: 'Select number...', options: [
+                    { value: '1-2', label: '1\u20132 injections (4\u20138 weeks into therapy; steady state not yet achieved)' },
+                    { value: '3+',  label: '3 or more injections (beyond ~6\u20138 weeks; steady state likely achieved)' },
+                ] },
+            ],
+        }]),
+        renderType: 'three-part',
         validateLate: (ctx) => {
             if (!ctx['last-fluphenazine'])        return 'Please enter the date of last Fluphenazine Decanoate injection.';
             if (!ctx['fluphenazine-prior-doses']) return 'Please select the number of prior Fluphenazine Decanoate injections.';
@@ -411,9 +532,18 @@ export const MED_REGISTRY: Record<MedicationKey, MedDefinition> = {
 
     vivitrol: {
         ...buildFromKeyedTiers(vivitrolJson),
-        lateFieldsGroup: 'vivitrol-fields',
-        renderType:      'three-part',
-        formFieldIds:    ['last-vivitrol', 'vivitrol-indication'],
+        optgroupLabel: 'Addiction Medicine',
+        ...withGroups([{
+            groupId: 'vivitrol-fields',
+            fields: [
+                { type: 'date',   id: 'last-vivitrol',      label: 'Date of last Vivitrol injection' },
+                { type: 'select', id: 'vivitrol-indication', label: 'Indication for Vivitrol', placeholder: 'Select indication...', options: [
+                    { value: 'oud',                 label: 'OUD treatment' },
+                    { value: 'overdose-prevention', label: 'Overdose prevention (not OUD)' },
+                ] },
+            ],
+        }]),
+        renderType: 'three-part',
         validateLate: (ctx) => {
             if (!ctx['last-vivitrol'])       return 'Please enter the date of last Vivitrol injection.';
             if (!ctx['vivitrol-indication']) return 'Please select the Vivitrol indication.';
@@ -429,9 +559,19 @@ export const MED_REGISTRY: Record<MedicationKey, MedDefinition> = {
 
     sublocade: {
         ...buildFromKeyedTiers(sublocadeJson),
-        lateFieldsGroup: 'sublocade-fields',
-        renderType:      'three-part',
-        formFieldIds:    ['last-sublocade', 'sublocade-type'],
+        optgroupLabel: 'Addiction Medicine',
+        ...withGroups([{
+            groupId: 'sublocade-fields',
+            fields: [
+                { type: 'date',   id: 'last-sublocade', label: 'Date of last Sublocade injection' },
+                { type: 'select', id: 'sublocade-type',  label: 'Sublocade dose and history', placeholder: 'Select dose/history...', options: [
+                    { value: '100mg',             label: 'Sublocade 100 mg' },
+                    { value: '300mg-few',         label: 'Sublocade 300 mg \u2014 1 or 2 prior injections without gaps >6 weeks' },
+                    { value: '300mg-established', label: 'Sublocade 300 mg \u2014 3 or more prior injections without gaps >6 weeks' },
+                ] },
+            ],
+        }]),
+        renderType: 'three-part',
         validateLate: (ctx) => {
             if (!ctx['last-sublocade']) return 'Please enter the date of last Sublocade injection.';
             if (!ctx['sublocade-type']) return 'Please select the Sublocade dose and history.';
@@ -454,9 +594,20 @@ export const MED_REGISTRY: Record<MedicationKey, MedDefinition> = {
 
     brixadi: {
         ...buildFromKeyedTiers(brixadiJson),
-        lateFieldsGroup: 'brixadi-fields',
-        renderType:      'three-part',
-        formFieldIds:    ['last-brixadi', 'brixadi-type'],
+        optgroupLabel: 'Addiction Medicine',
+        ...withGroups([{
+            groupId: 'brixadi-fields',
+            fields: [
+                { type: 'date',   id: 'last-brixadi', label: 'Date of last Brixadi injection' },
+                { type: 'select', id: 'brixadi-type',  label: 'Brixadi formulation and dose', placeholder: 'Select formulation/dose...', options: [
+                    { value: 'monthly-64',  label: 'Monthly 64 mg' },
+                    { value: 'monthly-96',  label: 'Monthly 96 mg' },
+                    { value: 'monthly-128', label: 'Monthly 128 mg' },
+                    { value: 'weekly',      label: 'Weekly 24 mg or 32 mg (high-dose)' },
+                ] },
+            ],
+        }]),
+        renderType: 'three-part',
         validateLate: (ctx) => {
             if (!ctx['last-brixadi']) return 'Please enter the date of last Brixadi injection.';
             if (!ctx['brixadi-type']) return 'Please select the Brixadi formulation and dose.';

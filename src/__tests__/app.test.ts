@@ -8,6 +8,7 @@ import {
     handleInvegaTypeChange,
     handleSubmit,
     startOver,
+    initForm,
 } from '../app';
 
 // ─── jsdom stubs ──────────────────────────────────────────────────────────────
@@ -21,6 +22,7 @@ const HTML = readFileSync(resolve(__dirname, '../../index.html'), 'utf-8');
 
 function setupDOM(): void {
     document.documentElement.innerHTML = HTML;
+    initForm();
 }
 
 function setField(id: string, value: string): void {

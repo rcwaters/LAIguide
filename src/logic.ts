@@ -1,28 +1,16 @@
 // Re-export all types so consumers can import from a single place if desired.
 export type {
-    MedicationKey,
-    InvegaType,
-    MaintenanceDose,
-    TrinzaDose,
-    AbilifyDoses,
-    AristadaDose,
-    UzedyDose,
-    HafyeraCategory,
     GuidanceResult,
-    AristadaGuidanceResult,
+    CategoricalGuidanceResult,
+    SupplementalGuidanceResult,
     LateTier,
-    HaloperidolPriorDoses,
-    FluphenazinePriorDoses,
-    VivitrolIndication,
-    SublocadeType,
-    BrixadiType,
     SubmitContext,
 } from './types';
 
-export type { LateGuidanceParams, LateGuidanceOutput } from './constants';
+export type { MedicationKey, LateGuidanceParams, LateGuidanceOutput, FormGroupSpec, FieldSpec, SelectOption } from './constants';
 export { MED_REGISTRY } from './constants';
 
-import type { MedicationKey } from './types';
+import type { MedicationKey } from './constants';
 
 import {
     MED_REGISTRY,
