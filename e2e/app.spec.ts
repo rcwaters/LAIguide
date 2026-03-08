@@ -14,9 +14,19 @@ function daysFromNow(n: number): string { return daysAgo(-n); }
 async function selectField(page: Page, id: string, value: string): Promise<void> {
     const radio = page.locator(`input[name="${id}"][value="${value}"]`);
     if (await radio.count() > 0) {
+        // Dispatch synthetic change event and also call the matching window
+        // handler directly — headless Chromium in CI can miss attribute-based
+        // onchange handlers triggered by synthetic events alone.
         await page.evaluate(({ id, value }) => {
             const input = document.querySelector<HTMLInputElement>(`input[name="${id}"][value="${value}"]`);
-            if (input) { input.checked = true; input.dispatchEvent(new Event('change', { bubbles: true })); }
+            if (input) {
+                input.checked = true;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                if (id === 'guidance-type')
+                    (window as any).handleGuidanceTypeChange?.();
+                else if (id === 'invega-type')
+                    (window as any).handleInvegaTypeChange?.();
+            }
         }, { id, value });
     } else {
         await page.selectOption(`#${id}`, value);
