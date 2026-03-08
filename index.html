@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DESC LAI Medication Standing Order Tool</title>
-  <script type="module" crossorigin src="./assets/index-BvBzG3KU.js"></script>
+  <script type="module" crossorigin src="./assets/index-Cm7uobm9.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-DBIB36zM.css">
 </head>
 <body>
@@ -136,6 +136,74 @@
                         <option value="">Select dose...</option>
                         <option value="150-or-less">150 mg or less</option>
                         <option value="200-or-more">200 mg or more</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group" id="haloperidol-fields" style="display: none;">
+                <label for="last-haloperidol">Date of last Haloperidol Decanoate injection <span class="required">*</span></label>
+                <input type="date" id="last-haloperidol" class="date-input">
+                <div style="margin-top: 15px;">
+                    <label for="haloperidol-prior-doses">Prior consecutive monthly Haloperidol Decanoate injections received <span class="required">*</span></label>
+                    <select id="haloperidol-prior-doses">
+                        <option value="">Select number...</option>
+                        <option value="1-3">1–3 injections (steady state not yet likely achieved)</option>
+                        <option value="4+">4 or more injections (steady state likely achieved)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group" id="fluphenazine-fields" style="display: none;">
+                <label for="last-fluphenazine">Date of last Fluphenazine Decanoate injection <span class="required">*</span></label>
+                <input type="date" id="last-fluphenazine" class="date-input">
+                <div style="margin-top: 15px;">
+                    <label for="fluphenazine-prior-doses">Prior consecutive Fluphenazine Decanoate injections received <span class="required">*</span></label>
+                    <select id="fluphenazine-prior-doses">
+                        <option value="">Select number...</option>
+                        <option value="1-2">1–2 injections (4–8 weeks into therapy; steady state not yet achieved)</option>
+                        <option value="3+">3 or more injections (beyond ~6–8 weeks; steady state likely achieved)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group" id="vivitrol-fields" style="display: none;">
+                <label for="last-vivitrol">Date of last Vivitrol injection <span class="required">*</span></label>
+                <input type="date" id="last-vivitrol" class="date-input">
+                <div style="margin-top: 15px;">
+                    <label for="vivitrol-indication">Indication for Vivitrol <span class="required">*</span></label>
+                    <select id="vivitrol-indication">
+                        <option value="">Select indication...</option>
+                        <option value="oud">OUD treatment</option>
+                        <option value="overdose-prevention">Overdose prevention (not OUD)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group" id="sublocade-fields" style="display: none;">
+                <label for="last-sublocade">Date of last Sublocade injection <span class="required">*</span></label>
+                <input type="date" id="last-sublocade" class="date-input">
+                <div style="margin-top: 15px;">
+                    <label for="sublocade-type">Sublocade dose and history <span class="required">*</span></label>
+                    <select id="sublocade-type">
+                        <option value="">Select dose/history...</option>
+                        <option value="100mg">Sublocade 100 mg</option>
+                        <option value="300mg-few">Sublocade 300 mg — 1 or 2 prior injections without gaps &gt;6 weeks</option>
+                        <option value="300mg-established">Sublocade 300 mg — 3 or more prior injections without gaps &gt;6 weeks</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group" id="brixadi-fields" style="display: none;">
+                <label for="last-brixadi">Date of last Brixadi injection <span class="required">*</span></label>
+                <input type="date" id="last-brixadi" class="date-input">
+                <div style="margin-top: 15px;">
+                    <label for="brixadi-type">Brixadi formulation and dose <span class="required">*</span></label>
+                    <select id="brixadi-type">
+                        <option value="">Select formulation/dose...</option>
+                        <option value="monthly-64">Monthly 64 mg</option>
+                        <option value="monthly-96">Monthly 96 mg</option>
+                        <option value="monthly-128">Monthly 128 mg</option>
+                        <option value="weekly">Weekly 24 mg or 32 mg (high-dose)</option>
                     </select>
                 </div>
             </div>
