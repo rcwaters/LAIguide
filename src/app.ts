@@ -1,15 +1,11 @@
 import {
     getMedicationDisplayName,
     getEarlyGuidanceContent,
-    MED_REGISTRY,
-    type SubmitContext,
-    type MedicationKey,
-    type GuidanceResult,
-    type SupplementalGuidanceResult,
-    type CategoricalGuidanceResult,
-    type FormGroupSpec,
-    type FieldSpec,
-} from './logic';
+} from './handler';
+import { MED_REGISTRY } from './data/loader';
+import type { MedicationKey, FormGroupSpec, FieldSpec } from './data/types';
+import type { SubmitContext, GuidanceResult, SupplementalGuidanceResult, CategoricalGuidanceResult } from './types';
+import { md } from './utils';
 
 // ─── Form Field Visibility ────────────────────────────────────────────────────
 
@@ -107,16 +103,16 @@ function infoRow(label: string, value: string): string {
 function threePartGuidance(guidance: GuidanceResult): string {
     return `
         <div class="guidance-content">
-            <h3 class="guidance-heading">Ideal steps (do if possible):</h3>
-            <div class="guidance-text">${guidance.idealSteps}</div>
+            <h3 class="guidance-heading">Ideal steps (if possible):</h3>
+            <div class="guidance-text">${md(guidance.idealSteps)}</div>
         </div>
         <div class="guidance-content">
-            <h3 class="guidance-heading">Acceptable pragmatic variations if ideal is not possible:</h3>
-            <div class="guidance-text">${guidance.pragmaticVariations}</div>
+            <h3 class="guidance-heading">Acceptable pragmatic variations (if ideal is not possible):</h3>
+            <div class="guidance-text">${md(guidance.pragmaticVariations)}</div>
         </div>
         <div class="guidance-content">
             <h3 class="guidance-heading">When to notify provider:</h3>
-            <div class="guidance-text">${guidance.providerNotification}</div>
+            <div class="guidance-text">${md(guidance.providerNotification)}</div>
         </div>`;
 }
 
@@ -145,7 +141,7 @@ function showEarlyGuidance(medication: string): void {
     const body = `
         <div class="guidance-content">
             <h3 class="guidance-heading">Time frame acceptable to give an "early" injection without seeking provider consult:</h3>
-            <div class="guidance-text">${getEarlyGuidanceContent(medication)}</div>
+            <div class="guidance-text">${md(getEarlyGuidanceContent(medication))}</div>
         </div>
         <div class="important-note">
             <strong>⚠️ Important:</strong> If there may be a reason to administer even earlier than the specified timeframe, provider approval must be obtained.
@@ -173,7 +169,7 @@ function supplementationBody(guidance: SupplementalGuidanceResult): string {
     if (guidance.notDue) {
         return `<div class="guidance-content">
                     <h3 class="guidance-heading">Guidance:</h3>
-                    <div class="guidance-text">${guidance.message}</div>
+                    <div class="guidance-text">${md(guidance.message)}</div>
                 </div>`;
     }
     return `<div class="guidance-content">
@@ -181,11 +177,11 @@ function supplementationBody(guidance: SupplementalGuidanceResult): string {
             </div>
             <div class="guidance-content">
                 <h3 class="guidance-heading">Recommended supplementation:</h3>
-                <div class="guidance-text">${guidance.supplementation}</div>
+                <div class="guidance-text">${md(guidance.supplementation)}</div>
             </div>
             <div class="guidance-content">
                 <h3 class="guidance-heading">When to notify provider:</h3>
-                <div class="guidance-text">${guidance.providerNotification}</div>
+                <div class="guidance-text">${md(guidance.providerNotification)}</div>
             </div>`;
 }
 // ─── Form Initialisation ──────────────────────────────────────────────────────

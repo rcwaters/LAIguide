@@ -1,9 +1,4 @@
-/**
- * src/meds/types.ts
- *
- * Public interfaces and types for the medication registry.
- * Consumers import these either directly or via the src/constants.ts barrel.
- */
+/** Shared types and interfaces for the medication registry. */
 
 import type {
     GuidanceResult,
@@ -90,3 +85,13 @@ export interface MedDefinition {
     buildLateParams(ctx: SubmitContext): LateGuidanceParams;
     buildLateInfoRows(ctx: SubmitContext, daysSince: number): [string, string][];
 }
+
+// ─── Internal raw JSON shapes (used by loader) ────────────────────────────────
+
+export type RawTier = Record<string, unknown>;
+
+/** Internal: the three guidance-logic fields built by buildCoreDef. */
+export type CoreDef = Pick<MedDefinition, 'displayName' | 'earlyGuidance' | 'getLateGuidance'>;
+
+/** Average days per month (365.25 / 12). */
+export const DAYS_PER_MONTH = 30.44;

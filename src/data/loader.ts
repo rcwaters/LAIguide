@@ -1,61 +1,26 @@
-/**
- * src/meds/loader.ts
- *
- * Parses each medication JSON file into a MedDefinition with a getLateGuidance()
- * closure. MED_REGISTRY is the single place that knows about specific meds;
- * all code outside src/meds works through the registry generically.
- */
+/** Parses med JSONs into MedDefinition closures and exports MED_REGISTRY. */
 
 import type { LateTier, GuidanceResult, CategoricalGuidanceResult, SupplementalGuidanceResult, SubmitContext } from '../types';
-import type { MedicationKey, LateGuidanceParams, RenderType, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition } from './types';
+import type { MedicationKey, LateGuidanceParams, RenderType, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition, RawTier, CoreDef } from './types';
+import { DAYS_PER_MONTH } from './types';
 import { daysSinceDate, formatDate, formatWeeksAndDays } from '../utils';
 
-// ─── JSON imports ─────────────────────────────────────────────────────────────
+// ─── JSON imports (all med files in ./meds/ loaded eagerly) ─────────────────
 
-import invegaSustennaJson  from './invega_sustenna.json';
-import invegaTrinzaJson    from './invega_trinza.json';
-import invegaHafyeraJson   from './invega_hafyera.json';
-import abilifyMaintenaJson from './abilify_maintena.json';
-import aristadaJson        from './aristada.json';
-import uzedyJson           from './uzedy.json';
-import haloperidolDecJson  from './haloperidol_decanoate.json';
-import fluphenazineDecJson from './fluphenazine_decanoate.json';
-import vivitrolJson        from './vivitrol.json';
-import sublocadeJson       from './sublocade.json';
-import brixadiJson         from './brixadi.json';
-
-// ─── Private interfaces ──────────────────────────────────────────────────────
-
-interface RawGuidance {
-    idealSteps:           string;
-    pragmaticVariations:  string;
-    providerNotification: string;
-}
-
-type RawTier = Record<string, unknown>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ALL_MED_JSONS: any[] = Object.values(import.meta.glob('./meds/*.json', { eager: true, import: 'default' }));
 
 // ─── Internal utilities ──────────────────────────────────────────────────────────────────
 
 function days(n: number | null): number { return n === null ? Infinity : n; }
 
-function buildGuidance(raw: RawGuidance): GuidanceResult {
-    return {
-        idealSteps:           raw.idealSteps,
-        pragmaticVariations:  raw.pragmaticVariations,
-        providerNotification: raw.providerNotification,
-    };
-}
 
 function buildTier(raw: RawTier): LateTier {
     const maxDays = days(raw['maxDays'] as number | null);
     if (raw['guidanceByDose'] != null) {
-        const guidanceByDose: Record<string, GuidanceResult> = {};
-        for (const [dose, g] of Object.entries(raw['guidanceByDose'] as Record<string, RawGuidance>)) {
-            guidanceByDose[dose] = buildGuidance(g);
-        }
-        return { type: 'dose-variant', maxDays, guidanceByDose };
+        return { type: 'dose-variant', maxDays, guidanceByDose: raw['guidanceByDose'] as Record<string, GuidanceResult> };
     }
-    return { type: 'static', maxDays, guidance: buildGuidance(raw['guidance'] as RawGuidance) };
+    return { type: 'static', maxDays, guidance: raw['guidance'] as GuidanceResult };
 }
 
 function buildTiers(raws: RawTier[]): LateTier[] { return raws.map(buildTier); }
@@ -67,8 +32,6 @@ function resolveLateTier(tiers: LateTier[], daysSince: number, dose?: string): G
 }
 
 // ─── Core guidance logic (dispatches on lateGuidance.kind) ───────────────────
-
-type CoreDef = Pick<MedDefinition, 'displayName' | 'earlyGuidance' | 'getLateGuidance'>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildCoreDef(json: any): CoreDef {
@@ -82,7 +45,7 @@ function buildCoreDef(json: any): CoreDef {
             return { ...base, getLateGuidance: ({ daysSince, dose }) => resolveLateTier(tiers, daysSince!, dose) };
         }
 
-        case 'prior-dose-tier-groups': {
+        case 'tiers-by-prior-doses': {
             const groups = (lg['priorDoseGroups'] as { priorDoses: string; tiers: RawTier[] }[])
                 .map(pg => ({ priorDoses: pg.priorDoses, tiers: buildTiers(pg.tiers) }));
             return { ...base, getLateGuidance: ({ daysSince, variant }) => {
@@ -91,9 +54,12 @@ function buildCoreDef(json: any): CoreDef {
             }};
         }
 
-        case 'keyed-tiers': {
+        case 'tiers-by-variant': {
+            // variants with a `sameAs` key reuse another variant's tiers (avoids duplication in JSON)
+            const variants = lg['variants'] as { key: string; tiers?: RawTier[]; sameAs?: string }[];
             const tiersMap: Record<string, LateTier[]> = {};
-            for (const v of (lg['variants'] as { key: string; tiers: RawTier[] }[])) tiersMap[v.key] = buildTiers(v.tiers);
+            for (const v of variants) { if (v.tiers)  tiersMap[v.key] = buildTiers(v.tiers); }
+            for (const v of variants) { if (v.sameAs) tiersMap[v.key] = tiersMap[v.sameAs]; }
             return { ...base, getLateGuidance: ({ daysSince, variant }) => resolveLateTier(tiersMap[variant!], daysSince!) };
         }
 
@@ -118,9 +84,9 @@ function buildCoreDef(json: any): CoreDef {
         }
 
         case 'abilify': {
-            const notDue     = buildGuidance(lg['notDueGuidance']     as RawGuidance);
-            const routine    = buildGuidance(lg['routineGuidance']    as RawGuidance);
-            const reinitiate = buildGuidance(lg['reinitiateGuidance'] as RawGuidance);
+            const notDue     = lg['notDueGuidance']     as GuidanceResult;
+            const routine    = lg['routineGuidance']    as GuidanceResult;
+            const reinitiate = lg['reinitiateGuidance'] as GuidanceResult;
             const groups     = lg['priorDoseGroups'] as { priorDoses: string; routineMaxWeeks: number }[];
             return { ...base, getLateGuidance: ({ weeksSince, variant }) => {
                 if (weeksSince! < 4) return notDue;
@@ -156,7 +122,7 @@ function buildCoreDef(json: any): CoreDef {
 function withGroups(spec: FormGroupSpec[]) {
     const firstField = spec[0].fields[0];
     const subGroupSelectorId =
-        firstField.type === 'select' && 'onchange' in firstField && firstField.onchange
+        firstField.type === 'select' && firstField.onchange
             ? firstField.id : undefined;
     return {
         formGroupsSpec:    spec,
@@ -191,10 +157,11 @@ function buildStandardDef(json: any): Omit<MedDefinition, 'displayName' | 'early
                 ? formatDate(raw)
                 : (optionsByField[row.field]?.find(o => o.value === raw)?.label ?? raw)];
         }
+        const approxMonths = Math.floor(daysSince / DAYS_PER_MONTH);
         const t = row.format === 'days-months'
-            ? `${daysSince} days (approximately ${Math.floor(daysSince / 30.44)} months)`
+            ? `${daysSince} days (approximately ${approxMonths} months)`
             : row.format === 'days-weeks-months'
-                ? `${daysSince} days (${formatWeeksAndDays(daysSince)} or approximately ${Math.floor(daysSince / 30.44)} months)`
+                ? `${daysSince} days (${formatWeeksAndDays(daysSince)} or approximately ${approxMonths} months)`
                 : `${daysSince} days (${formatWeeksAndDays(daysSince)})`;
         return [row.label, t];
     }
@@ -224,9 +191,9 @@ function buildStandardDef(json: any): Omit<MedDefinition, 'displayName' | 'early
                 }
             },
             validateLate: (ctx) => {
-                for (const { id, message } of requiredBase) if (!ctx[id]) return message;
-                for (const { id, message } of (branches[ctx[branchField]]?.requiredFields ?? [])) if (!ctx[id]) return message;
-                return null;
+                const failBase   = requiredBase.find(({ id }) => !ctx[id]);
+                if (failBase) return failBase.message;
+                return branches[ctx[branchField]]?.requiredFields.find(({ id }) => !ctx[id])?.message ?? null;
             },
             buildLateParams: (ctx) => {
                 const branch    = branches[ctx[branchField]];
@@ -244,10 +211,8 @@ function buildStandardDef(json: any): Omit<MedDefinition, 'displayName' | 'early
     const lateSpec = spec as LateSpec;
     return {
         ...baseUI,
-        validateLate: (ctx) => {
-            for (const { id, message } of lateSpec.requiredFields) if (!ctx[id]) return message;
-            return null;
-        },
+        validateLate: (ctx) =>
+            lateSpec.requiredFields.find(({ id }) => !ctx[id])?.message ?? null,
         buildLateParams: (ctx) => {
             const daysSince = daysSinceDate(ctx[lateSpec.dateField]);
             const params: LateGuidanceParams = { daysSince };
@@ -261,17 +226,6 @@ function buildStandardDef(json: any): Omit<MedDefinition, 'displayName' | 'early
 
 // ─── Registry ─────────────────────────────────────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function buildMedDef(json: any): MedDefinition {
-    return { ...buildCoreDef(json), ...buildStandardDef(json) } as MedDefinition;
-}
-
-const ALL_MED_JSONS = [
-    invegaSustennaJson, invegaTrinzaJson, invegaHafyeraJson,
-    abilifyMaintenaJson, aristadaJson, uzedyJson,
-    haloperidolDecJson, fluphenazineDecJson,
-    vivitrolJson, sublocadeJson, brixadiJson,
-];
-
 export const MED_REGISTRY: Record<MedicationKey, MedDefinition> =
-    Object.fromEntries(ALL_MED_JSONS.map(json => [json.key, buildMedDef(json)])) as Record<MedicationKey, MedDefinition>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Object.fromEntries(ALL_MED_JSONS.map((json: any) => [json.key, { ...buildCoreDef(json), ...buildStandardDef(json) } as MedDefinition])) as Record<MedicationKey, MedDefinition>;

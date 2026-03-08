@@ -3,13 +3,9 @@ import {
     getMedicationDisplayName,
     getEarlyGuidanceContent,
     getLateGuidance,
-    formatWeeksAndDays,
-    daysSinceDate,
-    formatDate,
-    type GuidanceResult,
-    type SupplementalGuidanceResult,
-    type CategoricalGuidanceResult,
-} from '../logic';
+} from '../handler';
+import { daysSinceDate, formatWeeksAndDays, formatDate } from '../utils';
+import type { GuidanceResult, SupplementalGuidanceResult, CategoricalGuidanceResult } from '../types';
 
 // Local wrappers that preserve the original test call signatures
 function getInvegaInitiationGuidance(days: number): GuidanceResult {

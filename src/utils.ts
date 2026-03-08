@@ -1,3 +1,5 @@
+import { marked } from 'marked';
+
 // ─── Date / Time Utilities ────────────────────────────────────────────────────
 
 export function daysSinceDate(dateString: string): number {
@@ -25,4 +27,11 @@ export function formatDate(dateString: string): string {
     const [year, month, day] = dateString.split('-').map(Number);
     const date = new Date(year, month - 1, day); // local midnight
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+// ─── Markdown renderer ────────────────────────────────────────────────────────
+
+/** Parse a Markdown string into an HTML string for safe innerHTML insertion. */
+export function md(text: string): string {
+    return marked.parse(text) as string;
 }

@@ -1,24 +1,6 @@
-// Re-export all types so consumers can import from a single place if desired.
-export type {
-    GuidanceResult,
-    CategoricalGuidanceResult,
-    SupplementalGuidanceResult,
-    LateTier,
-    SubmitContext,
-} from './types';
-
-export type { MedicationKey, LateGuidanceParams, LateGuidanceOutput, FormGroupSpec, FieldSpec, SelectOption } from './constants';
-export { MED_REGISTRY } from './constants';
-
-import type { MedicationKey } from './constants';
-
-import {
-    MED_REGISTRY,
-    MEDICATION_DISPLAY_NAMES,
-    EARLY_GUIDANCE_CONTENT,
-    type LateGuidanceParams,
-    type LateGuidanceOutput,
-} from './constants';
+import type { MedicationKey, LateGuidanceParams, LateGuidanceOutput } from './data/types';
+import { MED_REGISTRY } from './data/loader';
+import { MEDICATION_DISPLAY_NAMES, EARLY_GUIDANCE_CONTENT } from './data/constants';
 
 // ─── Lookup Helpers ───────────────────────────────────────────────────────────
 
@@ -30,10 +12,6 @@ export function getEarlyGuidanceContent(medication: string): string {
     return EARLY_GUIDANCE_CONTENT[medication as MedicationKey]
         ?? 'Please consult the DESC LAI standing order document for specific guidance.';
 }
-
-// ─── Date / Time Utilities ────────────────────────────────────────────────────
-
-export { daysSinceDate, formatWeeksAndDays, formatDate } from './utils';
 
 // ─── Generic Guidance Dispatcher ─────────────────────────────────────────────
 

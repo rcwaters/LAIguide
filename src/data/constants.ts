@@ -1,8 +1,4 @@
-/**
- * src/meds/constants.ts
- *
- * Derived display constants computed from MED_REGISTRY.
- */
+/** Display name and early guidance content maps derived from MED_REGISTRY. */
 
 import type { MedicationKey } from './types';
 import { MED_REGISTRY } from './loader';
