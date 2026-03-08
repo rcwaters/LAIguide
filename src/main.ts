@@ -11,8 +11,16 @@ function el<T extends HTMLElement>(id: string): T {
 
 function show(id: string): void { el(id).style.display = 'block'; }
 function hide(id: string): void { el(id).style.display = 'none';  }
-function val(id: string):  string { return (el<HTMLInputElement | HTMLSelectElement>(id)).value; }
-function clear(id: string): void  { (el<HTMLInputElement | HTMLSelectElement>(id)).value = ''; }
+function val(id: string): string {
+    const elem = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
+    if (elem) return elem.value;
+    return document.querySelector<HTMLInputElement>(`input[name="${id}"]:checked`)?.value ?? '';
+}
+function clear(id: string): void {
+    const elem = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
+    if (elem) { elem.value = ''; return; }
+    document.querySelectorAll<HTMLInputElement>(`input[name="${id}"]`).forEach(r => { r.checked = false; });
+}
 
 export function handleGuidanceTypeChange(): void {
     const medication   = val('medication');
@@ -204,6 +212,8 @@ export function initForm(): void {
     try {
         const medSelect = document.getElementById('medication') as HTMLSelectElement | null;
         if (!medSelect) return; // guard for test environments
+        // Guard against double-injection (Vite HMR re-executes the module but keeps the DOM)
+        if (document.getElementById('uzedy-fields')) return;
 
         // Build the medication dropdown
         const groups = new Map<string, string[]>();

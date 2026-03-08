@@ -9,7 +9,12 @@ function daysAgo(n: number): string {
 }
 
 async function selectField(page: Page, id: string, value: string): Promise<void> {
-    await page.selectOption(`#${id}`, value);
+    const radio = page.locator(`input[name="${id}"][value="${value}"]`);
+    if (await radio.count() > 0) {
+        await radio.click();
+    } else {
+        await page.selectOption(`#${id}`, value);
+    }
 }
 
 async function fillDate(page: Page, id: string, value: string): Promise<void> {

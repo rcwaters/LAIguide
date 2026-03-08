@@ -9,7 +9,12 @@ function daysAgo(n: number): string {
 }
 
 async function selectField(page: Page, id: string, value: string): Promise<void> {
-    await page.selectOption(`#${id}`, value);
+    const radio = page.locator(`input[name="${id}"][value="${value}"]`);
+    if (await radio.count() > 0) {
+        await radio.click();
+    } else {
+        await page.selectOption(`#${id}`, value);
+    }
 }
 
 async function fillDate(page: Page, id: string, value: string): Promise<void> {
@@ -1090,7 +1095,7 @@ test.describe('start over', () => {
         await expect(page.locator('.guidance-section')).not.toBeVisible();
         await expect(page.locator('.form-section')).toBeVisible();
         await expect(page.locator('#medication')).toHaveValue('');
-        await expect(page.locator('#guidance-type')).toHaveValue('');
+        await expect(page.locator('input[name="guidance-type"]:checked')).toHaveCount(0);
     });
 
     test('can submit another query after starting over', async ({ page }) => {

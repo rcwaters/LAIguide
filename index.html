@@ -26,16 +26,19 @@
             </div>
 
             <div class="input-group">
-                <label for="guidance-type">Choose Guidance Type <span class="required">*</span></label>
-                <select id="guidance-type" onchange="handleGuidanceTypeChange()">
-                    <option value="">Select guidance type...</option>
-                    <option value="early">Early Administration Guidance</option>
-                    <option value="late">Late/Overdue Administration Guidance</option>
-                </select>
-                <p style="margin-top: 8px; color: #6b7280; font-size: 14px;">
-                    <strong>Early:</strong> Patient requesting injection before scheduled date<br>
-                    <strong>Late/Overdue:</strong> Patient is late or overdue for injection
-                </p>
+                <label>Choose Guidance Type <span class="required">*</span></label>
+                <div class="radio-group">
+                    <label class="radio-card">
+                        <input type="radio" name="guidance-type" value="early" onchange="handleGuidanceTypeChange()">
+                        <span class="radio-card-title">Early</span>
+                        <span class="radio-card-desc">Patient requesting injection before scheduled date</span>
+                    </label>
+                    <label class="radio-card">
+                        <input type="radio" name="guidance-type" value="late" onchange="handleGuidanceTypeChange()">
+                        <span class="radio-card-title">Late / Overdue</span>
+                        <span class="radio-card-desc">Patient is late or overdue for injection</span>
+                    </label>
+                </div>
             </div>
 
             <!-- Medication-specific form field groups are injected here by main.ts -->
