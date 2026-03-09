@@ -25,8 +25,6 @@ function setupDOM(): void {
 }
 
 function setField(id: string, value: string): void {
-    const radio = document.querySelector<HTMLInputElement>(`input[name="${id}"][value="${value}"]`);
-    if (radio) { radio.checked = true; return; }
     (document.getElementById(id) as HTMLInputElement | HTMLSelectElement).value = value;
 }
 
@@ -327,6 +325,7 @@ describe('handleSubmit — guidance rendering', () => {
     test('early guidance: renders guidance section and hides form', () => {
         setField('medication', 'uzedy');
         setField('guidance-type', 'early');
+        setField('next-injection-date', daysAgo(-3));  // 3 days from now
         handleSubmit();
         expectGuidanceRendered();
         expect(window.alert).not.toHaveBeenCalled();
@@ -335,6 +334,7 @@ describe('handleSubmit — guidance rendering', () => {
     test('early guidance: shows medication name in output', () => {
         setField('medication', 'uzedy');
         setField('guidance-type', 'early');
+        setField('next-injection-date', daysAgo(-3));  // 3 days from now
         handleSubmit();
         expect(document.body.innerHTML).toContain('Uzedy (risperidone subcutaneous)');
     });
@@ -405,6 +405,7 @@ describe('handleSubmit — guidance rendering', () => {
     test('guidance section includes a Start Over button', () => {
         setField('medication', 'uzedy');
         setField('guidance-type', 'early');
+        setField('next-injection-date', daysAgo(-3));  // 3 days from now
         handleSubmit();
         const btn = document.querySelector('.guidance-section button');
         expect(btn).not.toBeNull();
@@ -420,6 +421,7 @@ describe('startOver', () => {
     test('restores the form section and removes guidance section', () => {
         setField('medication', 'uzedy');
         setField('guidance-type', 'early');
+        setField('next-injection-date', daysAgo(-3));  // 3 days from now
         handleSubmit();
         expect(document.querySelector('.guidance-section')).not.toBeNull();
 
@@ -437,7 +439,7 @@ describe('startOver', () => {
         startOver();
 
         expect((document.getElementById('medication')       as HTMLSelectElement).value).toBe('');
-        expect(document.querySelector<HTMLInputElement>('input[name="guidance-type"]:checked')).toBeNull();
+        expect((document.getElementById('guidance-type')   as HTMLSelectElement).value).toBe('');
         expect((document.getElementById('last-uzedy')       as HTMLInputElement).value).toBe('');
         expect((document.getElementById('uzedy-dose')       as HTMLSelectElement).value).toBe('');
     });

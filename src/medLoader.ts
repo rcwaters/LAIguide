@@ -1,5 +1,5 @@
 import type { LateTier, GuidanceResult, CategoricalGuidanceResult, SupplementalGuidanceResult, SubmitContext } from './interfaces/guidance';
-import type { MedicationKey, LateGuidanceParams, RenderType, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition, RawTier, CoreDef } from './interfaces/med';
+import type { MedicationKey, LateGuidanceParams, RenderType, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition, RawTier, CoreDef, EarlyWindowType } from './interfaces/med';
 import { DAYS_PER_MONTH } from './interfaces/med';
 import { daysSinceDate, formatDate, formatWeeksAndDays } from './utils';
 
@@ -11,6 +11,19 @@ const ALL_MED_JSONS: any[] = Object.values(import.meta.glob('./meds/*.json', { e
 // ─── Internal utilities ──────────────────────────────────────────────────────────────────
 
 function days(n: number | null): number { return n === null ? Infinity : n; }
+
+export function pluralDays(n: number): string {
+    return n % 7 === 0 && n >= 7
+        ? `${n / 7} week${n / 7 === 1 ? '' : 's'}`
+        : `${n} day${n === 1 ? '' : 's'}`;
+}
+
+export function composeEarlyGuidance(windowType: EarlyWindowType, windowDays: number | undefined, minDays: number | undefined, note: string | undefined): string {
+    const core = windowType === 'since-last'
+        ? `No sooner than ${pluralDays(minDays!)} after last injection`
+        : `${pluralDays(windowDays!)} before due date`;
+    return note ? `${core}  \n*(${note})*` : core;
+}
 
 
 function buildTier(raw: RawTier): LateTier {
@@ -35,7 +48,7 @@ function resolveLateTier(tiers: LateTier[], daysSince: number, dose?: string): G
         return tier.guidance;
     } catch (err) {
         console.error('[resolveLateTier] Failed to resolve tier for daysSince=%d dose=%s:', daysSince, dose, err);
-        return { idealSteps: '', pragmaticVariations: '', providerNotification: '' };
+        return { idealSteps: '' };
     }
 }
 
@@ -44,7 +57,16 @@ function resolveLateTier(tiers: LateTier[], daysSince: number, dose?: string): G
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildCoreDef(json: any): CoreDef {
     const lg   = json.lateGuidance as Record<string, unknown>;
-    const base = { displayName: json.displayName as string, earlyGuidance: json.earlyGuidance as string };
+    const windowType = json.earlyWindowType as EarlyWindowType;
+    const windowDays = json.earlyWindowDays as number | undefined;
+    const minDays    = json.earlyMinDays    as number | undefined;
+    const base = {
+        displayName:     json.displayName as string,
+        earlyGuidance:   composeEarlyGuidance(windowType, windowDays, minDays, json.earlyGuidanceNote as string | undefined),
+        earlyWindowType: windowType,
+        ...(windowDays != null ? { earlyWindowDays: windowDays } : {}),
+        ...(minDays    != null ? { earlyMinDays:    minDays    } : {}),
+    };
 
     switch (lg['kind']) {
 
@@ -106,7 +128,7 @@ function buildCoreDef(json: any): CoreDef {
         case 'aristada': {
             const notDueBeforeDays = lg['notDueBeforeDays'] as number;
             const notDueMessage    = lg['notDueMessage']    as string;
-            const doseConfigs = (lg['doseConfigs'] as { dose: string; tiers: { maxDays: number | null; supplementation: string; providerNotification: string }[] }[])
+            const doseConfigs = (lg['doseConfigs'] as { dose: string; tiers: { maxDays: number | null; supplementation?: string; providerNotification?: string }[] }[])
                 .map(dc => ({ dose: dc.dose, tiers: dc.tiers.map(t => ({ maxDays: days(t.maxDays), supplementation: t.supplementation, providerNotification: t.providerNotification })) }));
             return { ...base, getLateGuidance: ({ daysSince, dose }): SupplementalGuidanceResult => {
                 if (daysSince! < notDueBeforeDays) return { notDue: true, message: notDueMessage };
@@ -144,7 +166,7 @@ function withGroups(spec: FormGroupSpec[]) {
 // ─── Standard + branched definition builder ───────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function buildStandardDef(json: any): Omit<MedDefinition, 'displayName' | 'earlyGuidance' | 'getLateGuidance'> {
+function buildStandardDef(json: any): Omit<MedDefinition, 'displayName' | 'earlyGuidance' | 'earlyWindowType' | 'earlyWindowDays' | 'earlyMinDays' | 'getLateGuidance'> {
     const formGroupsSpec = json.formGroupsSpec as FormGroupSpec[];
     const optionsByField: Record<string, SelectOption[]> = Object.fromEntries(
         formGroupsSpec.flatMap(g => g.fields)

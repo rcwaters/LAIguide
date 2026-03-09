@@ -8,16 +8,11 @@ function daysAgo(n: number): string {
     return d.toISOString().split('T')[0];
 }
 
+/** Returns YYYY-MM-DD for N days from today. */
+function daysFromNow(n: number): string { return daysAgo(-n); }
+
 async function selectField(page: Page, id: string, value: string): Promise<void> {
-    const radio = page.locator(`input[name="${id}"][value="${value}"]`);
-    if (await radio.count() > 0) {
-        await page.evaluate(({ id, value }) => {
-            const input = document.querySelector<HTMLInputElement>(`input[name="${id}"][value="${value}"]`);
-            if (input) { input.checked = true; input.dispatchEvent(new Event('change', { bubbles: true })); }
-        }, { id, value });
-    } else {
-        await page.selectOption(`#${id}`, value);
-    }
+    await page.selectOption(`#${id}`, value);
 }
 
 async function fillDate(page: Page, id: string, value: string): Promise<void> {
@@ -168,22 +163,36 @@ test.describe('early guidance flow', () => {
         await page.goto('/');
     });
 
-    const medications = [
+    const beforeNextMeds = [
         'invega_sustenna', 'invega_trinza', 'invega_hafyera',
-        'abilify_maintena', 'aristada', 'uzedy',
-        'haloperidol_decanoate', 'vivitrol',
+        'aristada', 'uzedy', 'haloperidol_decanoate',
     ];
+    const sinceLastMeds = ['abilify_maintena', 'vivitrol'];
 
-    for (const med of medications) {
+    for (const med of beforeNextMeds) {
         test(`${med}: shows guidance and hides form`, async ({ page }) => {
             await selectField(page, 'medication', med);
             await selectField(page, 'guidance-type', 'early');
+            await fillDate(page, 'next-injection-date', daysFromNow(3));
+
+            await expect(page.locator('.guidance-section')).toBeVisible();
+            await expect(page.locator('.form-section')).not.toBeVisible();
+        });
+    }
+
+    for (const med of sinceLastMeds) {
+        test(`${med}: shows guidance and hides form`, async ({ page }) => {
+            await selectField(page, 'medication', med);
+            await selectField(page, 'guidance-type', 'early');
+            await fillDate(page, 'last-injection-date', daysAgo(25));
 
             await expect(page.locator('.guidance-section')).toBeVisible();
             await expect(page.locator('.form-section')).not.toBeVisible();
         });
     }
 });
+
+// ─── Late guidance flows ──────────────────────────────────────────────────────
 
 // ─── Late guidance flows ──────────────────────────────────────────────────────
 
@@ -339,12 +348,25 @@ test.describe('early guidance flow — remaining medications', () => {
         await page.goto('/');
     });
 
-    const missingMeds = ['fluphenazine_decanoate', 'sublocade', 'brixadi'];
+    const beforeNextMeds = ['fluphenazine_decanoate'];
+    const sinceLastMeds  = ['sublocade', 'brixadi'];
 
-    for (const med of missingMeds) {
+    for (const med of beforeNextMeds) {
         test(`${med}: shows guidance and hides form`, async ({ page }) => {
             await selectField(page, 'medication', med);
             await selectField(page, 'guidance-type', 'early');
+            await fillDate(page, 'next-injection-date', daysFromNow(3));
+
+            await expect(page.locator('.guidance-section')).toBeVisible();
+            await expect(page.locator('.form-section')).not.toBeVisible();
+        });
+    }
+
+    for (const med of sinceLastMeds) {
+        test(`${med}: shows guidance and hides form`, async ({ page }) => {
+            await selectField(page, 'medication', med);
+            await selectField(page, 'guidance-type', 'early');
+            await fillDate(page, 'last-injection-date', daysAgo(25));
 
             await expect(page.locator('.guidance-section')).toBeVisible();
             await expect(page.locator('.form-section')).not.toBeVisible();
@@ -892,6 +914,7 @@ test.describe('start over', () => {
         await page.goto('/');
         await selectField(page, 'medication', 'uzedy');
         await selectField(page, 'guidance-type', 'early');
+        await fillDate(page, 'next-injection-date', daysFromNow(3));
 
         await expect(page.locator('.guidance-section')).toBeVisible();
 
@@ -907,10 +930,12 @@ test.describe('start over', () => {
         await page.goto('/');
         await selectField(page, 'medication', 'uzedy');
         await selectField(page, 'guidance-type', 'early');
+        await fillDate(page, 'next-injection-date', daysFromNow(3));
         await page.click('button:has-text("Start Over")');
 
         await selectField(page, 'medication', 'aristada');
         await selectField(page, 'guidance-type', 'early');
+        await fillDate(page, 'next-injection-date', daysFromNow(3));
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('Aristada');

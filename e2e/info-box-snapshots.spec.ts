@@ -1,26 +1,31 @@
 import { test, expect, Page } from '@playwright/test';
 
+// ─── Fixed clock ──────────────────────────────────────────────────────────────
+// All tests freeze the browser clock to this date so that computed elapsed
+// times and displayed dates are deterministic regardless of when CI runs.
+// page.clock.setFixedTime is called before page.goto so both Date.now() and
+// new Date() inside initForm() and daysSinceDate() return the frozen date.
+
+const FIXED_DATE = new Date('2026-01-15T12:00:00');
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function daysAgo(n: number): string {
-    const d = new Date();
+    const d = new Date(FIXED_DATE);
     d.setDate(d.getDate() - n);
     return d.toISOString().split('T')[0];
 }
 
+function daysFromNow(n: number): string {
+    return daysAgo(-n);
+}
+
 async function selectField(page: Page, id: string, value: string): Promise<void> {
-    const radio = page.locator(`input[name="${id}"][value="${value}"]`);
-    if (await radio.count() > 0) {
-        await page.evaluate(({ id, value }) => {
-            const input = document.querySelector<HTMLInputElement>(`input[name="${id}"][value="${value}"]`);
-            if (input) { input.checked = true; input.dispatchEvent(new Event('change', { bubbles: true })); }
-        }, { id, value });
-    } else {
-        await page.selectOption(`#${id}`, value);
-    }
+    await page.selectOption(`#${id}`, value);
 }
 
 async function fillDate(page: Page, id: string, value: string): Promise<void> {
+    await page.locator(`#${id}`).waitFor({ state: 'visible' });
     await page.fill(`#${id}`, value);
     await page.dispatchEvent(`#${id}`, 'change');
 }
@@ -29,17 +34,12 @@ async function submit(page: Page): Promise<void> {
     await page.locator('.guidance-section').waitFor();
 }
 
-/**
- * Snapshots each .info-row as "Label: Value" lines.
- * Dates (e.g. "March 8, 2026") are normalised to [DATE] so snapshots are
- * stable regardless of when the test runs.
- */
+/** Snapshots each .info-row as "Label: Value" lines (no normalisation needed). */
 async function snapshotInfoBox(page: Page): Promise<void> {
     const rows = await page.locator('.medication-info .info-row').all();
     const lines = await Promise.all(rows.map(async row => {
         const label = (await row.locator('.info-label').innerText()).trim();
-        const raw   = (await row.locator('.info-value').innerText()).trim();
-        const value = raw.replace(/[A-Z][a-z]+ \d{1,2}, \d{4}/g, '[DATE]');
+        const value = (await row.locator('.info-value').innerText()).trim();
         return `${label} ${value}`;
     }));
     expect(lines.join('\n')).toMatchSnapshot();
@@ -48,13 +48,20 @@ async function snapshotInfoBox(page: Page): Promise<void> {
 // ─── Info-box snapshot tests ──────────────────────────────────────────────────
 
 test.describe('info-box snapshots', () => {
-    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+    test.beforeEach(async ({ page }) => {
+        // Navigate first with the real clock so initForm() and page scripts
+        // load without interference, then freeze time so the app's elapsed-time
+        // calculations are deterministic regardless of when the test runs.
+        await page.goto('/');
+        await page.clock.setFixedTime(FIXED_DATE);
+    });
 
     // ── Early guidance ────────────────────────────────────────────────────────
 
     test('invega_trinza — early guidance info box', async ({ page }) => {
         await selectField(page, 'medication', 'invega_trinza');
         await selectField(page, 'guidance-type', 'early');
+        await fillDate(page, 'next-injection-date', daysAgo(-10));  // 10 days from now
         await submit(page);
         await snapshotInfoBox(page);
     });
@@ -62,6 +69,7 @@ test.describe('info-box snapshots', () => {
     test('abilify_maintena — early guidance info box', async ({ page }) => {
         await selectField(page, 'medication', 'abilify_maintena');
         await selectField(page, 'guidance-type', 'early');
+        await fillDate(page, 'last-injection-date', daysAgo(27));  // 27 days — allowed (>= 26-day minimum)
         await submit(page);
         await snapshotInfoBox(page);
     });

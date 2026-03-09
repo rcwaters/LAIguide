@@ -1,7 +1,8 @@
 {
     "key": "aristada",
     "displayName": "Aristada (aripiprazole lauroxil)",
-    "earlyGuidance": "1 week before due date",
+    "earlyWindowType": "before-next",
+    "earlyWindowDays": 7,
     "lateGuidance": {
         "kind": "aristada",
         "notDueBeforeDays": 28,
@@ -11,9 +12,7 @@
                 "dose": "441",
                 "tiers": [
                     {
-                        "maxDays": 42,
-                        "supplementation": "No supplementation required",
-                        "providerNotification": "No need"
+                        "maxDays": 42
                     },
                     {
                         "maxDays": 49,
@@ -31,9 +30,7 @@
                 "dose": "662",
                 "tiers": [
                     {
-                        "maxDays": 56,
-                        "supplementation": "No supplementation required",
-                        "providerNotification": "No need"
+                        "maxDays": 56
                     },
                     {
                         "maxDays": 84,
@@ -51,9 +48,7 @@
                 "dose": "882",
                 "tiers": [
                     {
-                        "maxDays": 56,
-                        "supplementation": "No supplementation required",
-                        "providerNotification": "No need"
+                        "maxDays": 56
                     },
                     {
                         "maxDays": 84,
@@ -71,9 +66,7 @@
                 "dose": "1064",
                 "tiers": [
                     {
-                        "maxDays": 70,
-                        "supplementation": "No supplementation required",
-                        "providerNotification": "No need"
+                        "maxDays": 70
                     },
                     {
                         "maxDays": 84,

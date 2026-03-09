@@ -1,22 +1,21 @@
 {
     "key": "abilify_maintena",
     "displayName": "Abilify Maintena (aripiprazole)",
-    "earlyGuidance": "No sooner than 26 days after last injection",
+    "earlyWindowType": "since-last",
+    "earlyMinDays": 26,
     "lateGuidance": {
         "kind": "abilify",
         "notDueGuidance": {
-            "idealSteps": "The Abilify Maintena injection is not due. Please consult guidance on early dosing.",
-            "pragmaticVariations": "See early dosing guidance section.",
-            "providerNotification": "No provider notification needed."
+            "idealSteps": "The Abilify Maintena injection is not due. Please consult guidance on early dosing."
         },
         "routineGuidance": {
-            "idealSteps": "(1) Administer usual Abilify Maintena monthly dose\n\n(2) Arrange for next usual monthly dose in 4 weeks",
-            "pragmaticVariations": "Same",
-            "providerNotification": "No need"
+            "idealSteps": "(1) Administer usual Abilify Maintena monthly dose\n\n(2) Arrange for next usual monthly dose in 4 weeks"
         },
         "reinitiateGuidance": {
             "idealSteps": "Re-initiate:\n\n(1) Administer usual Abilify Maintena monthly dose\n\n(2) Notify patient of the options recommended for reinitiation: either (a) receive a 2nd Abilify Maintena dose at the same time as the first (in step 1) or within days, or (b) resume oral aripiprazole (10-20 mg) for 14 days",
-            "pragmaticVariations": "If the patient is not able or likely to take oral aripiprazole or get a 2nd injection immediately, consult with provider about accelerating timing of next injection.",
+            "pragmaticVariations": [
+                "If the patient is not able or likely to take oral aripiprazole or get a 2nd injection immediately, consult with provider about accelerating timing of next injection."
+            ],
             "providerNotification": "Post-injection: notify provider of situation and need for either a 2nd immediate monthly injection or 14 days of oral aripiprazole."
         },
         "priorDoseGroups": [

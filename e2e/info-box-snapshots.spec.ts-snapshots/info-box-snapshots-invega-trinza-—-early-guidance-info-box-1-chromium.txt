@@ -1,2 +1,3 @@
 Medication: Invega Trinza (paliperidone palmitate 3-month)
 Guidance Type: Early Administration Guidance
+Next injection scheduled: January 25, 2026

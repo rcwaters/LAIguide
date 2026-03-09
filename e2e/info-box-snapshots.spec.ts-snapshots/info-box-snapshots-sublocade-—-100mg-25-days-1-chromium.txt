@@ -1,5 +1,5 @@
 Medication: Sublocade (buprenorphine)
 Guidance Type: Late/Overdue Administration Guidance
 Dose/history: Sublocade 100 mg
-Date of last injection: [DATE]
+Date of last injection: December 21, 2025
 Time since last injection: 25 days (3 weeks and 4 days)

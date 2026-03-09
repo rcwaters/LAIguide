@@ -1,7 +1,8 @@
 {
     "key": "invega_hafyera",
     "displayName": "Invega Hafyera (paliperidone palmitate 6-month)",
-    "earlyGuidance": "2 weeks before due date",
+    "earlyWindowType": "before-next",
+    "earlyWindowDays": 14,
     "lateGuidance": {
         "kind": "hafyera",
         "earlyMaxDays": 180,
@@ -13,18 +14,32 @@
         {
             "groupId": "hafyera-fields",
             "fields": [
-                { "type": "date", "id": "last-hafyera", "label": "Date of last Hafyera injection" }
+                {
+                    "type": "date",
+                    "id": "last-hafyera",
+                    "label": "Date of last Hafyera injection"
+                }
             ]
         }
     ],
     "lateSpec": {
         "requiredFields": [
-            { "id": "last-hafyera", "message": "Please enter the date of last Hafyera injection." }
+            {
+                "id": "last-hafyera",
+                "message": "Please enter the date of last Hafyera injection."
+            }
         ],
         "dateField": "last-hafyera",
         "infoRows": [
-            { "label": "Date of last Hafyera injection:", "field": "last-hafyera", "format": "date" },
-            { "label": "Time since last injection:",      "format": "days-weeks-months" }
+            {
+                "label": "Date of last Hafyera injection:",
+                "field": "last-hafyera",
+                "format": "date"
+            },
+            {
+                "label": "Time since last injection:",
+                "format": "days-weeks-months"
+            }
         ]
     }
 }

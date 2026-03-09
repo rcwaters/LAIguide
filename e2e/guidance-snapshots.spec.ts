@@ -9,15 +9,7 @@ function daysAgo(n: number): string {
 }
 
 async function selectField(page: Page, id: string, value: string): Promise<void> {
-    const radio = page.locator(`input[name="${id}"][value="${value}"]`);
-    if (await radio.count() > 0) {
-        await page.evaluate(({ id, value }) => {
-            const input = document.querySelector<HTMLInputElement>(`input[name="${id}"][value="${value}"]`);
-            if (input) { input.checked = true; input.dispatchEvent(new Event('change', { bubbles: true })); }
-        }, { id, value });
-    } else {
-        await page.selectOption(`#${id}`, value);
-    }
+    await page.selectOption(`#${id}`, value);
 }
 
 async function fillDate(page: Page, id: string, value: string): Promise<void> {
