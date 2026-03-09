@@ -372,6 +372,17 @@ export function initForm(): void {
 
 initForm();
 
+// ─── Guidance type segmented control ─────────────────────────────────────────
+
+export function selectGuidanceType(value: string): void {
+    const input = document.getElementById('guidance-type') as HTMLInputElement | null;
+    if (input) input.value = value;
+    document.querySelectorAll<HTMLButtonElement>('.seg-btn[data-value]').forEach(btn => {
+        btn.classList.toggle('seg-btn--active', btn.dataset.value === value);
+    });
+    handleGuidanceTypeChange();
+}
+
 // ─── Start Over ───────────────────────────────────────────────────────────────
 
 export function startOver(): void {
@@ -390,6 +401,8 @@ export function startOver(): void {
         if (earlyLastGroup) { earlyLastGroup.style.display = 'none'; }
         clear('next-injection-date');
         clear('last-injection-date');
+
+        document.querySelectorAll<HTMLButtonElement>('.seg-btn').forEach(b => b.classList.remove('seg-btn--active'));
 
         const gtGroup = document.getElementById('guidance-type-group') as HTMLElement | null;
         if (gtGroup) gtGroup.style.display = 'none';
@@ -410,6 +423,7 @@ declare global { interface Window {
     handleSubmit: typeof handleSubmit;
     checkAutoSubmit: typeof checkAutoSubmit;
     startOver: typeof startOver;
+    selectGuidanceType: typeof selectGuidanceType;
 } }
 
 window.handleGuidanceTypeChange = handleGuidanceTypeChange;
@@ -417,3 +431,4 @@ window.handleInvegaTypeChange   = handleInvegaTypeChange;
 window.handleSubmit             = handleSubmit;
 window.checkAutoSubmit          = checkAutoSubmit;
 window.startOver                = startOver;
+window.selectGuidanceType       = selectGuidanceType;

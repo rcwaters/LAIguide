@@ -24,12 +24,12 @@
             </div>
 
             <div class="input-group" id="guidance-type-group" style="display:none">
-                <label for="guidance-type">Choose Guidance Type <span class="required">*</span></label>
-                <select id="guidance-type" onchange="handleGuidanceTypeChange()">
-                    <option value="">Select guidance type...</option>
-                    <option value="early">Early Administration</option>
-                    <option value="late">Late / Overdue Administration</option>
-                </select>
+                <label>Choose Guidance Type <span class="required">*</span></label>
+                <div class="seg-group">
+                    <button type="button" class="seg-btn" data-value="early" onclick="selectGuidanceType('early')">Early Administration</button>
+                    <button type="button" class="seg-btn" data-value="late" onclick="selectGuidanceType('late')">Late / Overdue Administration</button>
+                </div>
+                <input type="hidden" id="guidance-type" value="">
             </div>
 
             <!-- Medication-specific form field groups are injected here by main.ts -->

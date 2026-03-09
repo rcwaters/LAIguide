@@ -12,7 +12,11 @@ function daysAgo(n: number): string {
 function daysFromNow(n: number): string { return daysAgo(-n); }
 
 async function selectField(page: Page, id: string, value: string): Promise<void> {
-    await page.selectOption(`#${id}`, value);
+    if (id === 'guidance-type') {
+        await page.evaluate((v) => (window as any).selectGuidanceType(v), value);
+    } else {
+        await page.selectOption(`#${id}`, value);
+    }
 }
 
 async function fillDate(page: Page, id: string, value: string): Promise<void> {
