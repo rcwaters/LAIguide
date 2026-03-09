@@ -172,7 +172,6 @@ test.describe.skip('early guidance flow', () => {
         'aristada', 'uzedy', 'haloperidol_decanoate',
     ];
     const sinceLastMeds = ['abilify_maintena', 'vivitrol'];
-
     for (const med of beforeNextMeds) {
         test(`${med}: shows guidance and hides form`, async ({ page }) => {
             await selectField(page, 'medication', med);

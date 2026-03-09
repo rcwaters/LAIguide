@@ -403,7 +403,6 @@ export function startOver(): void {
         clear('last-injection-date');
 
         document.querySelectorAll<HTMLButtonElement>('.seg-btn').forEach(b => b.classList.remove('seg-btn--active'));
-
         const gtGroup = document.getElementById('guidance-type-group') as HTMLElement | null;
         if (gtGroup) gtGroup.style.display = 'none';
 
