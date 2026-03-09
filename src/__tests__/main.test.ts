@@ -25,8 +25,6 @@ function setupDOM(): void {
 }
 
 function setField(id: string, value: string): void {
-    const radio = document.querySelector<HTMLInputElement>(`input[name="${id}"][value="${value}"]`);
-    if (radio) { radio.checked = true; return; }
     (document.getElementById(id) as HTMLInputElement | HTMLSelectElement).value = value;
 }
 
@@ -441,7 +439,7 @@ describe('startOver', () => {
         startOver();
 
         expect((document.getElementById('medication')       as HTMLSelectElement).value).toBe('');
-        expect(document.querySelector<HTMLInputElement>('input[name="guidance-type"]:checked')).toBeNull();
+        expect((document.getElementById('guidance-type')   as HTMLSelectElement).value).toBe('');
         expect((document.getElementById('last-uzedy')       as HTMLInputElement).value).toBe('');
         expect((document.getElementById('uzedy-dose')       as HTMLSelectElement).value).toBe('');
     });

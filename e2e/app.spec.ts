@@ -12,16 +12,7 @@ function daysAgo(n: number): string {
 function daysFromNow(n: number): string { return daysAgo(-n); }
 
 async function selectField(page: Page, id: string, value: string): Promise<void> {
-    const radio = page.locator(`input[name="${id}"][value="${value}"]`);
-    if (await radio.count() > 0) {
-        // Radio inputs are display:none — use evaluate to check + fire onchange.
-        await page.evaluate(({ name, val }) => {
-            const el = document.querySelector<HTMLInputElement>(`input[name="${name}"][value="${val}"]`);
-            if (el) { el.checked = true; el.dispatchEvent(new Event('change', { bubbles: true })); }
-        }, { name: id, val: value });
-    } else {
-        await page.selectOption(`#${id}`, value);
-    }
+    await page.selectOption(`#${id}`, value);
 }
 
 async function fillDate(page: Page, id: string, value: string): Promise<void> {

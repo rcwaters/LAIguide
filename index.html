@@ -24,17 +24,12 @@
             </div>
 
             <div class="input-group" id="guidance-type-group" style="display:none">
-                <label>Choose Guidance Type <span class="required">*</span></label>
-                <div class="seg-group seg-group--vertical" role="group" aria-label="Guidance type">
-                    <label class="seg-opt">
-                        <input type="radio" name="guidance-type" value="early" onchange="handleGuidanceTypeChange()">
-                        <span>Early Administration</span>
-                    </label>
-                    <label class="seg-opt">
-                        <input type="radio" name="guidance-type" value="late" onchange="handleGuidanceTypeChange()">
-                        <span>Late / Overdue Administration</span>
-                    </label>
-                </div>
+                <label for="guidance-type">Choose Guidance Type <span class="required">*</span></label>
+                <select id="guidance-type" onchange="handleGuidanceTypeChange()">
+                    <option value="">Select guidance type...</option>
+                    <option value="early">Early Administration</option>
+                    <option value="late">Late / Overdue Administration</option>
+                </select>
             </div>
 
             <!-- Medication-specific form field groups are injected here by main.ts -->
