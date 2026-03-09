@@ -1,5 +1,5 @@
 Medication: Brixadi (buprenorphine)
 Guidance Type: Late/Overdue Administration Guidance
 Formulation/dose: Monthly 96 mg
-Date of last injection: [DATE]
-Time since last injection: [ELAPSED]
+Date of last injection: December 8, 2025
+Time since last injection: 38 days (5 weeks and 3 days)

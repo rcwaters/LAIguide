@@ -1,11 +1,21 @@
 import { test, expect, Page } from '@playwright/test';
 
+// ─── Fixed clock ──────────────────────────────────────────────────────────────
+// All tests freeze the browser clock to this date so that computed elapsed
+// times and displayed dates are deterministic regardless of when CI runs.
+
+const FIXED_DATE = new Date('2026-01-15T12:00:00');
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function daysAgo(n: number): string {
-    const d = new Date();
+    const d = new Date(FIXED_DATE);
     d.setDate(d.getDate() - n);
     return d.toISOString().split('T')[0];
+}
+
+function daysFromNow(n: number): string {
+    return daysAgo(-n);
 }
 
 async function selectField(page: Page, id: string, value: string): Promise<void> {
@@ -21,20 +31,12 @@ async function submit(page: Page): Promise<void> {
     await page.locator('.guidance-section').waitFor();
 }
 
-/**
- * Snapshots each .info-row as "Label: Value" lines.
- * - Dates (e.g. "March 8, 2026") are normalised to [DATE].
- * - Elapsed-time strings (e.g. "30 days (4 weeks and 2 days)") are normalised
- *   to [ELAPSED] so snapshots never drift as calendar days advance.
- */
+/** Snapshots each .info-row as "Label: Value" lines (no normalisation needed). */
 async function snapshotInfoBox(page: Page): Promise<void> {
     const rows = await page.locator('.medication-info .info-row').all();
     const lines = await Promise.all(rows.map(async row => {
         const label = (await row.locator('.info-label').innerText()).trim();
-        const raw   = (await row.locator('.info-value').innerText()).trim();
-        let value = raw.replace(/[A-Z][a-z]+ \d{1,2}, \d{4}/g, '[DATE]');
-        // Normalize "30 days (4 weeks and 2 days)" → [ELAPSED]
-        value = value.replace(/\d+ days? \([^)]+\)/g, '[ELAPSED]');
+        const value = (await row.locator('.info-value').innerText()).trim();
         return `${label} ${value}`;
     }));
     expect(lines.join('\n')).toMatchSnapshot();
@@ -43,7 +45,10 @@ async function snapshotInfoBox(page: Page): Promise<void> {
 // ─── Info-box snapshot tests ──────────────────────────────────────────────────
 
 test.describe('info-box snapshots', () => {
-    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+    test.beforeEach(async ({ page }) => {
+        await page.clock.setFixedTime(FIXED_DATE);
+        await page.goto('/');
+    });
 
     // ── Early guidance ────────────────────────────────────────────────────────
 

@@ -1,5 +1,5 @@
 Medication: Vivitrol (naltrexone)
 Guidance Type: Late/Overdue Administration Guidance
 Indication: Overdose prevention (not OUD)
-Date of last injection: [DATE]
-Time since last injection: [ELAPSED]
+Date of last injection: December 1, 2025
+Time since last injection: 45 days (6 weeks and 3 days)
