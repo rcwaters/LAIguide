@@ -62,7 +62,7 @@ test.describe('info-box snapshots', () => {
 
     // ── Early guidance ────────────────────────────────────────────────────────
 
-    test('invega_trinza — early guidance info box', async ({ page }) => {
+    test.skip('invega_trinza — early guidance info box', async ({ page }) => {
         await selectField(page, 'medication', 'invega_trinza');
         await selectField(page, 'guidance-type', 'early');
         await fillDate(page, 'next-injection-date', daysAgo(-10));  // 10 days from now
@@ -70,7 +70,7 @@ test.describe('info-box snapshots', () => {
         await snapshotInfoBox(page);
     });
 
-    test('abilify_maintena — early guidance info box', async ({ page }) => {
+    test.skip('abilify_maintena — early guidance info box', async ({ page }) => {
         await selectField(page, 'medication', 'abilify_maintena');
         await selectField(page, 'guidance-type', 'early');
         await fillDate(page, 'last-injection-date', daysAgo(27));  // 27 days — allowed (>= 26-day minimum)

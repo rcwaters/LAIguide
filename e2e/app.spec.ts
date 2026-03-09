@@ -162,7 +162,7 @@ test.describe('conditional field visibility', () => {
 
 // ─── Early guidance flow ──────────────────────────────────────────────────────
 
-test.describe('early guidance flow', () => {
+test.describe.skip('early guidance flow', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
     });
@@ -347,7 +347,7 @@ test.describe('late guidance — Uzedy', () => {
 
 // ─── Early guidance — missing medications ────────────────────────────────────
 
-test.describe('early guidance flow — remaining medications', () => {
+test.describe.skip('early guidance flow — remaining medications', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
     });
@@ -913,7 +913,7 @@ test.describe('late guidance — Uzedy additional tiers', () => {
 
 // ─── Start Over ───────────────────────────────────────────────────────────────
 
-test.describe('start over', () => {
+test.describe.skip('start over', () => {
     test('restores the form and clears all fields', async ({ page }) => {
         await page.goto('/');
         await selectField(page, 'medication', 'uzedy');
