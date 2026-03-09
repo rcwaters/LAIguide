@@ -2,4 +2,4 @@ Medication: Invega Sustenna (paliperidone palmitate)
 Guidance Type: Late/Overdue Administration Guidance
 Injection Type: Missed/delayed 2nd initiation (156 mg) injection
 Date of first (234 mg) injection: [DATE]
-Time since first (234 mg) injection: 29 days (4 weeks and 1 day)
+Time since first (234 mg) injection: [ELAPSED]

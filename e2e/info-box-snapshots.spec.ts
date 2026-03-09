@@ -11,7 +11,11 @@ function daysAgo(n: number): string {
 async function selectField(page: Page, id: string, value: string): Promise<void> {
     const radio = page.locator(`input[name="${id}"][value="${value}"]`);
     if (await radio.count() > 0) {
-        await page.locator(`label:has(input[name="${id}"][value="${value}"])`).click();
+        // Radio inputs are display:none — use evaluate to check + fire onchange.
+        await page.evaluate(({ name, val }) => {
+            const el = document.querySelector<HTMLInputElement>(`input[name="${name}"][value="${val}"]`);
+            if (el) { el.checked = true; el.dispatchEvent(new Event('change', { bubbles: true })); }
+        }, { name: id, val: value });
     } else {
         await page.selectOption(`#${id}`, value);
     }
@@ -28,15 +32,18 @@ async function submit(page: Page): Promise<void> {
 
 /**
  * Snapshots each .info-row as "Label: Value" lines.
- * Dates (e.g. "March 8, 2026") are normalised to [DATE] so snapshots are
- * stable regardless of when the test runs.
+ * - Dates (e.g. "March 8, 2026") are normalised to [DATE].
+ * - Elapsed-time strings (e.g. "30 days (4 weeks and 2 days)") are normalised
+ *   to [ELAPSED] so snapshots never drift as calendar days advance.
  */
 async function snapshotInfoBox(page: Page): Promise<void> {
     const rows = await page.locator('.medication-info .info-row').all();
     const lines = await Promise.all(rows.map(async row => {
         const label = (await row.locator('.info-label').innerText()).trim();
         const raw   = (await row.locator('.info-value').innerText()).trim();
-        const value = raw.replace(/[A-Z][a-z]+ \d{1,2}, \d{4}/g, '[DATE]');
+        let value = raw.replace(/[A-Z][a-z]+ \d{1,2}, \d{4}/g, '[DATE]');
+        // Normalize "30 days (4 weeks and 2 days)" → [ELAPSED]
+        value = value.replace(/\d+ days? \([^)]+\)/g, '[ELAPSED]');
         return `${label} ${value}`;
     }));
     expect(lines.join('\n')).toMatchSnapshot();

@@ -2,4 +2,4 @@ Medication: Haloperidol Decanoate (Haldol Dec)
 Guidance Type: Late/Overdue Administration Guidance
 Date of last injection: [DATE]
 Prior consecutive injections: 4 or more injections (steady state likely achieved)
-Time since last injection: 29 days (4 weeks and 1 day)
+Time since last injection: [ELAPSED]

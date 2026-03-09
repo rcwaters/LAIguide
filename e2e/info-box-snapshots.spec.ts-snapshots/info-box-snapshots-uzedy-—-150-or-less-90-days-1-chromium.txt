@@ -2,4 +2,4 @@ Medication: Uzedy (risperidone subcutaneous)
 Guidance Type: Late/Overdue Administration Guidance
 Date of last injection: [DATE]
 Uzedy maintenance dose: 150 mg or less
-Time since last injection: 89 days (12 weeks and 5 days)
+Time since last injection: [ELAPSED]

@@ -2,4 +2,4 @@ Medication: Aristada (aripiprazole lauroxil)
 Guidance Type: Late/Overdue Administration Guidance
 Date of last injection: [DATE]
 Dose of last injection: 662 mg
-Time since last injection: 49 days (7 weeks)
+Time since last injection: [ELAPSED]
