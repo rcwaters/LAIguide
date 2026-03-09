@@ -49,8 +49,11 @@ async function snapshotInfoBox(page: Page): Promise<void> {
 
 test.describe('info-box snapshots', () => {
     test.beforeEach(async ({ page }) => {
-        await page.clock.setFixedTime(FIXED_DATE);
+        // Navigate first with the real clock so initForm() and page scripts
+        // load without interference, then freeze time so the app's elapsed-time
+        // calculations are deterministic regardless of when the test runs.
         await page.goto('/');
+        await page.clock.setFixedTime(FIXED_DATE);
     });
 
     // ── Early guidance ────────────────────────────────────────────────────────
