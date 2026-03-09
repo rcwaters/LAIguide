@@ -299,3 +299,31 @@ input:not([type="radio"]):not([type="checkbox"]):focus-visible, select:focus-vis
     line-height: 1.5;
 }
 
+/* ─── Guidance type segmented control ─────────────────────────────── */
+.seg-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.seg-btn {
+    padding: 10px 16px;
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    background: #fff;
+    color: #374151;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.seg-btn:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+.seg-btn--active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+}
+

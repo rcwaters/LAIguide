@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DESC LAI Medication Standing Order Tool</title>
-  <script type="module" crossorigin src="./assets/index-CtbK_IaR.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-VG7f0TxT.css">
 </head>
 <body>
     <div class="app-container">
@@ -26,12 +24,12 @@
             </div>
 
             <div class="input-group" id="guidance-type-group" style="display:none">
-                <label for="guidance-type">Choose Guidance Type <span class="required">*</span></label>
-                <select id="guidance-type" onchange="handleGuidanceTypeChange()">
-                    <option value="">Select guidance type...</option>
-                    <option value="early">Early Administration</option>
-                    <option value="late">Late / Overdue Administration</option>
-                </select>
+                <label>Choose Guidance Type <span class="required">*</span></label>
+                <div class="seg-group">
+                    <button type="button" class="seg-btn" data-value="early" onclick="selectGuidanceType('early')">Early Administration</button>
+                    <button type="button" class="seg-btn" data-value="late" onclick="selectGuidanceType('late')">Late / Overdue Administration</button>
+                </div>
+                <input type="hidden" id="guidance-type" value="">
             </div>
 
             <!-- Medication-specific form field groups are injected here by main.ts -->
@@ -41,6 +39,6 @@
             <strong>⚠️ DESC Standing Order Disclaimer:</strong> This tool implements DESC's standing order protocols for LAI medication administration. It is intended for use by licensed RNs and MAs at DESC only. All CONSULT decision points require contact with a DESC prescriber. This tool does not replace clinical judgment and should be used in conjunction with the complete DESC LAI standing order document.
         </div>
     </div>
-
+    <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
