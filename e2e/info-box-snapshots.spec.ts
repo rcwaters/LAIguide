@@ -3,6 +3,8 @@ import { test, expect, Page } from '@playwright/test';
 // ─── Fixed clock ──────────────────────────────────────────────────────────────
 // All tests freeze the browser clock to this date so that computed elapsed
 // times and displayed dates are deterministic regardless of when CI runs.
+// page.clock.setFixedTime is called before page.goto so both Date.now() and
+// new Date() inside initForm() and daysSinceDate() return the frozen date.
 
 const FIXED_DATE = new Date('2026-01-15T12:00:00');
 
@@ -23,6 +25,7 @@ async function selectField(page: Page, id: string, value: string): Promise<void>
 }
 
 async function fillDate(page: Page, id: string, value: string): Promise<void> {
+    await page.locator(`#${id}`).waitFor({ state: 'visible' });
     await page.fill(`#${id}`, value);
     await page.dispatchEvent(`#${id}`, 'change');
 }
