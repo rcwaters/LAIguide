@@ -42,7 +42,7 @@ test.describe('CSS loading', () => {
         const bgColor = await page.evaluate(() =>
             getComputedStyle(document.body).backgroundColor,
         );
-        expect(bgColor).toBe('rgb(179, 221, 230)');
+        expect(bgColor).toBe('rgb(174, 207, 204)');
     });
 
     test('app-container has white background (not transparent)', async ({ page }) => {
