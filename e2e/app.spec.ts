@@ -36,15 +36,13 @@ test.describe('CSS loading', () => {
         await page.goto('/');
     });
 
-    test('body has blue gradient background (not default white)', async ({ page }) => {
+    test('body has white background (not default transparent)', async ({ page }) => {
         // Default body background-color is transparent/rgba(0,0,0,0).
-        // Our CSS sets a blue linear-gradient, which browsers expose as
-        // background-image. A non-"none" value proves the stylesheet loaded.
-        const bgImage = await page.evaluate(() =>
-            getComputedStyle(document.body).backgroundImage,
+        // Our CSS sets background: #ffffff, which proves the stylesheet loaded.
+        const bgColor = await page.evaluate(() =>
+            getComputedStyle(document.body).backgroundColor,
         );
-        expect(bgImage).not.toBe('none');
-        expect(bgImage).toContain('linear-gradient');
+        expect(bgColor).toBe('rgb(255, 255, 255)');
     });
 
     test('app-container has white background (not transparent)', async ({ page }) => {
