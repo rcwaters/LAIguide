@@ -36,13 +36,13 @@ test.describe('CSS loading', () => {
         await page.goto('/');
     });
 
-    test('body has white background (not default transparent)', async ({ page }) => {
+    test('body has light teal background (not default transparent)', async ({ page }) => {
         // Default body background-color is transparent/rgba(0,0,0,0).
-        // Our CSS sets background: #ffffff, which proves the stylesheet loaded.
+        // Our CSS sets background: #b3dde6, which proves the stylesheet loaded.
         const bgColor = await page.evaluate(() =>
             getComputedStyle(document.body).backgroundColor,
         );
-        expect(bgColor).toBe('rgb(255, 255, 255)');
+        expect(bgColor).toBe('rgb(179, 221, 230)');
     });
 
     test('app-container has white background (not transparent)', async ({ page }) => {
