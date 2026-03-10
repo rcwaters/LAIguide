@@ -7,8 +7,8 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg, #006c87 0%, #004f63 100%);
     min-height: 100vh;
     /* mobile: tighter padding; phones with notches get safe-area insets */
     padding: 8px;
@@ -55,11 +55,11 @@ body {
     text-align: center;
     margin-bottom: 24px;
     padding-bottom: 20px;
-    border-bottom: 3px solid #2c5aa0;
+    border-bottom: 3px solid #006c87;
 }
 
 .desc-branding {
-    background: #1e3a8a;
+    background: #006c87;
     color: white;
     padding: 6px 14px;
     border-radius: 6px;
@@ -70,7 +70,7 @@ body {
 }
 
 .app-title {
-    color: #1e3a8a;
+    color: #006c87;
     font-size: clamp(20px, 5vw, 28px);
     font-weight: 700;
     margin-bottom: 8px;
@@ -89,7 +89,7 @@ body {
     padding: 16px;
     background: #f8fafc;
     border-radius: 12px;
-    border-left: 4px solid #2c5aa0;
+    border-left: 4px solid #006c87;
 }
 
 @media (min-width: 768px) {
@@ -97,7 +97,7 @@ body {
 }
 
 .section-title {
-    color: #1e3a8a;
+    color: #e39717;
     font-size: clamp(17px, 4vw, 20px);
     font-weight: 600;
     margin-bottom: 15px;
@@ -136,8 +136,8 @@ input:not([type="radio"]):not([type="checkbox"]), select {
 
 input:not([type="radio"]):not([type="checkbox"]):focus-visible, select:focus-visible {
     outline: none;
-    border-color: #2c5aa0;
-    box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.15);
+    border-color: #006c87;
+    box-shadow: 0 0 0 3px rgba(0, 108, 135, 0.15);
 }
 
 .date-input {
@@ -151,8 +151,8 @@ input:not([type="radio"]):not([type="checkbox"]):focus-visible, select:focus-vis
 /* ─── Submit button ───────────────────────────────────────────────────────── */
 
 .btn {
-    background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
-    background-color: #2c5aa0; /* fallback: ensures computed backgroundColor is non-transparent */
+    background: linear-gradient(135deg, #006c87 0%, #004f63 100%);
+    background-color: #006c87; /* fallback: ensures computed backgroundColor is non-transparent */
     color: white;
     border: none;
     padding: 14px 28px;
@@ -178,7 +178,7 @@ input:not([type="radio"]):not([type="checkbox"]):focus-visible, select:focus-vis
 
 .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(44, 90, 160, 0.3);
+    box-shadow: 0 10px 20px rgba(0, 108, 135, 0.3);
 }
 
 .btn:active {
@@ -239,7 +239,7 @@ input:not([type="radio"]):not([type="checkbox"]):focus-visible, select:focus-vis
 
 .info-label {
     font-weight: 600;
-    color: #1e40af;
+    color: #006c87;
 }
 
 @media (min-width: 480px) {
@@ -265,7 +265,7 @@ input:not([type="radio"]):not([type="checkbox"]):focus-visible, select:focus-vis
 }
 
 .guidance-heading {
-    color: #1e3a8a;
+    color: #e39717;
     font-size: clamp(15px, 3.5vw, 19px);
     font-weight: 600;
     margin-bottom: 12px;
@@ -318,12 +318,12 @@ input:not([type="radio"]):not([type="checkbox"]):focus-visible, select:focus-vis
     transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 .seg-btn:hover {
-    border-color: #3b82f6;
-    background: #eff6ff;
+    border-color: #006c87;
+    background: #e6f4f7;
 }
 .seg-btn--active {
-    background: #2563eb;
-    border-color: #2563eb;
+    background: #006c87;
+    border-color: #006c87;
     color: #fff;
 }
 
