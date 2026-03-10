@@ -25,6 +25,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # The deploy bot commits dist/index.html (with hashed asset refs) back to
+      # main. Strip those out before building so vite always rebuilds from source.
+      - name: Restore dev entry point in index.html
+        run: |
+          python3 - <<'EOF'
+          import re
+          with open('index.html') as f:
+              content = f.read()
+          # Remove any pre-built asset <script> and <link> tags the deploy bot injected
+          content = re.sub(r'[ \t]*<script[^>]+crossorigin src="[^"]*assets/[^"]*"[^>]*></script>\n?', '', content)
+          content = re.sub(r'[ \t]*<link[^>]+crossorigin href="[^"]*assets/[^"]*"[^>]*>\n?', '', content)
+          # Ensure the vite dev entry point is present
+          if '/src/main.ts' not in content:
+              content = content.replace('</title>', '</title>\n  <script type="module" src="/src/main.ts"></script>', 1)
+          with open('index.html', 'w') as f:
+              f.write(content)
+          EOF
+
       - name: Build
         run: npm run build
 
