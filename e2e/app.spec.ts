@@ -760,11 +760,13 @@ test.describe('late guidance — Abilify Maintena additional tiers', () => {
     test('3+ doses beyond 6-week window: shows reinitiation guidance', async ({ page }) => {
         await selectField(page, 'medication', 'abilify_maintena');
         await selectField(page, 'guidance-type', 'late');
-        await fillDate(page, 'last-abilify', daysAgo(50));
+        await fillDate(page, 'last-abilify', daysAgo(56));
         await selectField(page, 'abilify-doses', '3+');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Re-initiate');
+        await expect(page.locator('.guidance-section')).toContainText('(1) Administer usual Abilify Maintena monthly dose');
+        await expect(page.locator('.guidance-section')).toContainText('(2) Notify patient of the options recommended for reinitiation');
     });
 
     test('< 4 weeks: shows not-due guidance', async ({ page }) => {

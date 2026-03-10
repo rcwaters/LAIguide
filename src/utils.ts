@@ -8,7 +8,7 @@ export function daysSinceDate(dateString: string): number {
         const past  = new Date(year, month - 1, day); // local midnight
         const today = new Date();
         today.setHours(0, 0, 0, 0);                    // local midnight
-        return Math.floor((today.getTime() - past.getTime()) / (1000 * 60 * 60 * 24));
+        return Math.round((today.getTime() - past.getTime()) / (1000 * 60 * 60 * 24));
     } catch (err) {
         console.error('[daysSinceDate] Failed to parse date string:', dateString, err);
         return 0;

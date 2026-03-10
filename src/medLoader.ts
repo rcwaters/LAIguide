@@ -189,12 +189,13 @@ function buildStandardDef(json: any): Omit<MedDefinition, 'displayName' | 'early
         }
         const displayDays  = Math.max(0, daysSince);  // clamp future dates to 0
         const approxMonths = Math.round(displayDays / DAYS_PER_MONTH);
-        const breakdown    = displayDays > 0;  // skip parenthetical for 0
+        const bareLabel    = `${displayDays} day${displayDays !== 1 ? 's' : ''}`;
+        const weeksBreak   = displayDays > 0 ? formatWeeksAndDays(displayDays) : null;
         const t = row.format === 'days-months'
-            ? `${displayDays} days${breakdown ? ` (approximately ${approxMonths} months)` : ''}`
+            ? `${bareLabel}${approxMonths > 0 ? ` (approximately ${approxMonths} months)` : ''}`
             : row.format === 'days-weeks-months'
-                ? `${displayDays} days${breakdown ? ` (${formatWeeksAndDays(displayDays)})` : ''}`
-                : `${displayDays} days${breakdown ? ` (${formatWeeksAndDays(displayDays)})` : ''}`;
+                ? `${bareLabel}${weeksBreak && weeksBreak !== bareLabel ? ` (${weeksBreak})` : ''}`
+                : `${bareLabel}${weeksBreak && weeksBreak !== bareLabel ? ` (${weeksBreak})` : ''}`;
         return [row.label, t];
     }
 
