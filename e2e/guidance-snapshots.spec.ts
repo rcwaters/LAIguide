@@ -39,11 +39,11 @@ async function snapshotGuidance(page: Page): Promise<void> {
 test.describe('guidance text snapshots', () => {
     test.beforeEach(async ({ page }) => { await page.goto('/'); });
 
-    test('invega_sustenna — initiation, 30 days', async ({ page }) => {
+    test('invega_sustenna — initiation, 35 days', async ({ page }) => {
         await selectField(page, 'medication', 'invega_sustenna');
         await selectField(page, 'guidance-type', 'late');
         await selectField(page, 'invega-type', 'initiation');
-        await fillDate(page, 'first-injection', daysAgo(30));
+        await fillDate(page, 'first-injection', daysAgo(35));
         await submit(page);
         await snapshotGuidance(page);
     });
