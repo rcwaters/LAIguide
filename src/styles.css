@@ -59,7 +59,7 @@ body {
 }
 
 .desc-branding {
-    background: #006c87;
+    background: #3c8476;
     color: white;
     padding: 6px 14px;
     border-radius: 0;
@@ -70,7 +70,7 @@ body {
 }
 
 .app-title {
-    color: #006c87;
+    color: #3c8476;
     font-size: clamp(20px, 5vw, 28px);
     font-weight: 700;
     margin-bottom: 8px;
