@@ -48,6 +48,15 @@ describe('daysSinceDate', () => {
         expect(daysSinceDate(localDaysAgo(0))).toBe(0);
         expect(daysSinceDate(localDaysAgo(1))).toBe(1);
     });
+
+    it('is DST-safe (Math.round survives the 23-hour spring-forward day)', () => {
+        // On DST spring-forward, "yesterday" is only 23 hours.
+        // Math.floor(23h / 24h) = 0 (wrong); Math.round = 1 (correct).
+        // Simulate by checking a wide range of past dates — none should be off by 1.
+        for (const n of [1, 2, 7, 14, 30, 90, 180]) {
+            expect(daysSinceDate(localDaysAgo(n))).toBe(n);
+        }
+    });
 });
 
 describe('formatDate', () => {

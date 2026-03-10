@@ -24,6 +24,53 @@ function getAristadaGuidance(days: number, dose: string): SupplementalGuidanceRe
 function getUzedyGuidance(days: number, dose: string): GuidanceResult {
     return MED_REGISTRY['uzedy'].getLateGuidance({ daysSince: days, dose }) as GuidanceResult;
 }
+// ─── buildLateInfoRows — "Time since last injection" formatting ─────────────
+// Uses haloperidol_decanoate which has a `format: "days-weeks"` info row.
+// Verifies the fix that prevents "6 days (6 days)" when days < 7.
+describe('buildLateInfoRows — time-since formatting', () => {
+    const med = MED_REGISTRY['haloperidol_decanoate'];
+    const ctx = {
+        'last-haloperidol': '2026-01-01',
+        'haloperidol-prior-doses': '4+',
+    } as Parameters<typeof med.buildLateInfoRows>[0];
+
+    function timeSince(days: number): string {
+        const rows = med.buildLateInfoRows(ctx, days);
+        const row  = rows.find(([label]) => label === 'Time since last injection:');
+        if (!row) throw new Error('Row not found');
+        return row[1];
+    }
+
+    it('0 days → "0 days" (no parenthetical)', () => {
+        expect(timeSince(0)).toBe('0 days');
+    });
+
+    it('1 day → "1 day" (singular, no parenthetical)', () => {
+        expect(timeSince(1)).toBe('1 day');
+    });
+
+    it('6 days → "6 days" (no duplicate parenthetical)', () => {
+        // Before the fix this produced "6 days (6 days)".
+        expect(timeSince(6)).toBe('6 days');
+    });
+
+    it('7 days → "7 days (1 week)"', () => {
+        expect(timeSince(7)).toBe('7 days (1 week)');
+    });
+
+    it('8 days → "8 days (1 week and 1 day)"', () => {
+        expect(timeSince(8)).toBe('8 days (1 week and 1 day)');
+    });
+
+    it('14 days → "14 days (2 weeks)"', () => {
+        expect(timeSince(14)).toBe('14 days (2 weeks)');
+    });
+
+    it('30 days → "30 days (4 weeks and 2 days)"', () => {
+        expect(timeSince(30)).toBe('30 days (4 weeks and 2 days)');
+    });
+});
+
 describe('displayName', () => {
     it('returns full name for known medication keys', () => {
         expect(MED_REGISTRY['invega_sustenna'].displayName).toBe('Invega Sustenna (paliperidone palmitate)');
