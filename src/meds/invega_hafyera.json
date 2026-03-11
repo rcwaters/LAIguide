@@ -8,7 +8,7 @@
         "earlyMaxDays": 180,
         "onTimeMaxDays": 202
     },
-    "optgroupLabel": "Antipsychotics - Currently Used at DESC",
+    "optgroupLabel": "Antipsychotics",
     "renderType": "categorical",
     "formGroupsSpec": [
         {

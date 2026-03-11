@@ -198,7 +198,7 @@ function injectGuidanceSection(infoRows: string, bodyHTML: string): void {
             </div>
         </div>`;
 
-    document.querySelector('.app-header')!.insertAdjacentHTML('afterend', html);
+    document.querySelector('.disclaimer')!.insertAdjacentHTML('beforebegin', html);
     window.scrollTo(0, 0);
 }
 

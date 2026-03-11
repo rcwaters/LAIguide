@@ -53,31 +53,33 @@ body {
 
 .app-header {
     text-align: center;
-    margin-bottom: 24px;
-    padding-bottom: 20px;
-    border-bottom: 3px solid #006c87;
+    background: #3c8476;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 16px;
 }
 
 .desc-branding {
     background: #3c8476;
     color: white;
-    padding: 6px 14px;
-    border-radius: 0;
+    padding: 8px 48px;
+    border-radius: 4px;
     font-size: 13px;
     font-weight: 600;
-    display: inline-block;
-    margin-bottom: 12px;
+    display: block;
+    width: fit-content;
+    margin: 0 auto 16px auto;
 }
 
 .app-title {
-    color: #3c8476;
+    color: white;
     font-size: clamp(20px, 5vw, 28px);
     font-weight: 700;
     margin-bottom: 8px;
 }
 
 .app-subtitle {
-    color: #666;
+    color: rgba(255, 255, 255, 0.85);
     font-size: clamp(14px, 3vw, 16px);
     font-weight: 500;
 }
@@ -87,9 +89,7 @@ body {
 .form-section {
     margin-bottom: 24px;
     padding: 16px;
-    background: #d5eef6;
     border-radius: 0;
-    border-left: 4px solid #006c87;
 }
 
 @media (min-width: 768px) {
@@ -113,7 +113,7 @@ body {
 label {
     display: block;
     margin-bottom: 8px;
-    color: #374151;
+    color: #475564;
     font-weight: 500;
 }
 
@@ -140,6 +140,16 @@ input:not([type="radio"]):not([type="checkbox"]):focus-visible, select:focus-vis
     box-shadow: 0 0 0 3px rgba(0, 108, 135, 0.15);
 }
 
+optgroup {
+    color: #111827;
+    font-weight: 700;
+}
+
+optgroup option {
+    color: #374151;
+    font-weight: 400;
+}
+
 .date-input {
     max-width: 100%;
 }
@@ -151,8 +161,8 @@ input:not([type="radio"]):not([type="checkbox"]):focus-visible, select:focus-vis
 /* ─── Submit button ───────────────────────────────────────────────────────── */
 
 .btn {
-    background: linear-gradient(135deg, #006c87 0%, #004f63 100%);
-    background-color: #006c87; /* fallback: ensures computed backgroundColor is non-transparent */
+    background: #3c8476;
+    background-color: #3c8476;
     color: white;
     border: none;
     padding: 14px 28px;
@@ -178,7 +188,7 @@ input:not([type="radio"]):not([type="checkbox"]):focus-visible, select:focus-vis
 
 .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0, 108, 135, 0.3);
+    box-shadow: 0 10px 20px rgba(60, 132, 118, 0.3);
 }
 
 .btn:active {
@@ -265,7 +275,7 @@ input:not([type="radio"]):not([type="checkbox"]):focus-visible, select:focus-vis
 }
 
 .guidance-heading {
-    color: #e39717;
+    color: #475564;
     font-size: clamp(15px, 3.5vw, 19px);
     font-weight: 600;
     margin-bottom: 12px;
