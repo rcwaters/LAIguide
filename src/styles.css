@@ -267,7 +267,7 @@ optgroup option {
     border-radius: 12px;
     margin: 16px 0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    border-left: 4px solid #059669;
+    border-left: none;
 }
 
 @media (min-width: 768px) {
@@ -288,14 +288,28 @@ optgroup option {
     line-height: 1.65;
 }
 
+.guidance-text blockquote {
+    margin: 8px 0;
+    padding: 0;
+    border: none;
+    font-style: normal;
+}
+
+blockquote {
+    margin: 8px 0;
+    padding: 0;
+    border: none !important;
+    font-style: normal;
+}
+
 .early-allowed {
-    border-left-color: #059669;
     background: #ecfdf5;
+    border-left: none;
 }
 
 .early-not-allowed {
-    border-left-color: #dc2626;
     background: #fef2f2;
+    border-left: none;
 }
 
 .important-note {
