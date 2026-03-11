@@ -29,7 +29,7 @@
             }
         ]
     },
-    "optgroupLabel": "Antipsychotics - Currently Used at DESC",
+    "optgroupLabel": "Antipsychotics",
     "renderType": "three-part",
     "formGroupsSpec": [
         {
