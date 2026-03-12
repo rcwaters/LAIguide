@@ -1,57 +1,77 @@
 {
     "key": "fluphenazine_decanoate",
     "displayName": "Fluphenazine Decanoate (formerly Prolixin Dec)",
-    "earlyWindowType": "before-next",
-    "earlyGuidanceNote": "DESC created guidance",
-    "earlyWindowDays": 3,
-    "lateGuidance": {
-        "kind": "tiers-by-prior-doses",
-        "priorDoseGroups": [
-            {
-                "priorDoses": "1-2",
-                "tiers": [
-                    {
-                        "maxDays": 120,
-                        "guidance": {
-                            "idealSteps": "(1) Administer usual fluphenazine decanoate injection **if the dose is 50 mg or less**.\n\n> If the dose is greater than 50 mg, consult provider *before* administering.\n\n(2) If symptoms of psychosis have returned or worsened, recommend oral fluphenazine supplementation (consult provider for order).\n\n(3) Schedule a check-in with patient in approximately **24 hours** (near peak dose) to assess for fluphenazine-related adverse effects.",
-                            "providerNotification": "**Pre-injection:** Consult provider only if fluphenazine decanoate dose is greater than 50 mg.\n\n**Post-injection:** Notify provider of the situation and request an order for oral supplementation if needed (returned or worsened psychosis symptoms)."
+    "guidance": {
+        "shared": {
+            "providerNotifications": [
+                "New side effects of recent injection",
+                "New abnormal involuntary movements, excessive sedation, dizziness, agitation, delirium, fever, tachycardia, abnormal blood pressure, or any concerning symptoms"
+            ]
+        },
+        "early": {
+            "guidanceNote": "DESC created guidance",
+            "daysBeforeDue": 2,
+            "minDays": 14
+        },
+        "late": {
+            "kind": "tiers-by-prior-doses",
+            "priorDoseGroups": [
+                {
+                    "priorDoses": "1-2",
+                    "tiers": [
+                        {
+                            "maxDays": 120,
+                            "guidance": {
+                                "idealSteps": "(1) Administer usual fluphenazine decanoate injection **if the dose is 50 mg or less**.\n\n> If the dose is greater than 50 mg, consult provider *before* administering.\n\n(2) If symptoms of psychosis have returned or worsened, recommend oral fluphenazine supplementation (consult provider for order).\n\n(3) Schedule a check-in with patient in approximately **24 hours** (near peak dose) to assess for fluphenazine-related adverse effects.",
+                                "providerNotifications": [
+                                    "**Pre-injection:** Consult provider only if fluphenazine decanoate dose is greater than 50 mg.",
+                                    "**Post-injection:** Notify provider of the situation and request an order for oral supplementation if needed (returned or worsened psychosis symptoms)."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": null,
+                            "guidance": {
+                                "idealSteps": "Do not administer. Reinitiation is required. **Consult provider BEFORE any injection.**",
+                                "providerNotifications": [
+                                    "**Before any injection:** Consult provider in all cases."
+                                ]
+                            }
                         }
-                    },
-                    {
-                        "maxDays": null,
-                        "guidance": {
-                            "idealSteps": "Do not administer. Reinitiation is required. **Consult provider BEFORE any injection.**",
-                            "providerNotification": "**Before any injection:** Consult provider in all cases."
+                    ]
+                },
+                {
+                    "priorDoses": "3+",
+                    "tiers": [
+                        {
+                            "maxDays": 41,
+                            "guidance": {
+                                "idealSteps": "(1) Administer usual fluphenazine decanoate injection.\n\n(2) Arrange for next injection at the previously planned dosing interval."
+                            }
+                        },
+                        {
+                            "maxDays": 120,
+                            "guidance": {
+                                "idealSteps": "(1) Administer usual fluphenazine decanoate injection **if the dose is 50 mg or less**.\n\n> If the dose is greater than 50 mg, consult provider *before* administering.\n\n(2) If symptoms of psychosis have returned or worsened, recommend oral fluphenazine supplementation (consult provider for order).\n\n(3) Schedule a check-in with patient in approximately **24 hours** (near peak dose) to assess for fluphenazine-related adverse effects.",
+                                "providerNotifications": [
+                                    "**Pre-injection:** Consult provider only if fluphenazine decanoate dose is greater than 50 mg.",
+                                    "**Post-injection:** Notify provider of the situation and request an order for oral supplementation if needed (returned or worsened psychosis symptoms)."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": null,
+                            "guidance": {
+                                "idealSteps": "Do not administer. Reinitiation is required. **Consult provider BEFORE any injection.**",
+                                "providerNotifications": [
+                                    "**Before any injection:** Consult provider in all cases."
+                                ]
+                            }
                         }
-                    }
-                ]
-            },
-            {
-                "priorDoses": "3+",
-                "tiers": [
-                    {
-                        "maxDays": 41,
-                        "guidance": {
-                            "idealSteps": "(1) Administer usual fluphenazine decanoate injection.\n\n(2) Arrange for next injection at the previously planned dosing interval."
-                        }
-                    },
-                    {
-                        "maxDays": 120,
-                        "guidance": {
-                            "idealSteps": "(1) Administer usual fluphenazine decanoate injection **if the dose is 50 mg or less**.\n\n> If the dose is greater than 50 mg, consult provider *before* administering.\n\n(2) If symptoms of psychosis have returned or worsened, recommend oral fluphenazine supplementation (consult provider for order).\n\n(3) Schedule a check-in with patient in approximately **24 hours** (near peak dose) to assess for fluphenazine-related adverse effects.",
-                            "providerNotification": "**Pre-injection:** Consult provider only if fluphenazine decanoate dose is greater than 50 mg.\n\n**Post-injection:** Notify provider of the situation and request an order for oral supplementation if needed (returned or worsened psychosis symptoms)."
-                        }
-                    },
-                    {
-                        "maxDays": null,
-                        "guidance": {
-                            "idealSteps": "Do not administer. Reinitiation is required. **Consult provider BEFORE any injection.**",
-                            "providerNotification": "**Before any injection:** Consult provider in all cases."
-                        }
-                    }
-                ]
-            }
-        ]
+                    ]
+                }
+            ]
+        }
     },
     "optgroupLabel": "Antipsychotics",
     "renderType": "three-part",

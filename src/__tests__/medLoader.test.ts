@@ -2,6 +2,11 @@ import { describe, it, expect } from 'vitest';
 import { MED_REGISTRY, pluralDays, composeEarlyGuidance } from '../medLoader';
 import type { GuidanceResult, SupplementalGuidanceResult, CategoricalGuidanceResult } from '../interfaces/guidance';
 
+/** Returns true if any element of the providerNotifications array contains the substring. */
+function hasNotif(arr: string[] | undefined, sub: string): boolean {
+    return !!arr?.some(s => s.includes(sub));
+}
+
 // Local wrappers that preserve the original test call signatures
 function getInvegaInitiationGuidance(days: number): GuidanceResult {
     return MED_REGISTRY['invega_sustenna'].getLateGuidance({ daysSince: days, variant: 'initiation' }) as GuidanceResult;
@@ -92,26 +97,27 @@ describe('earlyGuidance', () => {
 
     // ── composeEarlyGuidance ────────────────────────────────────────────────
     describe('composeEarlyGuidance', () => {
-        it('before-next, no note',   () => expect(composeEarlyGuidance('before-next', 7,  undefined, undefined)).toBe('1 week before due date'));
-        it('before-next, with note', () => expect(composeEarlyGuidance('before-next', 3,  undefined, 'DESC created guidance')).toBe('3 days before due date  \n*(DESC created guidance)*'));
-        it('since-last, no note',    () => expect(composeEarlyGuidance('since-last',  undefined, 21, undefined)).toBe('No sooner than 3 weeks after last injection'));
-        it('since-last, with note',  () => expect(composeEarlyGuidance('since-last',  undefined, 21, 'This may be given earlier with provider approval')).toBe('No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*'));
-        it('since-last, non-week days', () => expect(composeEarlyGuidance('since-last', undefined, 26, undefined)).toBe('No sooner than 26 days after last injection'));
+        it('before-next, no note',   () => expect(composeEarlyGuidance(7,  undefined, undefined)).toBe('1 week before due date'));
+        it('before-next, with note', () => expect(composeEarlyGuidance(3,  undefined, 'DESC created guidance')).toBe('3 days before due date  \n*(DESC created guidance)*'));
+        it('since-last, no note',    () => expect(composeEarlyGuidance(undefined, 21, undefined)).toBe('No sooner than 3 weeks after last injection'));
+        it('since-last, with note',  () => expect(composeEarlyGuidance(undefined, 21, 'This may be given earlier with provider approval')).toBe('No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*'));
+        it('since-last, non-week days', () => expect(composeEarlyGuidance(undefined, 26, undefined)).toBe('No sooner than 26 days after last injection'));
+        it('dual constraint, no note',  () => expect(composeEarlyGuidance(7, 21, undefined)).toBe('1 week before due date; no sooner than 3 weeks after last injection'));
     });
 
     // ── Registry: earlyGuidance string ─────────────────────────────────────
     describe('registry earlyGuidance string', () => {
         it('returns early guidance content for known medications', () => {
-            expect(MED_REGISTRY['invega_trinza'].earlyGuidance).toBe('2 weeks before due date');
+            expect(MED_REGISTRY['invega_trinza'].earlyGuidance).toBe('1 week before due date');
             expect(MED_REGISTRY['abilify_maintena'].earlyGuidance).toBe('No sooner than 26 days after last injection');
         });
         const cases: [string, string][] = [
-            ['aristada',             '1 week before due date'],
-            ['invega_sustenna',      '1 week before due date  \n*(Note: after completing full initiation process)*'],
+            ['aristada',             '2 days before due date; no sooner than 3 weeks after last injection'],
+            ['invega_sustenna',      '2 days before due date; no sooner than 3 weeks after last injection  \n*(Note: after completing full initiation process)*'],
             ['invega_hafyera',       '2 weeks before due date'],
-            ['fluphenazine_decanoate','3 days before due date  \n*(DESC created guidance)*'],
-            ['haloperidol_decanoate','3 days before due date  \n*(DESC created guidance)*'],
-            ['uzedy',               '3 days before due date  \n*(DESC created guidance)*'],
+            ['fluphenazine_decanoate','2 days before due date; no sooner than 2 weeks after last injection  \n*(DESC created guidance)*'],
+            ['haloperidol_decanoate','2 days before due date; no sooner than 2 weeks after last injection  \n*(DESC created guidance)*'],
+            ['uzedy',               '2 days before due date; no sooner than 3 weeks after last injection  \n*(DESC created guidance)*'],
             ['brixadi',             'No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*'],
             ['sublocade',           'No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*'],
             ['vivitrol',            'No sooner than 3 weeks after last injection'],
@@ -122,51 +128,41 @@ describe('earlyGuidance', () => {
         }
     });
 
-    // ── Registry: earlyWindowType ───────────────────────────────────────────
-    describe('registry earlyWindowType', () => {
-        const beforeNext = ['aristada', 'invega_sustenna', 'invega_trinza', 'invega_hafyera',
-                            'fluphenazine_decanoate', 'haloperidol_decanoate', 'uzedy'];
-        const sinceLast  = ['abilify_maintena', 'brixadi', 'sublocade', 'vivitrol'];
-        for (const key of beforeNext) {
-            it(`${key} → before-next`, () =>
-                expect(MED_REGISTRY[key as keyof typeof MED_REGISTRY].earlyWindowType).toBe('before-next'));
-        }
-        for (const key of sinceLast) {
-            it(`${key} → since-last`, () =>
-                expect(MED_REGISTRY[key as keyof typeof MED_REGISTRY].earlyWindowType).toBe('since-last'));
-        }
-    });
-
-    // ── Registry: earlyWindowDays / earlyMinDays ────────────────────────────
-    describe('registry earlyWindowDays and earlyMinDays', () => {
-        const windowDayCases: [string, number][] = [
-            ['aristada',              7],
-            ['invega_sustenna',       7],
-            ['invega_trinza',        14],
+    // ── Registry: earlyDaysBeforeDue / earlyMinDays ─────────────────────────
+    describe('registry earlyDaysBeforeDue and earlyMinDays', () => {
+        const daysBeforeDueCases: [string, number][] = [
+            ['aristada',              2],
+            ['invega_sustenna',       2],
+            ['invega_trinza',         7],
             ['invega_hafyera',       14],
-            ['fluphenazine_decanoate', 3],
-            ['haloperidol_decanoate',  3],
-            ['uzedy',                  3],
+            ['fluphenazine_decanoate', 2],
+            ['haloperidol_decanoate',  2],
+            ['uzedy',                  2],
         ];
-        for (const [key, days] of windowDayCases) {
-            it(`${key} earlyWindowDays = ${days}`, () =>
-                expect(MED_REGISTRY[key as keyof typeof MED_REGISTRY].earlyWindowDays).toBe(days));
+        for (const [key, days] of daysBeforeDueCases) {
+            it(`${key} earlyDaysBeforeDue = ${days}`, () =>
+                expect(MED_REGISTRY[key as keyof typeof MED_REGISTRY].earlyDaysBeforeDue).toBe(days));
         }
         const minDayCases: [string, number][] = [
             ['abilify_maintena', 26],
             ['brixadi',          21],
             ['sublocade',        21],
             ['vivitrol',         21],
+            ['invega_sustenna',  21],
+            ['aristada',          21],
+            ['uzedy',             21],
+            ['haloperidol_decanoate', 14],
+            ['fluphenazine_decanoate', 14],
         ];
         for (const [key, days] of minDayCases) {
             it(`${key} earlyMinDays = ${days}`, () =>
                 expect(MED_REGISTRY[key as keyof typeof MED_REGISTRY].earlyMinDays).toBe(days));
         }
-        it('before-next meds have no earlyMinDays', () => {
-            expect(MED_REGISTRY['uzedy'].earlyMinDays).toBeUndefined();
+        it('purely-before-next meds have no earlyMinDays', () => {
+            expect(MED_REGISTRY['invega_trinza'].earlyMinDays).toBeUndefined();
         });
-        it('since-last meds have no earlyWindowDays', () => {
-            expect(MED_REGISTRY['abilify_maintena'].earlyWindowDays).toBeUndefined();
+        it('purely-since-last meds have no earlyDaysBeforeDue', () => {
+            expect(MED_REGISTRY['abilify_maintena'].earlyDaysBeforeDue).toBeUndefined();
         });
     });
 });
@@ -184,7 +180,7 @@ describe('getInvegaInitiationGuidance', () => {
         expect(r13.idealSteps).toContain('156 mg');
         expect(r13.idealSteps).toContain('117 mg');
         expect(r28.idealSteps).toContain('117 mg');
-        expect(r13.providerNotification).toContain('117 mg');
+        expect(hasNotif(r13.providerNotifications, '117 mg')).toBe(true);
     });
 
     it('29–49 days: 156 mg then 2nd 156 mg 1 week later', () => {
@@ -205,15 +201,15 @@ describe('getInvegaInitiationGuidance', () => {
         const r181 = getInvegaInitiationGuidance(181);
         const r365 = getInvegaInitiationGuidance(365);
         expect(r181.idealSteps).toContain('Consult provider');
-        expect(r181.providerNotification).toContain('Before any injection');
-        expect(r365.providerNotification).toContain('Before any injection');
+        expect(hasNotif(r181.providerNotifications, 'Before any injection')).toBe(true);
+        expect(hasNotif(r365.providerNotifications, 'Before any injection')).toBe(true);
     });
 
     it('has all required fields', () => {
         [0, 20, 35, 100, 200].forEach(d => {
             const r = getInvegaInitiationGuidance(d);
             expect(r).toHaveProperty('idealSteps');
-            expect(r).toHaveProperty('providerNotification');
+            expect(r).toHaveProperty('providerNotifications');
             // pragmaticVariations is optional — present only when non-empty
             if (r.pragmaticVariations !== undefined) {
                 expect(Array.isArray(r.pragmaticVariations)).toBe(true);
@@ -226,21 +222,21 @@ describe('getInvegaMaintenanceGuidance', () => {
     it('<28 days: not significantly overdue', () => {
         const r = getInvegaMaintenanceGuidance(10, '156-or-less');
         expect(r.idealSteps).toContain('not significantly overdue');
-        expect(r.providerNotification).toContain('No provider notification');
+        expect(hasNotif(r.providerNotifications, 'No provider notification')).toBe(true);
     });
 
     it('28–42 days: administer usual dose, resume 4-week cycle (both doses)', () => {
         (['156-or-less', '234'] as const).forEach(dose => {
             const r = getInvegaMaintenanceGuidance(35, dose);
             expect(r.idealSteps).toContain('4 weeks later');
-            expect(r.providerNotification).toBeUndefined();
+            expect(r.providerNotifications).toBeUndefined();
         });
     });
 
     it('43–180 days, 156-or-less: 2nd usual dose 1 week later', () => {
         const r = getInvegaMaintenanceGuidance(90, '156-or-less');
         expect(r.idealSteps).toContain('2nd usual maintenance dose');
-        expect(r.providerNotification).toContain('2nd usual maintenance dose');
+        expect(hasNotif(r.providerNotifications, '2nd usual maintenance dose')).toBe(true);
     });
 
     it('43–180 days, 234 mg: step down to 156 mg x2 then resume 234 mg', () => {
@@ -252,7 +248,7 @@ describe('getInvegaMaintenanceGuidance', () => {
     it('181+ days: consult provider — reinitiation needed', () => {
         const r = getInvegaMaintenanceGuidance(200, '156-or-less');
         expect(r.idealSteps).toContain('reinitiation');
-        expect(r.providerNotification).toContain('Before any injection');
+        expect(hasNotif(r.providerNotifications, 'Before any injection')).toBe(true);
     });
 
     it('exact tier boundaries (maxDays: 27, 42, 180, Infinity)', () => {
@@ -291,14 +287,14 @@ describe('getInvegaTrinzaGuidance', () => {
         (['546', '819'] as const).forEach(dose => {
             const r = getInvegaTrinzaGuidance(150, dose);
             expect(r.idealSteps).toContain('156 mg');
-            expect(r.providerNotification).toContain('Consult provider');
+            expect(hasNotif(r.providerNotifications, 'Consult provider')).toBe(true);
         });
     });
 
     it('271+ days: reinitiation required', () => {
         const r = getInvegaTrinzaGuidance(300, '546');
         expect(r.idealSteps).toContain('Reinitiation');
-        expect(r.providerNotification).toContain('Consult provider');
+        expect(hasNotif(r.providerNotifications, 'Consult provider')).toBe(true);
     });
 
     it('exact tier boundaries (maxDays: 89, 120, 270, Infinity)', () => {
@@ -341,25 +337,25 @@ describe('getAbilifyMaintenaGuidance', () => {
     it('1-2 doses, 4–5 weeks: routine administration', () => {
         const r = getAbilifyMaintenaGuidance(5, '1-2');
         expect(r.idealSteps).toContain('usual Abilify Maintena monthly dose');
-        expect(r.providerNotification).toBeUndefined();
+        expect(r.providerNotifications).toBeUndefined();
     });
 
     it('1-2 doses, 6+ weeks: reinitiation required', () => {
         const r = getAbilifyMaintenaGuidance(6, '1-2');
         expect(r.idealSteps).toContain('Re-initiate');
-        expect(r.providerNotification).toContain('notify provider');
+        expect(hasNotif(r.providerNotifications, 'notify provider')).toBe(true);
     });
 
     it('3+ doses, 4–6 weeks: routine administration', () => {
         const r = getAbilifyMaintenaGuidance(6, '3+');
         expect(r.idealSteps).toContain('usual Abilify Maintena monthly dose');
-        expect(r.providerNotification).toBeUndefined();
+        expect(r.providerNotifications).toBeUndefined();
     });
 
     it('3+ doses, 7+ weeks: reinitiation required', () => {
         const r = getAbilifyMaintenaGuidance(7, '3+');
         expect(r.idealSteps).toContain('Re-initiate');
-        expect(r.providerNotification).toContain('notify provider');
+        expect(hasNotif(r.providerNotifications, 'notify provider')).toBe(true);
     });
 });
 describe('getAristadaGuidance', () => {
@@ -517,13 +513,13 @@ describe('getUzedyGuidance', () => {
     it('28–119 days: administer usual dose', () => {
         const r = getUzedyGuidance(60, '150-or-less');
         expect(r.idealSteps).toContain('usual Uzedy maintenance dose');
-        expect(r.providerNotification).toContain('FYI');
+        expect(hasNotif(r.providerNotifications, 'FYI')).toBe(true);
     });
 
     it('120–180 days: administer usual dose + sedation check', () => {
         const r = getUzedyGuidance(150, '200-or-more');
         expect(r.idealSteps).toContain('sedation');
-        expect(r.providerNotification).toContain('FYI');
+        expect(hasNotif(r.providerNotifications, 'FYI')).toBe(true);
     });
 
     it('181+ days, 150-or-less: usual dose + sedation check', () => {
@@ -536,7 +532,7 @@ describe('getUzedyGuidance', () => {
         const r = getUzedyGuidance(200, '200-or-more');
         expect(r.idealSteps).toContain('contact prescriber');
         expect(r.idealSteps).toContain('150 mg');
-        expect(r.providerNotification).toContain('notify the provider');
+        expect(hasNotif(r.providerNotifications, 'notify the provider')).toBe(true);
     });
 
     it('exact tier boundaries (maxDays: 27, 119, 180, Infinity)', () => {
@@ -552,6 +548,58 @@ describe('getUzedyGuidance', () => {
         expect(getUzedyGuidance(180, '150-or-less').idealSteps).toContain('sedation');
         // day 181 → tier 4: dose-variant (maxDays:Infinity)
         expect(getUzedyGuidance(181, '150-or-less').idealSteps).toContain('150 mg or less');
+    });
+});
+
+// ─── guidance.shared.providerNotifications — loader ──────────────────────────
+
+describe('guidance.shared.providerNotifications — loader', () => {
+    it('commonProviderNotifications is undefined for meds whose shared array is empty', () => {
+        const medsWithNoShared = Object.entries(MED_REGISTRY)
+            .filter(([, entry]) => !entry.commonProviderNotifications)
+            .map(([key]) => key);
+        // Meds with a non-empty shared array (e.g. Invega family) are excluded automatically
+        expect(medsWithNoShared.length).toBeGreaterThan(0);
+        for (const key of medsWithNoShared) {
+            expect(MED_REGISTRY[key as keyof typeof MED_REGISTRY].commonProviderNotifications).toBeUndefined();
+        }
+    });
+
+    it('all three Invega meds load the eGFR shared notification', () => {
+        const invegaKeys = ['invega_sustenna', 'invega_trinza', 'invega_hafyera'] as const;
+        for (const key of invegaKeys) {
+            const notifs = MED_REGISTRY[key].commonProviderNotifications;
+            expect(notifs, `${key}: expected commonProviderNotifications to be defined`).toBeDefined();
+                expect(hasNotif(notifs, 'eGFR is < 80 mL/min')).toBe(true);
+            expect(hasNotif(notifs, 'If eGFR')).toBe(false);
+        }
+    });
+
+    it('haloperidol_decanoate loads the albumin/bilirubin shared notification', () => {
+        const notifs = MED_REGISTRY['haloperidol_decanoate'].commonProviderNotifications;
+        expect(notifs).toBeDefined();
+        expect(hasNotif(notifs, 'Albumin is < 3.0')).toBe(true);
+        expect(hasNotif(notifs, 'bilirubin')).toBe(true);
+        expect(hasNotif(notifs, 'If albumin')).toBe(false);
+    });
+
+    it('all antipsychotics include the abnormal involuntary movements notification', () => {
+        const antipsychotics = [
+            'invega_sustenna', 'invega_trinza', 'invega_hafyera',
+            'abilify_maintena', 'aristada', 'uzedy',
+            'haloperidol_decanoate', 'fluphenazine_decanoate',
+        ] as const;
+        for (const key of antipsychotics) {
+            const notifs = MED_REGISTRY[key].commonProviderNotifications;
+            expect(notifs, `${key}: expected commonProviderNotifications to be defined`).toBeDefined();
+            expect(hasNotif(notifs, 'New side effects of recent injection'), `${key}: missing side effects notification`).toBe(true);
+            expect(hasNotif(notifs, 'abnormal involuntary movements'), `${key}: missing AIMS notification`).toBe(true);
+            expect(hasNotif(notifs, 'excessive sedation, dizziness'), `${key}: missing sedation notification`).toBe(true);
+            // "New side effects" must appear before "New abnormal involuntary movements"
+            const sideIdx = notifs!.findIndex(s => s.includes('New side effects'));
+            const aimsIdx = notifs!.findIndex(s => s.includes('abnormal involuntary'));
+            expect(sideIdx, `${key}: "New side effects" should come before "New abnormal involuntary movements"`).toBeLessThan(aimsIdx);
+        }
     });
 });
 

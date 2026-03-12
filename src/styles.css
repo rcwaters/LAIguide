@@ -285,6 +285,14 @@ optgroup option {
     line-height: 1.65;
 }
 
+.guidance-content ul {
+    color: #374151;
+    font-size: clamp(15px, 3vw, 17px);
+    font-weight: 500;
+    line-height: 1.65;
+    padding-left: 20px;
+}
+
 .early-allowed {
     border-left-color: #059669;
     background: #ecfdf5;

@@ -1,99 +1,129 @@
 {
     "key": "invega_sustenna",
     "displayName": "Invega Sustenna (paliperidone palmitate)",
-    "earlyWindowType": "before-next",
-    "earlyGuidanceNote": "Note: after completing full initiation process",
-    "earlyWindowDays": 7,
-    "lateGuidance": {
-        "kind": "invega-sustenna",
-        "_comment": "initiationTiers = days since first 234 mg initiation dose; maintenanceTiers = days since last monthly dose",
-        "initiationTiers": [
-            {
-                "maxDays": 12,
-                "guidance": {
-                    "idealSteps": "The 156 mg is either not due or not significantly overdue. Proceed with original plans and orders.",
-                    "providerNotification": "Only if questions remain"
-                }
-            },
-            {
-                "maxDays": 28,
-                "guidance": {
-                    "idealSteps": "(1) Administer 156 mg (in deltoid ideally).\n\n(2) Arrange for a 117 mg injection 5 weeks after the first (234 mg) injection, regardless of when the 156 mg injection (in step 1) is administered\n\n(3) Thereafter, start monthly maintenance dosing 4 weeks after step 2.",
-                    "pragmaticVariations": [
-                        "Ok to administer the 156 mg injection in gluteal muscle if patient strongly prefers."
-                    ],
-                    "providerNotification": "**Post-injection (156 mg):** Notify provider of the situation and need to order a 117 mg injection if not already done."
-                }
-            },
-            {
-                "maxDays": 49,
-                "guidance": {
-                    "idealSteps": "(1) Administer 156 mg (in deltoid ideally).\n\n(2) Arrange for a 2nd 156 mg injection (in deltoid ideally) 1 week after step 1.\n\n(3) Thereafter, start monthly maintenance dosing 4 weeks after step 2.",
-                    "pragmaticVariations": [
-                        "Ok to administer the 156 mg injection in gluteal muscle if patient strongly prefers."
-                    ],
-                    "providerNotification": "**Post-injection (1st 156 mg):** Notify provider of the situation and need to order a 2nd 156 mg injection if not already done."
-                }
-            },
-            {
-                "maxDays": 180,
-                "guidance": {
-                    "idealSteps": "(1) Restart initiation: Administer a 234 mg injection if available\n\n(2) Arrange for a 156 mg injection 1 week after step 1.\n\n(3) Thereafter, start monthly maintenance dosing 4 weeks after step 2.",
-                    "pragmaticVariations": [
-                        "Ok to administer the 156 mg injection at time of patient presentation if a 234 mg injection is not available and arrange for the patient to return in 1 week."
-                    ],
-                    "providerNotification": "**Post-injection:** notify provider of situation and for orders and guidance on next steps"
-                }
-            },
-            {
-                "maxDays": null,
-                "guidance": {
-                    "idealSteps": "Consult provider to get orders to proceed",
-                    "providerNotification": "**Before any injection:** Consult provider"
-                }
-            }
-        ],
-        "maintenanceTiers": [
-            {
-                "maxDays": 27,
-                "guidance": {
-                    "idealSteps": "The maintenance injection is not significantly overdue (less than 4 weeks since last injection). Proceed with administering the usual maintenance dose and continue with normal monthly schedule.",
-                    "providerNotification": "No provider notification needed for routine administration."
-                }
-            },
-            {
-                "maxDays": 42,
-                "guidance": {
-                    "idealSteps": "(1) Administer usual Invega Sustenna dose.\n\n(2) Arrange for next usual monthly maintenance dose = 4 weeks later."
-                }
-            },
-            {
-                "maxDays": 180,
-                "guidanceByDose": {
-                    "156-or-less": {
-                        "idealSteps": "(1) Administer usual maintenance dose.\n\n(2) Arrange for a 2nd usual maintenance dose (same dose) to be administered 1 week later.\n\n(3) Then resume usual monthly doses 4 weeks after step 2.",
+    "guidance": {
+        "shared": {
+            "providerNotifications": [
+                "eGFR is < 80 mL/min and if this is not known to the prescriber",
+                "New side effects of recent injection",
+                "New abnormal involuntary movements, excessive sedation, dizziness, agitation, delirium, fever, tachycardia, abnormal blood pressure, or any concerning symptoms"
+            ]
+        },
+        "early": {
+            "guidanceNote": "Note: after completing full initiation process",
+            "daysBeforeDue": 2,
+            "minDays": 21
+        },
+        "late": {
+            "kind": "invega-sustenna",
+            "_comment": "initiationTiers = days since first 234 mg initiation dose; maintenanceTiers = days since last monthly dose",
+            "initiationTiers": [
+                {
+                    "maxDays": 12,
+                    "guidance": {
+                        "idealSteps": "The 156 mg is either not due or not significantly overdue. Proceed with original plans and orders.",
+                        "providerNotifications": [
+                            "Only if questions remain"
+                        ]
+                    }
+                },
+                {
+                    "maxDays": 28,
+                    "guidance": {
+                        "idealSteps": "(1) Administer 156 mg (in deltoid ideally).\n\n(2) Arrange for a 117 mg injection 5 weeks after the first (234 mg) injection, regardless of when the 156 mg injection (in step 1) is administered\n\n(3) Thereafter, start monthly maintenance dosing 4 weeks after step 2.",
                         "pragmaticVariations": [
-                            "For step (2), ok if the 2nd usual maintenance dose happens anytime 1 week or beyond. Attempt to return to a monthly cycle after the 2nd usual maintenance dose."
+                            "Ok to administer the 156 mg injection in gluteal muscle if patient strongly prefers."
                         ],
-                        "providerNotification": "**Post-injection:** Notify provider of the need to have a 2nd usual maintenance dose ordered."
-                    },
-                    "234": {
-                        "idealSteps": "(1) Administer 156 mg Invega Sustenna\n\n(2) Arrange for another 156 mg injection to be administered 1 week later\n\n(3) Then resume usual monthly doses with 234 mg at 4 weeks after step 2.",
+                        "providerNotifications": [
+                            "**Post-injection (156 mg):** Notify provider of the situation and need to order a 117 mg injection if not already done."
+                        ]
+                    }
+                },
+                {
+                    "maxDays": 49,
+                    "guidance": {
+                        "idealSteps": "(1) Administer 156 mg (in deltoid ideally).\n\n(2) Arrange for a 2nd 156 mg injection (in deltoid ideally) 1 week after step 1.\n\n(3) Thereafter, start monthly maintenance dosing 4 weeks after step 2.",
                         "pragmaticVariations": [
-                            "If a 156 mg Invega Sustenna injection is not available at the time the patient presents, give the 234 mg injection. Notify the provider to guide next steps."
+                            "Ok to administer the 156 mg injection in gluteal muscle if patient strongly prefers."
                         ],
-                        "providerNotification": "**Post-injection:** Notify provider of the situation. If ideal steps are followed, a 2nd 156 mg injection may need to be ordered.\n\nIf the pragmatic variation was followed, the provider will guide next steps."
+                        "providerNotifications": [
+                            "**Post-injection (1st 156 mg):** Notify provider of the situation and need to order a 2nd 156 mg injection if not already done."
+                        ]
+                    }
+                },
+                {
+                    "maxDays": 180,
+                    "guidance": {
+                        "idealSteps": "(1) Restart initiation: Administer a 234 mg injection if available\n\n(2) Arrange for a 156 mg injection 1 week after step 1.\n\n(3) Thereafter, start monthly maintenance dosing 4 weeks after step 2.",
+                        "pragmaticVariations": [
+                            "Ok to administer the 156 mg injection at time of patient presentation if a 234 mg injection is not available and arrange for the patient to return in 1 week."
+                        ],
+                        "providerNotifications": [
+                            "**Post-injection:** notify provider of situation and for orders and guidance on next steps"
+                        ]
+                    }
+                },
+                {
+                    "maxDays": null,
+                    "guidance": {
+                        "idealSteps": "Consult provider to get orders to proceed",
+                        "providerNotifications": [
+                            "**Before any injection:** Consult provider"
+                        ]
                     }
                 }
-            },
-            {
-                "maxDays": null,
-                "guidance": {
-                    "idealSteps": "Consult provider: reinitiation will need to happen",
-                    "providerNotification": "**Before any injection:** Consult provider"
+            ],
+            "maintenanceTiers": [
+                {
+                    "maxDays": 27,
+                    "guidance": {
+                        "idealSteps": "The maintenance injection is not significantly overdue (less than 4 weeks since last injection). Proceed with administering the usual maintenance dose and continue with normal monthly schedule.",
+                        "providerNotifications": [
+                            "No provider notification needed for routine administration."
+                        ]
+                    }
+                },
+                {
+                    "maxDays": 42,
+                    "guidance": {
+                        "idealSteps": "(1) Administer usual Invega Sustenna dose.\n\n(2) Arrange for next usual monthly maintenance dose = 4 weeks later."
+                    }
+                },
+                {
+                    "maxDays": 180,
+                    "guidanceByDose": {
+                        "156-or-less": {
+                            "idealSteps": "(1) Administer usual maintenance dose.\n\n(2) Arrange for a 2nd usual maintenance dose (same dose) to be administered 1 week later.\n\n(3) Then resume usual monthly doses 4 weeks after step 2.",
+                            "pragmaticVariations": [
+                                "For step (2), ok if the 2nd usual maintenance dose happens anytime 1 week or beyond. Attempt to return to a monthly cycle after the 2nd usual maintenance dose."
+                            ],
+                            "providerNotifications": [
+                                "**Post-injection:** Notify provider of the need to have a 2nd usual maintenance dose ordered."
+                            ]
+                        },
+                        "234": {
+                            "idealSteps": "(1) Administer 156 mg Invega Sustenna\n\n(2) Arrange for another 156 mg injection to be administered 1 week later\n\n(3) Then resume usual monthly doses with 234 mg at 4 weeks after step 2.",
+                            "pragmaticVariations": [
+                                "If a 156 mg Invega Sustenna injection is not available at the time the patient presents, give the 234 mg injection. Notify the provider to guide next steps."
+                            ],
+                            "providerNotifications": [
+                                "**Post-injection:** Notify provider of the situation. If ideal steps are followed, a 2nd 156 mg injection may need to be ordered.",
+                                "If the pragmatic variation was followed, the provider will guide next steps."
+                            ]
+                        }
+                    }
+                },
+                {
+                    "maxDays": null,
+                    "guidance": {
+                        "idealSteps": "Consult provider: reinitiation will need to happen",
+                        "providerNotifications": [
+                            "**Before any injection:** Consult provider"
+                        ]
+                    }
                 }
-            }
-        ]
+            ]
+        }
     },
     "optgroupLabel": "Antipsychotics",
     "renderType": "three-part",
