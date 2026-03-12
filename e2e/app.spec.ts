@@ -91,6 +91,14 @@ test.describe('page load', () => {
     test('shows the disclaimer', async ({ page }) => {
         await expect(page.locator('.disclaimer')).toBeVisible();
     });
+
+    test('includes protocol download link on page load', async ({ page }) => {
+        const link = page.locator('.protocol-link a');
+        await expect(link).toBeVisible();
+        await expect(link).toHaveAttribute('href', './docs/protocol.pdf');
+        await expect(link).toHaveAttribute('download', 'DESC LAI Protocol.pdf');
+        await expect(link).toHaveText('document');
+    });
 });
 
 // ─── Field visibility ─────────────────────────────────────────────────────────

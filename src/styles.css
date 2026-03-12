@@ -25,6 +25,18 @@ body {
 
 /* ─── App shell ───────────────────────────────────────────────────────────── */
 
+.protocol-link {
+    /* center the text and add a bit more space above so it doesn’t sit
+       flush against the disclaimer container */
+    margin: 12px 0 0;
+    text-align: center;
+}
+.protocol-link a {
+    color: #006c87;
+    text-decoration: underline;
+}
+
+
 .app-container {
     background: white;
     border-radius: 0;
@@ -59,14 +71,7 @@ body {
     padding: 20px 16px;
 }
 
-.desc-branding {
-    color: #2d7090;
-    font-size: 16px;
-    font-weight: 700;
-    display: block;
-    text-align: center;
-    margin: 0 auto 16px auto;
-}
+
 
 .app-title {
     color: white;

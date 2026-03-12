@@ -11,14 +11,24 @@ import {
 } from '../main';
 import { MED_REGISTRY } from '../medLoader';
 
+// vitest 1.6+ provides a typed helper for mocking DOM globals
+vi.stubGlobal('alert', vi.fn());
+
+
 // ─── jsdom stubs ──────────────────────────────────────────────────────────────
 
-window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
-window.alert    = vi.fn();
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 const HTML = readFileSync(resolve(__dirname, '../../index.html'), 'utf-8');
+
+test('DOM load includes protocol download link', () => {
+    document.documentElement.innerHTML = HTML;
+    const link = document.querySelector('.protocol-link a') as HTMLAnchorElement | null;
+    expect(link).not.toBeNull();
+    expect(link?.getAttribute('href')).toBe('./docs/protocol.pdf');
+    // HTML `download` can specify a user-friendly filename. ensure the
+    // attribute reflects the desired name rather than the raw URL.
+    expect(link?.getAttribute('download')).toBe('DESC LAI Protocol.pdf');
+    expect(link?.textContent).toBe('document');
+});
 
 function setupDOM(): void {
     document.documentElement.innerHTML = HTML;
