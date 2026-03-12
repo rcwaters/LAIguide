@@ -285,18 +285,12 @@ optgroup option {
     line-height: 1.65;
 }
 
-.guidance-text blockquote {
-    margin: 8px 0;
-    padding: 0;
-    border: none;
-    font-style: normal;
-}
-
-blockquote {
-    margin: 8px 0;
-    padding: 0;
-    border: none !important;
-    font-style: normal;
+.guidance-content ul {
+    color: #374151;
+    font-size: clamp(15px, 3vw, 17px);
+    font-weight: 500;
+    line-height: 1.65;
+    padding-left: 20px;
 }
 
 .early-allowed {

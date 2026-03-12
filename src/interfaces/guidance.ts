@@ -6,7 +6,7 @@ export interface GuidanceResult {
     /** Omit when there are no meaningful pragmatic variations. */
     pragmaticVariations?: string[];
     /** Omit when no provider notification is needed; defaults to "No provider notification needed." */
-    providerNotification?: string;
+    providerNotifications?: string[];
 }
 
 /**
@@ -21,7 +21,7 @@ export type CategoricalGuidanceResult = 'early' | 'on-time' | 'consult';
  */
 export type SupplementalGuidanceResult =
     | { notDue: true;  message: string }
-    | { notDue: false; supplementation?: string; providerNotification?: string };
+    | { notDue: false; supplementation?: string; providerNotifications?: string[] };
 
 // ─── Late Guidance Tier Types ─────────────────────────────────────────────────
 

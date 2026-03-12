@@ -1,5 +1,5 @@
 import type { LateTier, GuidanceResult, CategoricalGuidanceResult, SupplementalGuidanceResult, SubmitContext } from './interfaces/guidance';
-import type { MedicationKey, LateGuidanceParams, RenderType, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition, RawTier, CoreDef, EarlyWindowType } from './interfaces/med';
+import type { MedicationKey, LateGuidanceParams, RenderType, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition, RawTier, CoreDef } from './interfaces/med';
 import { DAYS_PER_MONTH } from './interfaces/med';
 import { daysSinceDate, formatDate, formatWeeksAndDays } from './utils';
 
@@ -18,10 +18,15 @@ export function pluralDays(n: number): string {
         : `${n} day${n === 1 ? '' : 's'}`;
 }
 
-export function composeEarlyGuidance(windowType: EarlyWindowType, windowDays: number | undefined, minDays: number | undefined, note: string | undefined): string {
-    const core = windowType === 'since-last'
-        ? `No sooner than ${pluralDays(minDays!)} after last injection`
-        : `${pluralDays(windowDays!)} before due date`;
+export function composeEarlyGuidance(daysBeforeDue: number | undefined, minDays: number | undefined, note: string | undefined): string {
+    let core: string;
+    if (daysBeforeDue != null && minDays != null) {
+        core = `${pluralDays(daysBeforeDue)} before due date; no sooner than ${pluralDays(minDays)} after last injection`;
+    } else if (daysBeforeDue != null) {
+        core = `${pluralDays(daysBeforeDue)} before due date`;
+    } else {
+        core = `No sooner than ${pluralDays(minDays!)} after last injection`;
+    }
     return note ? `${core}  \n*(${note})*` : core;
 }
 
@@ -52,20 +57,23 @@ function resolveLateTier(tiers: LateTier[], daysSince: number, dose?: string): G
     }
 }
 
-// ─── Core guidance logic (dispatches on lateGuidance.kind) ───────────────────
+// ─── Core guidance logic (dispatches on late.kind) ─────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildCoreDef(json: any): CoreDef {
-    const lg   = json.lateGuidance as Record<string, unknown>;
-    const windowType = json.earlyWindowType as EarlyWindowType;
-    const windowDays = json.earlyWindowDays as number | undefined;
-    const minDays    = json.earlyMinDays    as number | undefined;
+    const lg            = json.guidance.late              as Record<string, unknown>;
+    const early         = json.guidance.early;
+    const daysBeforeDue = early?.daysBeforeDue            as number | undefined;
+    const minDays       = early?.minDays                  as number | undefined;
+    const providerNotifications = early?.providerNotifications as string[] | undefined;
+    const commonNotifs  = json.guidance.shared?.providerNotifications as string[] | undefined;
     const base = {
-        displayName:     json.displayName as string,
-        earlyGuidance:   composeEarlyGuidance(windowType, windowDays, minDays, json.earlyGuidanceNote as string | undefined),
-        earlyWindowType: windowType,
-        ...(windowDays != null ? { earlyWindowDays: windowDays } : {}),
-        ...(minDays    != null ? { earlyMinDays:    minDays    } : {}),
+        displayName:   json.displayName as string,
+        earlyGuidance: composeEarlyGuidance(daysBeforeDue, minDays, early?.guidanceNote as string | undefined),
+        ...(daysBeforeDue != null           ? { earlyDaysBeforeDue:           daysBeforeDue         } : {}),
+        ...(minDays       != null           ? { earlyMinDays:                  minDays               } : {}),
+        ...(providerNotifications?.length    ? { earlyProviderNotification:     providerNotifications } : {}),
+        ...(commonNotifs?.length             ? { commonProviderNotifications:   commonNotifs          } : {}),
     };
 
     switch (lg['kind']) {
@@ -128,18 +136,18 @@ function buildCoreDef(json: any): CoreDef {
         case 'aristada': {
             const notDueBeforeDays = lg['notDueBeforeDays'] as number;
             const notDueMessage    = lg['notDueMessage']    as string;
-            const doseConfigs = (lg['doseConfigs'] as { dose: string; tiers: { maxDays: number | null; supplementation?: string; providerNotification?: string }[] }[])
-                .map(dc => ({ dose: dc.dose, tiers: dc.tiers.map(t => ({ maxDays: days(t.maxDays), supplementation: t.supplementation, providerNotification: t.providerNotification })) }));
+            const doseConfigs = (lg['doseConfigs'] as { dose: string; tiers: { maxDays: number | null; supplementation?: string; providerNotifications?: string[] }[] }[])
+                .map(dc => ({ dose: dc.dose, tiers: dc.tiers.map(t => ({ maxDays: days(t.maxDays), supplementation: t.supplementation, providerNotifications: t.providerNotifications })) }));
             return { ...base, getLateGuidance: ({ daysSince, dose }): SupplementalGuidanceResult => {
                 if (daysSince! < notDueBeforeDays) return { notDue: true, message: notDueMessage };
                 const config = doseConfigs.find(c => c.dose === dose)!;
                 const tier   = config.tiers.find(t => daysSince! <= t.maxDays) ?? config.tiers[config.tiers.length - 1];
-                return { notDue: false, supplementation: tier.supplementation, providerNotification: tier.providerNotification };
+                return { notDue: false, supplementation: tier.supplementation, providerNotifications: tier.providerNotifications };
             }};
         }
 
         default:
-            throw new Error(`Unknown lateGuidance kind: "${lg['kind']}" in ${json.key}`);
+            throw new Error(`Unknown late.kind: "${lg['kind']}" in ${json.key}`);
     }
 }
 
@@ -166,7 +174,7 @@ function withGroups(spec: FormGroupSpec[]) {
 // ─── Standard + branched definition builder ───────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function buildStandardDef(json: any): Omit<MedDefinition, 'displayName' | 'earlyGuidance' | 'earlyWindowType' | 'earlyWindowDays' | 'earlyMinDays' | 'getLateGuidance'> {
+function buildStandardDef(json: any): Omit<MedDefinition, 'displayName' | 'earlyGuidance' | 'earlyDaysBeforeDue' | 'earlyMinDays' | 'getLateGuidance'> {
     const formGroupsSpec = json.formGroupsSpec as FormGroupSpec[];
     const optionsByField: Record<string, SelectOption[]> = Object.fromEntries(
         formGroupsSpec.flatMap(g => g.fields)

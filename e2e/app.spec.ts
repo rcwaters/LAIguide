@@ -165,16 +165,27 @@ test.describe('early guidance flow', () => {
         await page.goto('/');
     });
 
-    const beforeNextMeds = [
-        'invega_sustenna', 'invega_trinza', 'invega_hafyera',
-        'aristada', 'uzedy', 'haloperidol_decanoate',
-    ];
+    // before-next only (single constraint)
+    const beforeNextOnlyMeds = ['invega_trinza', 'invega_hafyera'];
+    // dual-constraint: need both next-injection-date AND last-injection-date
+    const dualConstraintMeds = ['invega_sustenna', 'aristada', 'uzedy', 'haloperidol_decanoate'];
     const sinceLastMeds = ['abilify_maintena', 'vivitrol'];
-    for (const med of beforeNextMeds) {
+    for (const med of beforeNextOnlyMeds) {
         test(`${med}: shows guidance and hides form`, async ({ page }) => {
             await selectField(page, 'medication', med);
             await selectField(page, 'guidance-type', 'early');
             await fillDate(page, 'next-injection-date', daysFromNow(3));
+
+            await expect(page.locator('.guidance-section')).toBeVisible();
+            await expect(page.locator('.form-section')).not.toBeVisible();
+        });
+    }
+    for (const med of dualConstraintMeds) {
+        test(`${med}: shows guidance and hides form`, async ({ page }) => {
+            await selectField(page, 'medication', med);
+            await selectField(page, 'guidance-type', 'early');
+            await fillDate(page, 'next-injection-date', daysFromNow(1));
+            await fillDate(page, 'last-injection-date', daysAgo(25));
 
             await expect(page.locator('.guidance-section')).toBeVisible();
             await expect(page.locator('.form-section')).not.toBeVisible();
@@ -349,14 +360,16 @@ test.describe('early guidance flow — remaining medications', () => {
         await page.goto('/');
     });
 
-    const beforeNextMeds = ['fluphenazine_decanoate'];
+    // fluphenazine_decanoate is dual-constraint (daysBeforeDue + minDays)
+    const dualConstraintMeds = ['fluphenazine_decanoate'];
     const sinceLastMeds  = ['sublocade', 'brixadi'];
 
-    for (const med of beforeNextMeds) {
+    for (const med of dualConstraintMeds) {
         test(`${med}: shows guidance and hides form`, async ({ page }) => {
             await selectField(page, 'medication', med);
             await selectField(page, 'guidance-type', 'early');
-            await fillDate(page, 'next-injection-date', daysFromNow(3));
+            await fillDate(page, 'next-injection-date', daysFromNow(1));
+            await fillDate(page, 'last-injection-date', daysAgo(25));
 
             await expect(page.locator('.guidance-section')).toBeVisible();
             await expect(page.locator('.form-section')).not.toBeVisible();
@@ -917,7 +930,8 @@ test.describe('start over', () => {
         await page.goto('/');
         await selectField(page, 'medication', 'uzedy');
         await selectField(page, 'guidance-type', 'early');
-        await fillDate(page, 'next-injection-date', daysFromNow(3));
+        await fillDate(page, 'next-injection-date', daysFromNow(1));
+        await fillDate(page, 'last-injection-date', daysAgo(25));
 
         await expect(page.locator('.guidance-section')).toBeVisible();
 
@@ -933,12 +947,14 @@ test.describe('start over', () => {
         await page.goto('/');
         await selectField(page, 'medication', 'uzedy');
         await selectField(page, 'guidance-type', 'early');
-        await fillDate(page, 'next-injection-date', daysFromNow(3));
+        await fillDate(page, 'next-injection-date', daysFromNow(1));
+        await fillDate(page, 'last-injection-date', daysAgo(25));
         await page.click('button:has-text("Start Over")');
 
         await selectField(page, 'medication', 'aristada');
         await selectField(page, 'guidance-type', 'early');
-        await fillDate(page, 'next-injection-date', daysFromNow(3));
+        await fillDate(page, 'next-injection-date', daysFromNow(1));
+        await fillDate(page, 'last-injection-date', daysAgo(25));
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('Aristada');

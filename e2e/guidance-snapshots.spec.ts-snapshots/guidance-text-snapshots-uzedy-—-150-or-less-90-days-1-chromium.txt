@@ -7,3 +7,7 @@ Administer usual Uzedy maintenance dose (unless it is not yet due, in which case
 When to notify provider:
 
 After the injection, notify the provider as an FYI on the injection timing.
+
+New side effects from recent injection
+
+New abnormal involuntary movements, excessive sedation, dizziness, agitation, delirium, fever, tachycardia, abnormal blood pressure, or any concerning symptoms

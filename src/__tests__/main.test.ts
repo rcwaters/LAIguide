@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import {
@@ -9,6 +9,7 @@ import {
     startOver,
     initForm,
 } from '../main';
+import { MED_REGISTRY } from '../medLoader';
 
 // ─── jsdom stubs ──────────────────────────────────────────────────────────────
 
@@ -325,7 +326,8 @@ describe('handleSubmit — guidance rendering', () => {
     test('early guidance: renders guidance section and hides form', () => {
         setField('medication', 'uzedy');
         setField('guidance-type', 'early');
-        setField('next-injection-date', daysAgo(-3));  // 3 days from now
+        setField('next-injection-date', daysAgo(-2));
+        setField('last-injection-date', daysAgo(21));
         handleSubmit();
         expectGuidanceRendered();
         expect(window.alert).not.toHaveBeenCalled();
@@ -334,9 +336,78 @@ describe('handleSubmit — guidance rendering', () => {
     test('early guidance: shows medication name in output', () => {
         setField('medication', 'uzedy');
         setField('guidance-type', 'early');
-        setField('next-injection-date', daysAgo(-3));  // 3 days from now
+        setField('next-injection-date', daysAgo(-2));
+        setField('last-injection-date', daysAgo(21));
         handleSubmit();
         expect(document.body.innerHTML).toContain('Uzedy (risperidone subcutaneous)');
+    });
+
+    // ── Invega Sustenna early: dual constraint (daysBeforeDue=2, minDays=21) ──
+    describe('invega sustenna early — dual constraint (daysBeforeDue=2, minDays=21)', () => {
+        function submitEarly(daysUntilNext: number, daysSinceLast: number): void {
+            setField('medication', 'invega_sustenna');
+            setField('guidance-type', 'early');
+            setField('next-injection-date', daysAgo(-daysUntilNext));  // future date
+            setField('last-injection-date', daysAgo(daysSinceLast));   // past date
+            handleSubmit();
+        }
+
+        function resultText(): string {
+            return document.querySelector('.guidance-content')!.textContent ?? '';
+        }
+
+        test('allowed: within 2-day window AND ≥21 days since last', () => {
+            submitEarly(2, 21);
+            expectGuidanceRendered();
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('allowed: exactly on boundary — 2 days until, 21 days since', () => {
+            submitEarly(2, 21);
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('allowed: 1 day until (inside window), 30 days since last', () => {
+            submitEarly(1, 30);
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('not allowed: 3 days until (outside 2-day window), 21 days since last', () => {
+            submitEarly(3, 21);
+            expect(resultText()).toContain('Too early to administer');
+            expect(resultText()).toContain('Not yet within 2-day window');
+            expect(resultText()).toContain('At least 21 days since last injection');
+        });
+
+        test('not allowed: 1 day until (inside window), 20 days since last (under 21)', () => {
+            submitEarly(1, 20);
+            expect(resultText()).toContain('Too early to administer');
+            expect(resultText()).toContain('Within 2-day window');
+            expect(resultText()).toContain('Only 20 day');
+        });
+
+        test('not allowed: 3 days until AND 20 days since last — both fail', () => {
+            submitEarly(3, 20);
+            expect(resultText()).toContain('Too early to administer');
+            expect(resultText()).toContain('Not yet within 2-day window');
+            expect(resultText()).toContain('Only 20 day');
+        });
+
+        test('boundary: 21 days since last is allowed (not 20)', () => {
+            submitEarly(2, 21);
+            expect(resultText()).toContain('Early administration is allowed');
+            setupDOM();
+            submitEarly(2, 20);
+            expect(resultText()).toContain('Too early to administer');
+        });
+
+        test('boundary: 2 days before due is allowed (not 3)', () => {
+            submitEarly(2, 21);
+            expect(resultText()).toContain('Early administration is allowed');
+            setupDOM();
+            submitEarly(3, 21);
+            expect(resultText()).toContain('Too early to administer');
+        });
     });
 
     test('invega sustenna initiation: renders guidance section', () => {
@@ -358,6 +429,44 @@ describe('handleSubmit — guidance rendering', () => {
         expectGuidanceRendered();
     });
 
+    // ── Invega Trinza early: single constraint (daysBeforeDue=7) ──
+    describe('invega trinza early — single constraint (daysBeforeDue=7)', () => {
+        function submitEarly(daysUntilNext: number): void {
+            setField('medication', 'invega_trinza');
+            setField('guidance-type', 'early');
+            setField('next-injection-date', daysAgo(-daysUntilNext));
+            handleSubmit();
+        }
+
+        function resultText(): string {
+            return document.querySelector('.guidance-content')!.textContent ?? '';
+        }
+
+        test('allowed: exactly 7 days until (on boundary)', () => {
+            submitEarly(7);
+            expectGuidanceRendered();
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('allowed: 3 days until (inside window)', () => {
+            submitEarly(3);
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('not allowed: 8 days until (1 day outside window)', () => {
+            submitEarly(8);
+            expect(resultText()).toContain('Too early to administer');
+        });
+
+        test('boundary: 7 days → allowed, 8 days → not allowed', () => {
+            submitEarly(7);
+            expect(resultText()).toContain('Early administration is allowed');
+            setupDOM();
+            submitEarly(8);
+            expect(resultText()).toContain('Too early to administer');
+        });
+    });
+
     test('invega trinza: renders guidance section', () => {
         setField('medication', 'invega_trinza');
         setField('guidance-type', 'late');
@@ -375,6 +484,44 @@ describe('handleSubmit — guidance rendering', () => {
         expectGuidanceRendered();
     });
 
+    // ── Abilify Maintena early: single constraint (minDays=26) ──
+    describe('abilify maintena early — single constraint (minDays=26)', () => {
+        function submitEarly(daysSinceLast: number): void {
+            setField('medication', 'abilify_maintena');
+            setField('guidance-type', 'early');
+            setField('last-injection-date', daysAgo(daysSinceLast));
+            handleSubmit();
+        }
+
+        function resultText(): string {
+            return document.querySelector('.guidance-content')!.textContent ?? '';
+        }
+
+        test('allowed: exactly 26 days since last (on boundary)', () => {
+            submitEarly(26);
+            expectGuidanceRendered();
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('allowed: 30 days since last (inside window)', () => {
+            submitEarly(30);
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('not allowed: 25 days since last (1 day under minimum)', () => {
+            submitEarly(25);
+            expect(resultText()).toContain('Too early to administer');
+        });
+
+        test('boundary: 26 days → allowed, 25 days → not allowed', () => {
+            submitEarly(26);
+            expect(resultText()).toContain('Early administration is allowed');
+            setupDOM();
+            submitEarly(25);
+            expect(resultText()).toContain('Too early to administer');
+        });
+    });
+
     test('abilify maintena: renders guidance section', () => {
         setField('medication', 'abilify_maintena');
         setField('guidance-type', 'late');
@@ -384,6 +531,183 @@ describe('handleSubmit — guidance rendering', () => {
         expectGuidanceRendered();
     });
 
+    // ── Vivitrol early: single constraint (minDays=21) ──
+    describe('vivitrol early — single constraint (minDays=21)', () => {
+        function submitEarly(daysSinceLast: number): void {
+            setField('medication', 'vivitrol');
+            setField('guidance-type', 'early');
+            setField('last-injection-date', daysAgo(daysSinceLast));
+            handleSubmit();
+        }
+
+        function resultText(): string {
+            return document.querySelector('.guidance-content')!.textContent ?? '';
+        }
+
+        test('allowed: exactly 21 days since last (on boundary)', () => {
+            submitEarly(21);
+            expectGuidanceRendered();
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('allowed: 28 days since last (inside window)', () => {
+            submitEarly(28);
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('not allowed: 20 days since last (1 day under minimum)', () => {
+            submitEarly(20);
+            expect(resultText()).toContain('Too early to administer');
+        });
+
+        test('boundary: 21 days → allowed, 20 days → not allowed', () => {
+            submitEarly(21);
+            expect(resultText()).toContain('Early administration is allowed');
+            setupDOM();
+            submitEarly(20);
+            expect(resultText()).toContain('Too early to administer');
+        });
+    });
+
+    // ── Sublocade early: single constraint (minDays=21) ──
+    describe('sublocade early — single constraint (minDays=21)', () => {
+        function submitEarly(daysSinceLast: number): void {
+            setField('medication', 'sublocade');
+            setField('guidance-type', 'early');
+            setField('last-injection-date', daysAgo(daysSinceLast));
+            handleSubmit();
+        }
+
+        function resultText(): string {
+            return document.querySelector('.guidance-content')!.textContent ?? '';
+        }
+
+        test('allowed: exactly 21 days since last (on boundary)', () => {
+            submitEarly(21);
+            expectGuidanceRendered();
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('allowed: 28 days since last (inside window)', () => {
+            submitEarly(28);
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('not allowed: 20 days since last (1 day under minimum)', () => {
+            submitEarly(20);
+            expect(resultText()).toContain('Too early to administer');
+        });
+
+        test('boundary: 21 days → allowed, 20 days → not allowed', () => {
+            submitEarly(21);
+            expect(resultText()).toContain('Early administration is allowed');
+            setupDOM();
+            submitEarly(20);
+            expect(resultText()).toContain('Too early to administer');
+        });
+    });
+
+    // ── Brixadi early: single constraint (minDays=21) ──
+    describe('brixadi early — single constraint (minDays=21)', () => {
+        function submitEarly(daysSinceLast: number): void {
+            setField('medication', 'brixadi');
+            setField('guidance-type', 'early');
+            setField('last-injection-date', daysAgo(daysSinceLast));
+            handleSubmit();
+        }
+
+        function resultText(): string {
+            return document.querySelector('.guidance-content')!.textContent ?? '';
+        }
+
+        test('allowed: exactly 21 days since last (on boundary)', () => {
+            submitEarly(21);
+            expectGuidanceRendered();
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('allowed: 28 days since last (inside window)', () => {
+            submitEarly(28);
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('not allowed: 20 days since last (1 day under minimum)', () => {
+            submitEarly(20);
+            expect(resultText()).toContain('Too early to administer');
+        });
+
+        test('boundary: 21 days → allowed, 20 days → not allowed', () => {
+            submitEarly(21);
+            expect(resultText()).toContain('Early administration is allowed');
+            setupDOM();
+            submitEarly(20);
+            expect(resultText()).toContain('Too early to administer');
+        });
+    });
+
+    // ── Aristada early: dual constraint (daysBeforeDue=2, minDays=21) ──
+    describe('aristada early — dual constraint (daysBeforeDue=2, minDays=21)', () => {
+        function submitEarly(daysUntilNext: number, daysSinceLast: number): void {
+            setField('medication', 'aristada');
+            setField('guidance-type', 'early');
+            setField('next-injection-date', daysAgo(-daysUntilNext));
+            setField('last-injection-date', daysAgo(daysSinceLast));
+            handleSubmit();
+        }
+
+        function resultText(): string {
+            return document.querySelector('.guidance-content')!.textContent ?? '';
+        }
+
+        test('allowed: exactly on boundary — 2 days until, 21 days since', () => {
+            submitEarly(2, 21);
+            expectGuidanceRendered();
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('allowed: 1 day until (inside window), 30 days since last', () => {
+            submitEarly(1, 30);
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('not allowed: 3 days until (outside 2-day window), 21 days since last', () => {
+            submitEarly(3, 21);
+            expect(resultText()).toContain('Too early to administer');
+            expect(resultText()).toContain('Not yet within 2-day window');
+            expect(resultText()).toContain('At least 21 days since last injection');
+        });
+
+        test('not allowed: 2 days until (inside window), 20 days since last (under 21)', () => {
+            submitEarly(2, 20);
+            expect(resultText()).toContain('Too early to administer');
+            expect(resultText()).toContain('Within 2-day window');
+            expect(resultText()).toContain('Only 20 day');
+        });
+
+        test('not allowed: 3 days until AND 20 days since — both fail', () => {
+            submitEarly(3, 20);
+            expect(resultText()).toContain('Too early to administer');
+            expect(resultText()).toContain('Not yet within 2-day window');
+            expect(resultText()).toContain('Only 20 day');
+        });
+
+        test('boundary: 21 days since last is allowed (not 20)', () => {
+            submitEarly(2, 21);
+            expect(resultText()).toContain('Early administration is allowed');
+            setupDOM();
+            submitEarly(2, 20);
+            expect(resultText()).toContain('Too early to administer');
+        });
+
+        test('boundary: 2 days before due is allowed (not 3)', () => {
+            submitEarly(2, 21);
+            expect(resultText()).toContain('Early administration is allowed');
+            setupDOM();
+            submitEarly(3, 21);
+            expect(resultText()).toContain('Too early to administer');
+        });
+    });
+
     test('aristada: renders guidance section', () => {
         setField('medication', 'aristada');
         setField('guidance-type', 'late');
@@ -391,6 +715,195 @@ describe('handleSubmit — guidance rendering', () => {
         setField('aristada-dose', '662');
         handleSubmit();
         expectGuidanceRendered();
+    });
+
+    // ── Haloperidol Decanoate early: dual constraint (daysBeforeDue=2, minDays=14) ──
+    describe('haloperidol decanoate early — dual constraint (daysBeforeDue=2, minDays=14)', () => {
+        function submitEarly(daysUntilNext: number, daysSinceLast: number): void {
+            setField('medication', 'haloperidol_decanoate');
+            setField('guidance-type', 'early');
+            setField('next-injection-date', daysAgo(-daysUntilNext));
+            setField('last-injection-date', daysAgo(daysSinceLast));
+            handleSubmit();
+        }
+
+        function resultText(): string {
+            return document.querySelector('.guidance-content')!.textContent ?? '';
+        }
+
+        test('allowed: exactly on boundary — 2 days until, 14 days since', () => {
+            submitEarly(2, 14);
+            expectGuidanceRendered();
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('allowed: 1 day until (inside window), 20 days since last', () => {
+            submitEarly(1, 20);
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('not allowed: 3 days until (outside 2-day window), 14 days since last', () => {
+            submitEarly(3, 14);
+            expect(resultText()).toContain('Too early to administer');
+            expect(resultText()).toContain('Not yet within 2-day window');
+            expect(resultText()).toContain('At least 14 days since last injection');
+        });
+
+        test('not allowed: 2 days until (inside window), 13 days since last (under 14)', () => {
+            submitEarly(2, 13);
+            expect(resultText()).toContain('Too early to administer');
+            expect(resultText()).toContain('Within 2-day window');
+            expect(resultText()).toContain('Only 13 day');
+        });
+
+        test('not allowed: both fail — 3 days until, 13 days since', () => {
+            submitEarly(3, 13);
+            expect(resultText()).toContain('Too early to administer');
+            expect(resultText()).toContain('Not yet within 2-day window');
+            expect(resultText()).toContain('Only 13 day');
+        });
+
+        test('boundary: 14 days since last is allowed (not 13)', () => {
+            submitEarly(2, 14);
+            expect(resultText()).toContain('Early administration is allowed');
+            setupDOM();
+            submitEarly(2, 13);
+            expect(resultText()).toContain('Too early to administer');
+        });
+
+        test('boundary: 2 days before due is allowed (not 3)', () => {
+            submitEarly(2, 14);
+            expect(resultText()).toContain('Early administration is allowed');
+            setupDOM();
+            submitEarly(3, 14);
+            expect(resultText()).toContain('Too early to administer');
+        });
+    });
+
+    // ── Fluphenazine Decanoate early: dual constraint (daysBeforeDue=2, minDays=14) ──
+    describe('fluphenazine decanoate early — dual constraint (daysBeforeDue=2, minDays=14)', () => {
+        function submitEarly(daysUntilNext: number, daysSinceLast: number): void {
+            setField('medication', 'fluphenazine_decanoate');
+            setField('guidance-type', 'early');
+            setField('next-injection-date', daysAgo(-daysUntilNext));
+            setField('last-injection-date', daysAgo(daysSinceLast));
+            handleSubmit();
+        }
+
+        function resultText(): string {
+            return document.querySelector('.guidance-content')!.textContent ?? '';
+        }
+
+        test('allowed: exactly on boundary — 2 days until, 14 days since', () => {
+            submitEarly(2, 14);
+            expectGuidanceRendered();
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('allowed: 1 day until (inside window), 20 days since last', () => {
+            submitEarly(1, 20);
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('not allowed: 3 days until (outside 2-day window), 14 days since last', () => {
+            submitEarly(3, 14);
+            expect(resultText()).toContain('Too early to administer');
+            expect(resultText()).toContain('Not yet within 2-day window');
+            expect(resultText()).toContain('At least 14 days since last injection');
+        });
+
+        test('not allowed: 2 days until (inside window), 13 days since last (under 14)', () => {
+            submitEarly(2, 13);
+            expect(resultText()).toContain('Too early to administer');
+            expect(resultText()).toContain('Within 2-day window');
+            expect(resultText()).toContain('Only 13 day');
+        });
+
+        test('not allowed: both fail — 3 days until, 13 days since', () => {
+            submitEarly(3, 13);
+            expect(resultText()).toContain('Too early to administer');
+            expect(resultText()).toContain('Not yet within 2-day window');
+            expect(resultText()).toContain('Only 13 day');
+        });
+
+        test('boundary: 14 days since last is allowed (not 13)', () => {
+            submitEarly(2, 14);
+            expect(resultText()).toContain('Early administration is allowed');
+            setupDOM();
+            submitEarly(2, 13);
+            expect(resultText()).toContain('Too early to administer');
+        });
+
+        test('boundary: 2 days before due is allowed (not 3)', () => {
+            submitEarly(2, 14);
+            expect(resultText()).toContain('Early administration is allowed');
+            setupDOM();
+            submitEarly(3, 14);
+            expect(resultText()).toContain('Too early to administer');
+        });
+    });
+
+    // ── Uzedy early: dual constraint (daysBeforeDue=2, minDays=21) ──
+    describe('uzedy early — dual constraint (daysBeforeDue=2, minDays=21)', () => {
+        function submitEarly(daysUntilNext: number, daysSinceLast: number): void {
+            setField('medication', 'uzedy');
+            setField('guidance-type', 'early');
+            setField('next-injection-date', daysAgo(-daysUntilNext));
+            setField('last-injection-date', daysAgo(daysSinceLast));
+            handleSubmit();
+        }
+
+        function resultText(): string {
+            return document.querySelector('.guidance-content')!.textContent ?? '';
+        }
+
+        test('allowed: exactly on boundary — 2 days until, 21 days since', () => {
+            submitEarly(2, 21);
+            expectGuidanceRendered();
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('allowed: 1 day until (inside window), 30 days since last', () => {
+            submitEarly(1, 30);
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('not allowed: 3 days until (outside 2-day window), 21 days since last', () => {
+            submitEarly(3, 21);
+            expect(resultText()).toContain('Too early to administer');
+            expect(resultText()).toContain('Not yet within 2-day window');
+            expect(resultText()).toContain('At least 21 days since last injection');
+        });
+
+        test('not allowed: 2 days until (inside window), 20 days since last (under 21)', () => {
+            submitEarly(2, 20);
+            expect(resultText()).toContain('Too early to administer');
+            expect(resultText()).toContain('Within 2-day window');
+            expect(resultText()).toContain('Only 20 day');
+        });
+
+        test('not allowed: both fail — 3 days until, 20 days since', () => {
+            submitEarly(3, 20);
+            expect(resultText()).toContain('Too early to administer');
+            expect(resultText()).toContain('Not yet within 2-day window');
+            expect(resultText()).toContain('Only 20 day');
+        });
+
+        test('boundary: 21 days since last is allowed (not 20)', () => {
+            submitEarly(2, 21);
+            expect(resultText()).toContain('Early administration is allowed');
+            setupDOM();
+            submitEarly(2, 20);
+            expect(resultText()).toContain('Too early to administer');
+        });
+
+        test('boundary: 2 days before due is allowed (not 3)', () => {
+            submitEarly(2, 21);
+            expect(resultText()).toContain('Early administration is allowed');
+            setupDOM();
+            submitEarly(3, 21);
+            expect(resultText()).toContain('Too early to administer');
+        });
     });
 
     test('uzedy: renders guidance section', () => {
@@ -405,7 +918,8 @@ describe('handleSubmit — guidance rendering', () => {
     test('guidance section includes a Start Over button', () => {
         setField('medication', 'uzedy');
         setField('guidance-type', 'early');
-        setField('next-injection-date', daysAgo(-3));  // 3 days from now
+        setField('next-injection-date', daysAgo(-2));
+        setField('last-injection-date', daysAgo(21));
         handleSubmit();
         const btn = document.querySelector('.guidance-section button');
         expect(btn).not.toBeNull();
@@ -421,7 +935,8 @@ describe('startOver', () => {
     test('restores the form section and removes guidance section', () => {
         setField('medication', 'uzedy');
         setField('guidance-type', 'early');
-        setField('next-injection-date', daysAgo(-3));  // 3 days from now
+        setField('next-injection-date', daysAgo(-2));
+        setField('last-injection-date', daysAgo(21));
         handleSubmit();
         expect(document.querySelector('.guidance-section')).not.toBeNull();
 
@@ -452,6 +967,158 @@ describe('startOver', () => {
 
         startOver();
         expect(isVisible('uzedy-fields')).toBe(false);
+    });
+});
+
+// ─── Provider notification aggregation ─────────────────────────────────────
+
+describe('provider notification aggregation', () => {
+    // Save originals so afterEach can restore the registry to its loaded state
+    let origAbilifyCommon:  string[] | undefined;
+    let origSustennaCommon: string[] | undefined;
+    let origSustennaEarly:  string[] | undefined;
+
+    beforeEach(() => {
+        setupDOM();
+        origAbilifyCommon  = MED_REGISTRY['abilify_maintena'].commonProviderNotifications;
+        origSustennaCommon = MED_REGISTRY['invega_sustenna'].commonProviderNotifications;
+        origSustennaEarly  = MED_REGISTRY['invega_sustenna'].earlyProviderNotification;
+    });
+
+    afterEach(() => {
+        const restore = (entry: any, key: string, orig: string[] | undefined) => {
+            if (orig === undefined) delete entry[key]; else entry[key] = orig;
+        };
+        restore(MED_REGISTRY['abilify_maintena'], 'commonProviderNotifications', origAbilifyCommon);
+        restore(MED_REGISTRY['invega_sustenna'],  'commonProviderNotifications', origSustennaCommon);
+        restore(MED_REGISTRY['invega_sustenna'],  'earlyProviderNotification',   origSustennaEarly);
+    });
+
+    /** Returns the <li> text contents from the "When to notify provider:" section */
+    function getNotifListItems(): string[] {
+        const section = Array.from(document.querySelectorAll('.guidance-content'))
+            .find(el => el.querySelector('h3')?.textContent?.includes('When to notify provider'));
+        return section
+            ? Array.from(section.querySelectorAll('li')).map(li => li.textContent ?? '')
+            : [];
+    }
+
+    /** Returns text content of the "When to notify provider" section, or null if absent */
+    function getNotifSectionText(): string | null {
+        const section = Array.from(document.querySelectorAll('.guidance-content'))
+            .find(el => el.querySelector('h3')?.textContent?.includes('When to notify provider'));
+        return section ? (section.textContent ?? '') : null;
+    }
+
+    // ── Late guidance (threePartGuidance) ────────────────────────────────────
+    // Uses abilify_maintena:
+    //   daysAgo(50) + '3+' → reinitiate path  (has tier providerNotifications)
+    //   daysAgo(30) + '3+' → routine path     (no tier providerNotifications)
+
+    describe('late guidance — threePartGuidance', () => {
+        test('tier-only: tier notification appears first, shared notifications last', () => {
+            setField('medication', 'abilify_maintena');
+            setField('guidance-type', 'late');
+            setField('last-abilify', daysAgo(50));
+            setField('abilify-doses', '3+');
+            handleSubmit();
+
+            const items = getNotifListItems();
+            expect(items.length).toBeGreaterThanOrEqual(2);
+            expect(items[0]).toContain('Post-injection');  // tier first
+            // shared items follow — verify both are present somewhere after index 0
+            const sharedText = items.slice(1).join(' ');
+            expect(sharedText).toContain('abnormal involuntary');
+            expect(sharedText).toContain('excessive sedation, dizziness');
+        });
+
+        test('shared-only: only shared notification appears when tier has none', () => {
+            (MED_REGISTRY['abilify_maintena'] as any).commonProviderNotifications = ['SHARED-NOTIF'];
+            setField('medication', 'abilify_maintena');
+            setField('guidance-type', 'late');
+            setField('last-abilify', daysAgo(30));
+            setField('abilify-doses', '3+');
+            handleSubmit();
+
+            const items = getNotifListItems();
+            expect(items).toHaveLength(1);
+            expect(items[0]).toContain('SHARED-NOTIF');
+        });
+
+        test('tier first, shared last: correct order when both are present', () => {
+            (MED_REGISTRY['abilify_maintena'] as any).commonProviderNotifications = ['SHARED-NOTIF'];
+            setField('medication', 'abilify_maintena');
+            setField('guidance-type', 'late');
+            setField('last-abilify', daysAgo(50));
+            setField('abilify-doses', '3+');
+            handleSubmit();
+
+            const items = getNotifListItems();
+            expect(items).toHaveLength(2);
+            expect(items[0]).toContain('Post-injection'); // tier first
+            expect(items[1]).toContain('SHARED-NOTIF');   // shared last
+        });
+
+        test('neither: fallback "No provider notification needed" text is shown', () => {
+            delete (MED_REGISTRY['abilify_maintena'] as any).commonProviderNotifications;
+            setField('medication', 'abilify_maintena');
+            setField('guidance-type', 'late');
+            setField('last-abilify', daysAgo(30));
+            setField('abilify-doses', '3+');
+            handleSubmit();
+
+            expect(getNotifListItems()).toHaveLength(0);
+            expect(getNotifSectionText()).toContain('No provider notification needed');
+        });
+    });
+
+    // ── Early guidance (showEarlyGuidance) ───────────────────────────────────
+    // Uses invega_sustenna (dual-constraint): next 1 day away, 25 days since last → allowed
+
+    describe('early guidance — showEarlyGuidance', () => {
+        function submitEarlyAllowed(): void {
+            setField('medication', 'invega_sustenna');
+            setField('guidance-type', 'early');
+            setField('next-injection-date', daysAgo(-1));
+            setField('last-injection-date', daysAgo(25));
+            handleSubmit();
+        }
+
+        test('neither: "When to notify provider" section is not rendered', () => {
+            delete (MED_REGISTRY['invega_sustenna'] as any).commonProviderNotifications;
+            submitEarlyAllowed();
+            expect(getNotifSectionText()).toBeNull();
+        });
+
+        test('shared-only: shared notification appears', () => {
+            (MED_REGISTRY['invega_sustenna'] as any).commonProviderNotifications = ['SHARED-NOTIF'];
+            submitEarlyAllowed();
+
+            const items = getNotifListItems();
+            expect(items).toHaveLength(1);
+            expect(items[0]).toContain('SHARED-NOTIF');
+        });
+
+        test('early-only: early-specific notification appears', () => {
+            delete (MED_REGISTRY['invega_sustenna'] as any).commonProviderNotifications;
+            (MED_REGISTRY['invega_sustenna'] as any).earlyProviderNotification = ['EARLY-NOTIF'];
+            submitEarlyAllowed();
+
+            const items = getNotifListItems();
+            expect(items).toHaveLength(1);
+            expect(items[0]).toContain('EARLY-NOTIF');
+        });
+
+        test('early first, shared last: correct order when both are present', () => {
+            (MED_REGISTRY['invega_sustenna'] as any).earlyProviderNotification   = ['EARLY-NOTIF'];
+            (MED_REGISTRY['invega_sustenna'] as any).commonProviderNotifications = ['SHARED-NOTIF'];
+            submitEarlyAllowed();
+
+            const items = getNotifListItems();
+            expect(items).toHaveLength(2);
+            expect(items[0]).toContain('EARLY-NOTIF');  // early-specific first
+            expect(items[1]).toContain('SHARED-NOTIF'); // shared last
+        });
     });
 });
 

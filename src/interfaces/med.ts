@@ -62,16 +62,17 @@ export interface FormGroupSpec { groupId: string; fields: FieldSpec[]; }
 
 // ─── MedDefinition ────────────────────────────────────────────────────────────
 
-export type EarlyWindowType = 'before-next' | 'since-last';
-
 export interface MedDefinition {
-    displayName:      string;
-    earlyGuidance:    string;
-    earlyWindowType:  EarlyWindowType;
-    /** Days before the scheduled next injection that early administration is permitted (before-next meds). */
-    earlyWindowDays?: number;
-    /** Minimum days since last injection required for early administration (since-last meds). */
-    earlyMinDays?:    number;
+    displayName:        string;
+    earlyGuidance:      string;
+    /** Days before the scheduled next injection that early administration is permitted. */
+    earlyDaysBeforeDue?: number;
+    /** Minimum days since last injection required for early administration. */
+    earlyMinDays?:       number;
+    /** Bullet points for when to notify the provider, shown in early guidance. */
+    earlyProviderNotification?: string[];
+    /** Bullet points shown in BOTH early and late provider-notification sections. */
+    commonProviderNotifications?: string[];
     getLateGuidance(params: LateGuidanceParams): LateGuidanceOutput;
 
     // UI config: used by main.ts to generically handle form interaction
@@ -96,7 +97,7 @@ export interface MedDefinition {
 export type RawTier = Record<string, unknown>;
 
 /** Internal: the core fields built by buildCoreDef. */
-export type CoreDef = Pick<MedDefinition, 'displayName' | 'earlyGuidance' | 'earlyWindowType' | 'earlyWindowDays' | 'earlyMinDays' | 'getLateGuidance'>;
+export type CoreDef = Pick<MedDefinition, 'displayName' | 'earlyGuidance' | 'earlyDaysBeforeDue' | 'earlyMinDays' | 'earlyProviderNotification' | 'commonProviderNotifications' | 'getLateGuidance'>;
 
 /** Average days per month (365.25 / 12). */
 export const DAYS_PER_MONTH = 30.44;

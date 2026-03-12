@@ -1,12 +1,22 @@
 {
     "key": "invega_hafyera",
     "displayName": "Invega Hafyera (paliperidone palmitate 6-month)",
-    "earlyWindowType": "before-next",
-    "earlyWindowDays": 14,
-    "lateGuidance": {
-        "kind": "hafyera",
-        "earlyMaxDays": 180,
-        "onTimeMaxDays": 202
+    "guidance": {
+        "shared": {
+            "providerNotifications": [
+                "eGFR is < 80 mL/min and if this is not known to the prescriber",
+                "New side effects from recent injection",
+                "New abnormal involuntary movements, excessive sedation, dizziness, agitation, delirium, fever, tachycardia, abnormal blood pressure, or any concerning symptoms"
+            ]
+        },
+        "early": {
+            "daysBeforeDue": 14
+        },
+        "late": {
+            "kind": "hafyera",
+            "earlyMaxDays": 180,
+            "onTimeMaxDays": 202
+        }
     },
     "optgroupLabel": "Antipsychotics",
     "renderType": "categorical",
