@@ -10,6 +10,6 @@ When to notify provider:
 
 Albumin is < 3.0 or total bilirubin is > 1.5 and if this is not known to the prescriber
 
-New side effects of recent injection
+New side effects from recent injection
 
 New abnormal involuntary movements, excessive sedation, dizziness, agitation, delirium, fever, tachycardia, abnormal blood pressure, or any concerning symptoms

@@ -5,7 +5,7 @@
         "shared": {
             "providerNotifications": [
                 "eGFR is < 80 mL/min and if this is not known to the prescriber",
-                "New side effects of recent injection",
+                "New side effects from recent injection",
                 "New abnormal involuntary movements, excessive sedation, dizziness, agitation, delirium, fever, tachycardia, abnormal blood pressure, or any concerning symptoms"
             ]
         },

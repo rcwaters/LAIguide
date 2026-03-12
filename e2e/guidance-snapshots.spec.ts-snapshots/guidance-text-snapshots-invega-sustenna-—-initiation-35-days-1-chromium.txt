@@ -20,6 +20,6 @@ Post-injection (1st 156 mg): Notify provider of the situation and need to order 
 
 eGFR is < 80 mL/min and if this is not known to the prescriber
 
-New side effects of recent injection
+New side effects from recent injection
 
 New abnormal involuntary movements, excessive sedation, dizziness, agitation, delirium, fever, tachycardia, abnormal blood pressure, or any concerning symptoms

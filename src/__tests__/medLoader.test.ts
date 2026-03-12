@@ -592,7 +592,7 @@ describe('guidance.shared.providerNotifications — loader', () => {
         for (const key of antipsychotics) {
             const notifs = MED_REGISTRY[key].commonProviderNotifications;
             expect(notifs, `${key}: expected commonProviderNotifications to be defined`).toBeDefined();
-            expect(hasNotif(notifs, 'New side effects of recent injection'), `${key}: missing side effects notification`).toBe(true);
+            expect(hasNotif(notifs, 'New side effects from recent injection'), `${key}: missing side effects notification`).toBe(true);
             expect(hasNotif(notifs, 'abnormal involuntary movements'), `${key}: missing AIMS notification`).toBe(true);
             expect(hasNotif(notifs, 'excessive sedation, dizziness'), `${key}: missing sedation notification`).toBe(true);
             // "New side effects" must appear before "New abnormal involuntary movements"

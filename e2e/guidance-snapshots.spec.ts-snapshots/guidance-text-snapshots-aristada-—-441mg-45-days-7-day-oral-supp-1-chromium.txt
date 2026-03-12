@@ -12,6 +12,6 @@ When to notify provider:
 
 Notify provider with patient preference for supplementation and to order medications
 
-New side effects of recent injection
+New side effects from recent injection
 
 New abnormal involuntary movements, excessive sedation, dizziness, agitation, delirium, fever, tachycardia, abnormal blood pressure, or any concerning symptoms
