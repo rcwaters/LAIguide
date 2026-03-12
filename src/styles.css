@@ -264,7 +264,7 @@ optgroup option {
     border-radius: 12px;
     margin: 16px 0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    border-left: 4px solid #059669;
+    border-left: none;
 }
 
 @media (min-width: 768px) {
@@ -294,13 +294,13 @@ optgroup option {
 }
 
 .early-allowed {
-    border-left-color: #059669;
     background: #ecfdf5;
+    border-left: none;
 }
 
 .early-not-allowed {
-    border-left-color: #dc2626;
     background: #fef2f2;
+    border-left: none;
 }
 
 .important-note {
