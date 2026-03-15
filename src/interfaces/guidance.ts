@@ -14,12 +14,6 @@ export interface GuidanceResult {
 }
 
 /**
- * Categorical output: the guidance decision is one of a small set of named
- * states (e.g. not-yet-due, proceeed, or consult-required).
- */
-export type CategoricalGuidanceResult = 'early' | 'on-time' | 'consult';
-
-/**
  * Supplemental output: the medication is overdue but the guidance may include
  * dose-specific supplementation rather than a straight three-part response.
  */
@@ -46,7 +40,9 @@ export interface StaticTier {
 export interface DoseVariantTier {
     type: 'dose-variant';
     maxDays: number;
-    guidanceByDose: Record<string, GuidanceResult>;
+    guidanceByDose?: Record<string, GuidanceResult>;
+    guidanceByDoseRules?: { doses: string[]; guidance: GuidanceResult }[];
+    defaultGuidance?: GuidanceResult;
 }
 
 export type LateTier = StaticTier | DoseVariantTier;

@@ -75,5 +75,7 @@ jobs:
               f.write(content)
           EOF
           git add index.html
-          git diff --cached --quiet || git commit -m "chore: restore dev entry point in index.html [skip ci]"
+          # Remove build artifacts that the deploy action copied into the source branch
+          git rm -r --cached --ignore-unmatch assets/
+          git diff --cached --quiet || git commit -m "chore: restore dev entry point and remove build artifacts [skip ci]"
           git push origin main

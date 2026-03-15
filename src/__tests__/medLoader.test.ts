@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { MED_REGISTRY, pluralDays, composeEarlyGuidance } from '../medLoader';
-import type { GuidanceResult, SupplementalGuidanceResult, CategoricalGuidanceResult } from '../interfaces/guidance';
+import type { GuidanceResult, SupplementalGuidanceResult } from '../interfaces/guidance';
 
 /** Returns true if any element of the providerNotifications array contains the substring. */
 function hasNotif(arr: string[] | undefined, sub: string): boolean {
@@ -17,8 +17,8 @@ function getInvegaMaintenanceGuidance(days: number, dose: string): GuidanceResul
 function getInvegaTrinzaGuidance(days: number, dose: string): GuidanceResult {
     return MED_REGISTRY['invega_trinza'].getLateGuidance({ daysSince: days, dose }) as GuidanceResult;
 }
-function getInvegaHafyeraGuidanceCategory(days: number): CategoricalGuidanceResult {
-    return MED_REGISTRY['invega_hafyera'].getLateGuidance({ daysSince: days }) as CategoricalGuidanceResult;
+function getInvegaHafyeraGuidance(days: number): GuidanceResult {
+    return MED_REGISTRY['invega_hafyera'].getLateGuidance({ daysSince: days }) as GuidanceResult;
 }
 function getAbilifyMaintenaGuidance(weeks: number, doses: string): GuidanceResult {
     return MED_REGISTRY['abilify_maintena'].getLateGuidance({ weeksSince: weeks, variant: doses }) as GuidanceResult;
@@ -170,11 +170,11 @@ describe('getInvegaInitiationGuidance', () => {
     const stepText = (idealSteps: string[]) =>
         idealSteps.join('\n\n');
 
-    it('≤12 days: not due / proceed with original plans', () => {
+    it('≤12 days: not significantly overdue', () => {
         const r0  = getInvegaInitiationGuidance(0);
         const r12 = getInvegaInitiationGuidance(12);
-        expect(stepText(r0.idealSteps)).toContain('not due or not significantly overdue');
-        expect(stepText(r12.idealSteps)).toContain('not due or not significantly overdue');
+        expect(stepText(r0.idealSteps)).toContain('not significantly overdue');
+        expect(stepText(r12.idealSteps)).toContain('not significantly overdue');
     });
 
     it('13–28 days: administer 156 mg, then 117 mg at week 5', () => {
@@ -193,23 +193,41 @@ describe('getInvegaInitiationGuidance', () => {
         expect(stepText(r49.idealSteps)).toContain('2nd 156 mg');
     });
 
-    it('50–180 days: restart with 234 mg', () => {
+    it('50–120 days (>7 weeks to 4 months): restart with 234 mg', () => {
         const r50  = getInvegaInitiationGuidance(50);
-        const r180 = getInvegaInitiationGuidance(180);
+        const r120 = getInvegaInitiationGuidance(120);
         expect(stepText(r50.idealSteps)).toContain('234 mg');
-        expect(stepText(r180.idealSteps)).toContain('234 mg');
+        expect(stepText(r120.idealSteps)).toContain('234 mg');
     });
 
-    it('181+ days: consult provider before any injection', () => {
-        const r181 = getInvegaInitiationGuidance(181);
+    it('121+ days (>4 months): consult provider before any injection', () => {
+        const r121 = getInvegaInitiationGuidance(121);
         const r365 = getInvegaInitiationGuidance(365);
-        expect(r181.idealSteps.some(s => s.includes('Consult provider'))).toBe(true);
-        expect(hasNotif(r181.providerNotifications, 'Before any injection')).toBe(true);
+        expect(r121.idealSteps.some(s => s.includes('Consult provider'))).toBe(true);
+        expect(hasNotif(r121.providerNotifications, 'Before any injection')).toBe(true);
         expect(hasNotif(r365.providerNotifications, 'Before any injection')).toBe(true);
     });
 
+    it('exact tier boundaries (maxDays: 12, 28, 49, 120, Infinity)', () => {
+        expect(stepText(getInvegaInitiationGuidance(12).idealSteps)).toContain('not significantly overdue');
+        expect(stepText(getInvegaInitiationGuidance(13).idealSteps)).toContain('117 mg');
+        expect(stepText(getInvegaInitiationGuidance(28).idealSteps)).toContain('117 mg');
+        expect(stepText(getInvegaInitiationGuidance(29).idealSteps)).toContain('2nd 156 mg');
+        expect(stepText(getInvegaInitiationGuidance(49).idealSteps)).toContain('2nd 156 mg');
+        expect(stepText(getInvegaInitiationGuidance(50).idealSteps)).toContain('Restart initiation');
+        expect(stepText(getInvegaInitiationGuidance(120).idealSteps)).toContain('Restart initiation');
+        expect(stepText(getInvegaInitiationGuidance(121).idealSteps)).toContain('Consult provider');
+    });
+
+    it('121+ days includes pragmatic variation about 156 mg fallback only with provider guidance', () => {
+        const r121 = getInvegaInitiationGuidance(121);
+        expect(r121.pragmaticVariations).toBeDefined();
+        expect(r121.pragmaticVariations!.some(s => s.includes('156 mg injection'))).toBe(true);
+        expect(r121.pragmaticVariations!.some(s => s.includes('Consult provider'))).toBe(true);
+    });
+
     it('has all required fields', () => {
-        [0, 20, 35, 100, 200].forEach(d => {
+        [0, 20, 35, 100, 121, 200].forEach(d => {
             const r = getInvegaInitiationGuidance(d);
             expect(r).toHaveProperty('idealSteps');
             expect(r).toHaveProperty('providerNotifications');
@@ -223,56 +241,67 @@ describe('getInvegaInitiationGuidance', () => {
 });
 describe('getInvegaMaintenanceGuidance', () => {
     it('<28 days: not significantly overdue', () => {
-        const r = getInvegaMaintenanceGuidance(10, '156-or-less');
+        const r = getInvegaMaintenanceGuidance(10, '39-to-156');
         expect(r.idealSteps.some(s => s.includes('not significantly overdue'))).toBe(true);
-        expect(hasNotif(r.providerNotifications, 'No provider notification')).toBe(true);
+        expect(r.providerNotifications).toBeUndefined();
     });
 
     it('28–42 days: administer usual dose, resume 4-week cycle (both doses)', () => {
-        (['156-or-less', '234'] as const).forEach(dose => {
+        (['39-to-156', '234'] as const).forEach(dose => {
             const r = getInvegaMaintenanceGuidance(35, dose);
             expect(r.idealSteps.some(s => s.includes('Arrange for next usual monthly maintenance dose = 4 weeks later.'))).toBe(true);
             expect(r.providerNotifications).toBeUndefined();
         });
     });
 
-    it('43–180 days, 156-or-less: 2nd usual dose 1 week later', () => {
-        const r = getInvegaMaintenanceGuidance(90, '156-or-less');
+    it('43–120 days, 39-to-156: 2nd usual dose 1 week later', () => {
+        const r = getInvegaMaintenanceGuidance(90, '39-to-156');
         expect(r.idealSteps.some(s => s.includes('Arrange for a 2nd usual maintenance dose (same dose) to be administered 1 week later.'))).toBe(true);
         expect(hasNotif(r.providerNotifications, '2nd usual maintenance dose')).toBe(true);
     });
 
-    it('43–180 days, 234 mg: step down to 156 mg x2 then resume 234 mg', () => {
+    it('43–120 days, 234 mg: step down to 156 mg x2 then resume 234 mg', () => {
         const r = getInvegaMaintenanceGuidance(90, '234');
         expect(r.idealSteps.some(s => s.includes('Administer 156 mg Invega Sustenna'))).toBe(true);
         expect(r.idealSteps.some(s => s.includes('Then resume usual monthly doses with 234 mg at 4 weeks after step 2.'))).toBe(true);
     });
 
-    it('181+ days: consult provider — reinitiation needed', () => {
-        const r = getInvegaMaintenanceGuidance(200, '156-or-less');
+    it('121+ days: consult provider — reinitiation needed', () => {
+        const r = getInvegaMaintenanceGuidance(200, '39-to-156');
         expect(r.idealSteps.some(s => s.includes('reinitiation'))).toBe(true);
         expect(hasNotif(r.providerNotifications, 'Before any injection')).toBe(true);
     });
 
-    it('exact tier boundaries (maxDays: 27, 42, 180, Infinity)', () => {
+    it('exact tier boundaries (maxDays: 27, 42, 120, Infinity)', () => {
         // day 27 → tier 1: not due
-        expect(getInvegaMaintenanceGuidance(27, '156-or-less').idealSteps.some(s => s.includes('not significantly overdue'))).toBe(true);
+        expect(getInvegaMaintenanceGuidance(27, '39-to-156').idealSteps.some(s => s.includes('not significantly overdue'))).toBe(true);
         // day 28 → tier 2: on-time
-        expect(getInvegaMaintenanceGuidance(28, '156-or-less').idealSteps.some(s => s.includes('Arrange for next usual monthly maintenance dose = 4 weeks later.'))).toBe(true);
+        expect(getInvegaMaintenanceGuidance(28, '39-to-156').idealSteps.some(s => s.includes('Arrange for next usual monthly maintenance dose = 4 weeks later.'))).toBe(true);
         // day 42 → tier 2: still on-time
-        expect(getInvegaMaintenanceGuidance(42, '156-or-less').idealSteps.some(s => s.includes('Arrange for next usual monthly maintenance dose = 4 weeks later.'))).toBe(true);
+        expect(getInvegaMaintenanceGuidance(42, '39-to-156').idealSteps.some(s => s.includes('Arrange for next usual monthly maintenance dose = 4 weeks later.'))).toBe(true);
         // day 43 → tier 3: overdue (dose-variant)
-        expect(getInvegaMaintenanceGuidance(43, '156-or-less').idealSteps.some(s => s.includes('Arrange for a 2nd usual maintenance dose (same dose) to be administered 1 week later.'))).toBe(true);
-        // day 180 → tier 3: still overdue
-        expect(getInvegaMaintenanceGuidance(180, '156-or-less').idealSteps.some(s => s.includes('Arrange for a 2nd usual maintenance dose (same dose) to be administered 1 week later.'))).toBe(true);
-        // day 181 → tier 4: reinitiation
-        expect(getInvegaMaintenanceGuidance(181, '156-or-less').idealSteps.some(s => s.includes('reinitiation'))).toBe(true);
+        expect(getInvegaMaintenanceGuidance(43, '39-to-156').idealSteps.some(s => s.includes('Arrange for a 2nd usual maintenance dose (same dose) to be administered 1 week later.'))).toBe(true);
+        // day 120 → tier 3: still overdue
+        expect(getInvegaMaintenanceGuidance(120, '39-to-156').idealSteps.some(s => s.includes('Arrange for a 2nd usual maintenance dose (same dose) to be administered 1 week later.'))).toBe(true);
+        // day 121 → tier 4: reinitiation
+        expect(getInvegaMaintenanceGuidance(121, '39-to-156').idealSteps.some(s => s.includes('reinitiation'))).toBe(true);
+    });
+
+    it('exact tier boundaries for 234 mg path (42/43 and 120/121)', () => {
+        // day 42 → tier 2: usual dose
+        expect(getInvegaMaintenanceGuidance(42, '234').idealSteps.some(s => s.includes('Arrange for next usual monthly maintenance dose = 4 weeks later.'))).toBe(true);
+        // day 43 → tier 3: 156 mg reload strategy
+        expect(getInvegaMaintenanceGuidance(43, '234').idealSteps.some(s => s.includes('Administer 156 mg Invega Sustenna'))).toBe(true);
+        // day 120 → tier 3: still 156 mg reload strategy
+        expect(getInvegaMaintenanceGuidance(120, '234').idealSteps.some(s => s.includes('Administer 156 mg Invega Sustenna'))).toBe(true);
+        // day 121 → tier 4: reinitiation consult
+        expect(getInvegaMaintenanceGuidance(121, '234').idealSteps.some(s => s.includes('reinitiation'))).toBe(true);
     });
 });
 describe('getInvegaTrinzaGuidance', () => {
-    it('<90 days: not yet due — refer to early guidance', () => {
+    it('<90 days: refers to early dosing guidance', () => {
         const r = getInvegaTrinzaGuidance(60, '410');
-        expect(r.idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+        expect(r.idealSteps.some(s => s.includes('refer to the early dosing guidance'))).toBe(true);
     });
 
     it('90–120 days: administer usual Trinza dose', () => {
@@ -282,6 +311,7 @@ describe('getInvegaTrinzaGuidance', () => {
 
     it('121–270 days, 410 mg dose: bridge with Sustenna 117 mg x2', () => {
         const r = getInvegaTrinzaGuidance(150, '410');
+        expect(r.idealSteps.some(s => s.includes('Consult provider first'))).toBe(true);
         expect(r.idealSteps.some(s => s.includes('Administer Invega **Sustenna** 117 mg'))).toBe(true);
         expect(r.idealSteps.some(s => s.includes('Arrange for a 410 mg Invega **Trinza** injection 4 weeks after step 3.'))).toBe(true);
     });
@@ -301,8 +331,8 @@ describe('getInvegaTrinzaGuidance', () => {
     });
 
     it('exact tier boundaries (maxDays: 89, 120, 270, Infinity)', () => {
-        // day 89 → tier 1: not yet due
-        expect(getInvegaTrinzaGuidance(89, '546').idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+        // day 89 → tier 1: refer to early guidance
+        expect(getInvegaTrinzaGuidance(89, '546').idealSteps.some(s => s.includes('refer to the early dosing guidance'))).toBe(true);
         // day 90 → tier 2: on-time
         expect(getInvegaTrinzaGuidance(90, '546').idealSteps.some(s => s.includes('usual Invega Trinza dose'))).toBe(true);
         // day 120 → tier 2: still on-time
@@ -315,20 +345,33 @@ describe('getInvegaTrinzaGuidance', () => {
         expect(getInvegaTrinzaGuidance(271, '546').idealSteps.some(s => s.includes('Consult provider. Reinitiation is necessary'))).toBe(true);
     });
 });
-describe('getInvegaHafyeraGuidanceCategory', () => {
-    it('returns "early" for <181 days', () => {
-        expect(getInvegaHafyeraGuidanceCategory(0)).toBe('early');
-        expect(getInvegaHafyeraGuidanceCategory(180)).toBe('early');
+describe('getInvegaHafyeraGuidance', () => {
+    it('≤180 days: refers to early dosing guidance', () => {
+        expect(getInvegaHafyeraGuidance(0).idealSteps.some(s => s.includes('early dosing guidance'))).toBe(true);
+        expect(getInvegaHafyeraGuidance(180).idealSteps.some(s => s.includes('early dosing guidance'))).toBe(true);
     });
 
-    it('returns "on-time" for 181–202 days', () => {
-        expect(getInvegaHafyeraGuidanceCategory(181)).toBe('on-time');
-        expect(getInvegaHafyeraGuidanceCategory(202)).toBe('on-time');
+    it('181–202 days: proceed with administering and plan next dose in 6 months', () => {
+        const r181 = getInvegaHafyeraGuidance(181);
+        const r202 = getInvegaHafyeraGuidance(202);
+        expect(r181.idealSteps.some(s => s.includes('Proceed with administering the Hafyera injection'))).toBe(true);
+        expect(r202.idealSteps.some(s => s.includes('Plan for the subsequent injection in 6 months'))).toBe(true);
     });
 
-    it('returns "consult" for 203+ days', () => {
-        expect(getInvegaHafyeraGuidanceCategory(203)).toBe('consult');
-        expect(getInvegaHafyeraGuidanceCategory(365)).toBe('consult');
+    it('203+ days: consult provider before any injection', () => {
+        const r203 = getInvegaHafyeraGuidance(203);
+        const r365 = getInvegaHafyeraGuidance(365);
+        expect(r203.idealSteps.some(s => s.includes('more than 6 months and 3 weeks'))).toBe(true);
+        expect(r203.idealSteps.some(s => s.includes('Consult provider prior to proceeding'))).toBe(true);
+        expect(hasNotif(r203.providerNotifications, 'Before any injection')).toBe(true);
+        expect(hasNotif(r365.providerNotifications, 'Before any injection')).toBe(true);
+    });
+
+    it('exact tier boundaries (maxDays: 180, 202, Infinity)', () => {
+        expect(getInvegaHafyeraGuidance(180).idealSteps.some(s => s.includes('early dosing guidance'))).toBe(true);
+        expect(getInvegaHafyeraGuidance(181).idealSteps.some(s => s.includes('Proceed with administering the Hafyera injection'))).toBe(true);
+        expect(getInvegaHafyeraGuidance(202).idealSteps.some(s => s.includes('Plan for the subsequent injection in 6 months'))).toBe(true);
+        expect(getInvegaHafyeraGuidance(203).idealSteps.some(s => s.includes('Consult provider prior to proceeding'))).toBe(true);
     });
 });
 describe('getAbilifyMaintenaGuidance', () => {
@@ -651,11 +694,11 @@ describe('renderInfoRow — all branches', () => {
     // ── field row — option-label format ──────────────────────────────────────
     describe('field row — option-label format', () => {
         it('returns the human-readable label for a known option value', () => {
-            const ctx = { 'invega-type': 'maintenance', 'last-maintenance': '', 'maintenance-dose': '156-or-less' };
+            const ctx = { 'invega-type': 'maintenance', 'last-maintenance': '', 'maintenance-dose': '39-to-156' };
             const rows = MED_REGISTRY['invega_sustenna'].buildLateInfoRows(ctx, 50);
             const row = rows.find(([label]) => label === 'Monthly maintenance dose:');
             expect(row).toBeDefined();
-            expect(row![1]).toBe('156 mg or less');
+            expect(row![1]).toBe('39 to 156 mg');
         });
 
         it('returns the other option label correctly', () => {

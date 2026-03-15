@@ -50,28 +50,38 @@
                 },
                 {
                     "maxDays": null,
-                    "guidanceByDose": {
-                        "150-or-less": {
-                            "idealSteps": [
-                                "Administer usual Uzedy maintenance dose (150 mg or less)",
-                                "Arrange for care team to check in with patient within 1-2 days, to assess for sedation",
-                                "Next injection at usual dosing interval"
+                    "guidanceByDoseRules": [
+                        {
+                            "doses": [
+                                "150-or-less"
                             ],
-                            "providerNotifications": [
-                                "After the injection, notify the provider as an FYI on the injection timing."
-                            ]
+                            "guidance": {
+                                "idealSteps": [
+                                    "Administer usual Uzedy maintenance dose (150 mg or less)",
+                                    "Arrange for care team to check in with patient within 1-2 days, to assess for sedation",
+                                    "Next injection at usual dosing interval"
+                                ],
+                                "providerNotifications": [
+                                    "After the injection, notify the provider as an FYI on the injection timing."
+                                ]
+                            }
                         },
-                        "200-or-more": {
-                            "idealSteps": [
-                                "Try to contact prescriber for discussion on whether this person is at risk for sedation or other severe antipsychotic adverse events",
-                                "If prescriber cannot be reached, administer approximately 150 mg of the injection. Example: the typical injection is 200 mg; administer approximately ¾ of the medication",
-                                "Arrange for care team to check in with patient within 1-2 days, to assess for sedation"
+                        {
+                            "doses": [
+                                "200-or-more"
                             ],
-                            "providerNotifications": [
-                                "If not already contacted, notify the provider after the injection to get guidance on next steps."
-                            ]
+                            "guidance": {
+                                "idealSteps": [
+                                    "Try to contact prescriber for discussion on whether this person is at risk for sedation or other severe antipsychotic adverse events",
+                                    "If prescriber cannot be reached, administer approximately 150 mg of the injection. Example: the typical injection is 200 mg; administer approximately ¾ of the medication",
+                                    "Arrange for care team to check in with patient within 1-2 days, to assess for sedation"
+                                ],
+                                "providerNotifications": [
+                                    "If not already contacted, notify the provider after the injection to get guidance on next steps."
+                                ]
+                            }
                         }
-                    }
+                    ]
                 }
             ]
         }

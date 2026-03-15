@@ -1,6 +1,5 @@
 import type {
     GuidanceResult,
-    CategoricalGuidanceResult,
     SupplementalGuidanceResult,
     SubmitContext,
 } from './guidance';
@@ -27,11 +26,11 @@ export interface LateGuidanceParams {
     dose?:       string;
 }
 
-export type LateGuidanceOutput = GuidanceResult | SupplementalGuidanceResult | CategoricalGuidanceResult;
+export type LateGuidanceOutput = GuidanceResult | SupplementalGuidanceResult;
 
 // ─── Form / UI types ──────────────────────────────────────────────────────────
 
-export type RenderType = 'three-part' | 'categorical' | 'supplementation';
+export type RenderType = 'three-part' | 'supplementation';
 
 /** A row in the guidance summary panel. */
 export type InfoRowSpec =

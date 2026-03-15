@@ -241,12 +241,12 @@ test.describe('late guidance — Invega Sustenna', () => {
         await expect(page.locator('.medication-info')).toContainText('234 mg');
     });
 
-    test('maintenance 156-or-less flow renders guidance section', async ({ page }) => {
+    test('maintenance 39-to-156 flow renders guidance section', async ({ page }) => {
         await selectField(page, 'medication', 'invega_sustenna');
         await selectField(page, 'guidance-type', 'late');
         await selectField(page, 'invega-type', 'maintenance');
         await fillDate(page, 'last-maintenance', daysAgo(50));
-        await selectField(page, 'maintenance-dose', '156-or-less');
+        await selectField(page, 'maintenance-dose', '39-to-156');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
     });
@@ -285,7 +285,8 @@ test.describe('late guidance — Invega Hafyera', () => {
         await fillDate(page, 'last-hafyera', daysAgo(210));
 
         await expect(page.locator('.guidance-section')).toBeVisible();
-        await expect(page.locator('.guidance-section')).toContainText('CONSULT PROVIDER REQUIRED');
+        await expect(page.locator('.guidance-section')).toContainText('more than 6 months and 3 weeks after the last Hafyera dose');
+        await expect(page.locator('.guidance-section')).toContainText('Consult provider prior to proceeding with any injection');
     });
 });
 
@@ -966,5 +967,133 @@ test.describe('start over', () => {
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('Aristada');
+    });
+});
+
+// ─── Late guidance — Invega Sustenna initiation tiers ────────────────────────
+
+test.describe('late guidance — Invega Sustenna initiation tiers', () => {
+    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+
+    async function submitInitiation(page: Page, daysSinceFirst: number): Promise<void> {
+        await selectField(page, 'medication', 'invega_sustenna');
+        await selectField(page, 'guidance-type', 'late');
+        await selectField(page, 'invega-type', 'initiation');
+        await fillDate(page, 'first-injection', daysAgo(daysSinceFirst));
+    }
+
+    // Tier 1: ≤12 days
+    test('10 days: tier 1 — not significantly overdue', async ({ page }) => {
+        await submitInitiation(page, 10);
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('not significantly overdue');
+    });
+
+    // Tier 2: 13–28 days
+    test('20 days: tier 2 — administer 156 mg + arrange 117 mg', async ({ page }) => {
+        await submitInitiation(page, 20);
+        await expect(page.locator('.guidance-section')).toContainText('117 mg');
+    });
+
+    // Tier 1 vs Tier 2 distinction
+    test('10 days does NOT show 117 mg (tier 1, not tier 2)', async ({ page }) => {
+        await submitInitiation(page, 10);
+        await expect(page.locator('.guidance-section')).not.toContainText('117 mg');
+    });
+
+    // Tier 3: 29–49 days
+    test('35 days: tier 3 — administer 156 mg + arrange 2nd 156 mg 1 week later', async ({ page }) => {
+        await submitInitiation(page, 35);
+        await expect(page.locator('.guidance-section')).toContainText('2nd 156 mg injection');
+    });
+
+    // Tier 2 vs Tier 3 distinction
+    test('20 days does NOT show 2nd 156 mg (tier 2, not tier 3)', async ({ page }) => {
+        await submitInitiation(page, 20);
+        await expect(page.locator('.guidance-section')).not.toContainText('2nd 156 mg injection');
+    });
+
+    // Tier 4: 50–120 days (>7 weeks to 4 months)
+    test('100 days: tier 4 — restart initiation with 234 mg', async ({ page }) => {
+        await submitInitiation(page, 100);
+        await expect(page.locator('.guidance-section')).toContainText('Restart initiation');
+    });
+
+    // Tier 5: >120 days (>4 months)
+    test('130 days: tier 5 — consult provider before proceeding', async ({ page }) => {
+        await submitInitiation(page, 130);
+        await expect(page.locator('.guidance-section')).toContainText('Consult provider to get orders');
+    });
+
+    test('200 days: tier 5 — consult provider before proceeding', async ({ page }) => {
+        await submitInitiation(page, 200);
+        await expect(page.locator('.guidance-section')).toContainText('Consult provider to get orders');
+    });
+
+    // Tier 4 vs Tier 5 distinction
+    test('100 days does NOT show consult guidance (tier 4, not tier 5)', async ({ page }) => {
+        await submitInitiation(page, 100);
+        await expect(page.locator('.guidance-section')).not.toContainText('Consult provider to get orders');
+    });
+});
+
+// ─── Late guidance — Invega Sustenna maintenance tiers (full coverage) ────────
+
+test.describe('late guidance — Invega Sustenna maintenance tiers', () => {
+    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+
+    async function submitMaintenance(page: Page, daysSinceLast: number, dose: string): Promise<void> {
+        await selectField(page, 'medication', 'invega_sustenna');
+        await selectField(page, 'guidance-type', 'late');
+        await selectField(page, 'invega-type', 'maintenance');
+        await fillDate(page, 'last-maintenance', daysAgo(daysSinceLast));
+        await selectField(page, 'maintenance-dose', dose);
+    }
+
+    // Tier 1: ≤27 days
+    test('20 days: tier 1 — not significantly overdue', async ({ page }) => {
+        await submitMaintenance(page, 20, '234');
+        await expect(page.locator('.guidance-section')).toContainText('not significantly overdue');
+    });
+
+    // Tier 1 vs Tier 2 distinction
+    test('20 days does NOT show usual dose / 4-week schedule (tier 1, not tier 2)', async ({ page }) => {
+        await submitMaintenance(page, 20, '234');
+        await expect(page.locator('.guidance-section')).not.toContainText('4 weeks later');
+    });
+
+    // Tier 2: 28–42 days
+    test('35 days, 234 mg: tier 2 — administer usual dose, schedule 4 weeks later', async ({ page }) => {
+        await submitMaintenance(page, 35, '234');
+        await expect(page.locator('.guidance-section')).toContainText('Administer usual Invega Sustenna dose');
+    });
+
+    // Tier 3: 43–120 days — 39-to-156
+    test('100 days, 39-to-156: tier 3 — arrange 2nd usual maintenance dose 1 week later', async ({ page }) => {
+        await submitMaintenance(page, 100, '39-to-156');
+        await expect(page.locator('.guidance-section')).toContainText('2nd usual maintenance dose');
+    });
+
+    // Tier 3: 43–120 days — 234 mg
+    test('100 days, 234 mg: tier 3 — administer 156 mg + arrange 2nd 156 mg', async ({ page }) => {
+        await submitMaintenance(page, 100, '234');
+        await expect(page.locator('.guidance-section')).toContainText('Administer 156 mg Invega Sustenna');
+    });
+
+    // Tier 2 vs Tier 3 distinction (234 mg)
+    test('35 days, 234 mg does NOT trigger 2-injection re-load (tier 2, not tier 3)', async ({ page }) => {
+        await submitMaintenance(page, 35, '234');
+        await expect(page.locator('.guidance-section')).not.toContainText('Administer 156 mg Invega Sustenna');
+    });
+
+    // Tier 4: >120 days
+    test('200 days, 234 mg: tier 4 — consult provider, reinitiation needed', async ({ page }) => {
+        await submitMaintenance(page, 200, '234');
+        await expect(page.locator('.guidance-section')).toContainText('reinitiation');
+    });
+
+    test('200 days, 39-to-156: tier 4 — consult provider, reinitiation needed', async ({ page }) => {
+        await submitMaintenance(page, 200, '39-to-156');
+        await expect(page.locator('.guidance-section')).toContainText('reinitiation');
     });
 });
