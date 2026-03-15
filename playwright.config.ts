@@ -10,7 +10,7 @@ export default defineConfig({
   reporter: 'list',
   snapshotPathTemplate: '{testDir}/{testFileName}-snapshots/{arg}-{projectName}{ext}',
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:5173',
     actionTimeout: 5000,
     trace: 'on-first-retry',
   },
@@ -20,9 +20,11 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: process.env.PLAYWRIGHT_BASE_URL
+    ? undefined
+    : {
+        command: 'npm run dev',
+        url: 'http://localhost:5173',
+        reuseExistingServer: !process.env.CI,
+      },
 });

@@ -55,27 +55,10 @@ jobs:
           folder: dist/
           clean: false   # preserve source files (src/, package.json, etc.)
 
-      # The deploy action above overwrites index.html with the built version.
-      # Pull that commit and immediately restore the dev entry point so the
-      # source file on main always references /src/main.ts.
-      - name: Restore dev index.html after deploy
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main
-          python3 - <<'EOF'
-          import re
-          with open('index.html') as f:
-              content = f.read()
-          content = re.sub(r'[ \t]*<script[^>]+crossorigin src="[^"]*assets/[^"]*"[^>]*></script>\n?', '', content)
-          content = re.sub(r'[ \t]*<link[^>]+crossorigin href="[^"]*assets/[^"]*"[^>]*>\n?', '', content)
-          if '/src/main.ts' not in content:
-              content = content.replace('</title>', '</title>\n  <script type="module" src="/src/main.ts"></script>', 1)
-          with open('index.html', 'w') as f:
-              f.write(content)
-          EOF
-          git add index.html
-          # Remove build artifacts that the deploy action copied into the source branch
-          git rm -r --cached --ignore-unmatch assets/
-          git diff --cached --quiet || git commit -m "chore: restore dev entry point and remove build artifacts [skip ci]"
-          git push origin main
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Post-deploy smoke test (live URL)
+        env:
+          PLAYWRIGHT_BASE_URL: https://rcwaters.github.io/LAIguide
+        run: npx playwright test e2e/deploy-smoke.spec.ts --project=chromium
