@@ -48,6 +48,33 @@ jobs:
       - name: Run E2E tests
         run: npm run test:e2e
 
+      - name: Run production smoke test
+        run: |
+          npm run build
+
+          PORT=$(python3 - <<'PY'
+          import socket
+          s = socket.socket()
+          s.bind(("127.0.0.1", 0))
+          print(s.getsockname()[1])
+          s.close()
+          PY
+          )
+
+          npx vite preview --host 127.0.0.1 --port "$PORT" >/tmp/vite-preview.log 2>&1 &
+          PREVIEW_PID=$!
+          trap 'kill $PREVIEW_PID' EXIT
+
+          for i in {1..30}; do
+            if curl -fsS "http://127.0.0.1:$PORT" >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          PLAYWRIGHT_BASE_URL="http://127.0.0.1:$PORT" \
+            npx playwright test e2e/deploy-smoke.spec.ts --project=chromium
+
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
