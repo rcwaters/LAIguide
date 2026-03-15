@@ -5,6 +5,6 @@ export default defineConfig({
   test: {
     environment: 'node',
     css: false,
-    exclude: ['**/node_modules/**', 'e2e/**'],
+    exclude: ['**/node_modules/**', 'e2e/**', 'dist/**', 'assets/**', 'test-results/**'],
   },
 });

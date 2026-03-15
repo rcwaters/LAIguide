@@ -10,7 +10,6 @@
             "minDays": 21
         },
         "late": {
-            "kind": "tiers-by-variant",
             "variants": [
                 {
                     "key": "100mg",

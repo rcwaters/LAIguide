@@ -21,7 +21,7 @@ function getInvegaHafyeraGuidance(days: number): GuidanceResult {
     return MED_REGISTRY['invega_hafyera'].getLateGuidance({ daysSince: days }) as GuidanceResult;
 }
 function getAbilifyMaintenaGuidance(weeks: number, doses: string): GuidanceResult {
-    return MED_REGISTRY['abilify_maintena'].getLateGuidance({ weeksSince: weeks, variant: doses }) as GuidanceResult;
+    return MED_REGISTRY['abilify_maintena'].getLateGuidance({ daysSince: weeks * 7, variant: doses }) as GuidanceResult;
 }
 function getAristadaGuidance(days: number, dose: string): SupplementalGuidanceResult {
     return MED_REGISTRY['aristada'].getLateGuidance({ daysSince: days, dose }) as SupplementalGuidanceResult;
@@ -402,6 +402,26 @@ describe('getAbilifyMaintenaGuidance', () => {
         const r = getAbilifyMaintenaGuidance(7, '3+');
         expect(r.idealSteps.some(s => s.includes('Re-initiate:'))).toBe(true);
         expect(hasNotif(r.providerNotifications, 'notify provider')).toBe(true);
+    });
+
+    it('exact tier boundaries for 1-2 doses (27/28, 35/36, 119/120 days)', () => {
+        const g12 = (d: number) => MED_REGISTRY['abilify_maintena'].getLateGuidance({ daysSince: d, variant: '1-2' }) as GuidanceResult;
+        expect(g12(27).idealSteps.some(s => s.includes('not due'))).toBe(true);
+        expect(g12(28).idealSteps.some(s => s.includes('Administer usual Abilify Maintena monthly dose'))).toBe(true);
+        expect(g12(35).idealSteps.some(s => s.includes('Administer usual Abilify Maintena monthly dose'))).toBe(true);
+        expect(g12(36).idealSteps.some(s => s.includes('Re-initiate:'))).toBe(true);
+        expect(g12(119).idealSteps.some(s => s.includes('Re-initiate:'))).toBe(true);
+        expect(g12(120).idealSteps.some(s => s.includes('Consult provider first'))).toBe(true);
+    });
+
+    it('exact tier boundaries for 3+ doses (27/28, 42/43, 119/120 days)', () => {
+        const g3p = (d: number) => MED_REGISTRY['abilify_maintena'].getLateGuidance({ daysSince: d, variant: '3+' }) as GuidanceResult;
+        expect(g3p(27).idealSteps.some(s => s.includes('not due'))).toBe(true);
+        expect(g3p(28).idealSteps.some(s => s.includes('Administer usual Abilify Maintena monthly dose'))).toBe(true);
+        expect(g3p(42).idealSteps.some(s => s.includes('Administer usual Abilify Maintena monthly dose'))).toBe(true);
+        expect(g3p(43).idealSteps.some(s => s.includes('Re-initiate:'))).toBe(true);
+        expect(g3p(119).idealSteps.some(s => s.includes('Re-initiate:'))).toBe(true);
+        expect(g3p(120).idealSteps.some(s => s.includes('Consult provider first'))).toBe(true);
     });
 });
 describe('getAristadaGuidance', () => {

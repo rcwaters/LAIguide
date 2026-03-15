@@ -49,6 +49,14 @@ function buildTier(raw: RawTier): LateTier {
 
 function buildTiers(raws: RawTier[]): LateTier[] { return raws.map(buildTier); }
 
+type VariantEntry = { key: string; tiers?: RawTier[]; sameAs?: string };
+function buildVariantMap<T>(variants: VariantEntry[], build: (tiers: RawTier[]) => T): Record<string, T> {
+    const map: Record<string, T> = {};
+    for (const v of variants) { if (v.tiers)  map[v.key] = build(v.tiers); }
+    for (const v of variants) { if (v.sameAs) map[v.key] = map[v.sameAs]; }
+    return map;
+}
+
 function resolveLateTier(tiers: LateTier[], daysSince: number, dose?: string): GuidanceResult {
     try {
         const tier = tiers.find(t => daysSince <= t.maxDays) ?? tiers[tiers.length - 1];
@@ -97,69 +105,47 @@ function buildCoreDef(json: any): CoreDef {
         ...(commonNotifs?.length             ? { commonProviderNotifications:   commonNotifs          } : {}),
     };
 
-    switch (lg['kind']) {
+    if (lg['variants']) {
+        // variants with a `sameAs` key reuse another variant's tiers (avoids duplication in JSON)
+        const variants = lg['variants'] as VariantEntry[];
 
-        case 'tiers': {
-            const tiers = buildTiers(lg['tiers'] as RawTier[]);
-            return { ...base, getLateGuidance: ({ daysSince, dose }) => resolveLateTier(tiers, daysSince!, dose) };
-        }
+        const notDueCfg = lg['notDue'] as { beforeDays: number; message: string } | undefined;
+        if (notDueCfg) {
+            const notDueBeforeDays = notDueCfg.beforeDays;
+            const notDueMessage    = notDueCfg.message;
+            type SupplementalTier = { maxDays: number; supplementation?: string; providerNotifications?: string[] };
+            const buildSupplementalTiers = (raws: RawTier[]): SupplementalTier[] => raws.map(t => ({
+                maxDays:               days(t['maxDays'] as number | null),
+                supplementation:       t['supplementation']       as string | undefined,
+                providerNotifications: t['providerNotifications'] as string[] | undefined,
+            }));
+            const tiersMap = buildVariantMap(variants, buildSupplementalTiers);
 
-        case 'tiers-by-prior-doses': {
-            const groups = (lg['priorDoseGroups'] as { priorDoses: string; tiers: RawTier[] }[])
-                .map(pg => ({ priorDoses: pg.priorDoses, tiers: buildTiers(pg.tiers) }));
-            return { ...base, getLateGuidance: ({ daysSince, variant }) => {
-                const group = groups.find(g => g.priorDoses === variant)!;
-                return resolveLateTier(group.tiers, daysSince!);
-            }};
-        }
-
-        case 'tiers-by-variant': {
-            // variants with a `sameAs` key reuse another variant's tiers (avoids duplication in JSON)
-            const variants = lg['variants'] as { key: string; tiers?: RawTier[]; sameAs?: string }[];
-            const tiersMap: Record<string, LateTier[]> = {};
-            for (const v of variants) { if (v.tiers)  tiersMap[v.key] = buildTiers(v.tiers); }
-            for (const v of variants) { if (v.sameAs) tiersMap[v.key] = tiersMap[v.sameAs]; }
-            return { ...base, getLateGuidance: ({ daysSince, variant }) => resolveLateTier(tiersMap[variant!], daysSince!) };
-        }
-
-        case 'invega-sustenna': {
-            const initTiers  = buildTiers(lg['initiationTiers']  as RawTier[]);
-            const maintTiers = buildTiers(lg['maintenanceTiers'] as RawTier[]);
-            return { ...base, getLateGuidance: ({ daysSince, variant, dose }) =>
-                variant === 'initiation'
-                    ? resolveLateTier(initTiers, daysSince!)
-                    : resolveLateTier(maintTiers, daysSince!, dose),
-            };
-        }
-
-        case 'abilify': {
-            const notDue     = lg['notDueGuidance']     as GuidanceResult;
-            const routine    = lg['routineGuidance']    as GuidanceResult;
-            const reinitiate = lg['reinitiateGuidance'] as GuidanceResult;
-            const groups     = lg['priorDoseGroups'] as { priorDoses: string; routineMaxWeeks: number }[];
-            return { ...base, getLateGuidance: ({ weeksSince, variant }) => {
-                if (weeksSince! < 4) return notDue;
-                const group = groups.find(g => g.priorDoses === variant)!;
-                return weeksSince! <= group.routineMaxWeeks ? routine : reinitiate;
-            }};
-        }
-
-        case 'aristada': {
-            const notDueBeforeDays = lg['notDueBeforeDays'] as number;
-            const notDueMessage    = lg['notDueMessage']    as string;
-            const doseConfigs = (lg['doseConfigs'] as { dose: string; tiers: { maxDays: number | null; supplementation?: string; providerNotifications?: string[] }[] }[])
-                .map(dc => ({ dose: dc.dose, tiers: dc.tiers.map(t => ({ maxDays: days(t.maxDays), supplementation: t.supplementation, providerNotifications: t.providerNotifications })) }));
-            return { ...base, getLateGuidance: ({ daysSince, dose }): SupplementalGuidanceResult => {
+            return { ...base, getLateGuidance: ({ daysSince, variant, dose }): SupplementalGuidanceResult => {
                 if (daysSince! < notDueBeforeDays) return { notDue: true, message: notDueMessage };
-                const config = doseConfigs.find(c => c.dose === dose)!;
-                const tier   = config.tiers.find(t => daysSince! <= t.maxDays) ?? config.tiers[config.tiers.length - 1];
+
+                const variantKey = variant ?? dose;
+                const config = variantKey ? tiersMap[variantKey] : undefined;
+                if (!config) {
+                    console.error('[getLateGuidance] Missing or unknown variant for supplementation tiers:', variantKey, '— available:', Object.keys(tiersMap));
+                    return { notDue: false };
+                }
+
+                const tier = config.find(t => daysSince! <= t.maxDays) ?? config[config.length - 1];
                 return { notDue: false, supplementation: tier.supplementation, providerNotifications: tier.providerNotifications };
             }};
         }
 
-        default:
-            throw new Error(`Unknown late.kind: "${lg['kind']}" in ${json.key}`);
+        const tiersMap = buildVariantMap(variants, buildTiers);
+        return { ...base, getLateGuidance: ({ daysSince, variant, dose }) => resolveLateTier(tiersMap[variant!], daysSince!, dose) };
     }
+
+    if (lg['tiers']) {
+        const tiers = buildTiers(lg['tiers'] as RawTier[]);
+        return { ...base, getLateGuidance: ({ daysSince, dose }) => resolveLateTier(tiers, daysSince!, dose) };
+    }
+
+    throw new Error(`No tiers or variants in late guidance for ${json.key}`);
 }
 
 // ─── Form spec helper ─────────────────────────────────────────────────────────

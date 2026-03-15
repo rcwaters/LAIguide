@@ -13,7 +13,6 @@
             "daysBeforeDue": 7
         },
         "late": {
-            "kind": "tiers",
             "tiers": [
                 {
                     "maxDays": 89,
