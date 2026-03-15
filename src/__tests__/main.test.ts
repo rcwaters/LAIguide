@@ -727,6 +727,20 @@ describe('handleSubmit — guidance rendering', () => {
         expectGuidanceRendered();
     });
 
+    test('aristada late guidance uses Next steps heading format', () => {
+        setField('medication', 'aristada');
+        setField('guidance-type', 'late');
+        setField('last-aristada', daysAgo(50));
+        setField('aristada-dose', '662');
+        handleSubmit();
+
+        const headings = Array.from(document.querySelectorAll('.guidance-heading')).map(h => h.textContent ?? '');
+        expect(headings).toContain('Next steps:');
+
+        const guidanceText = Array.from(document.querySelectorAll('.guidance-text')).map(n => n.textContent ?? '').join(' ');
+        expect(guidanceText).toContain('Administer the usual Aristada dose as soon as possible, then assess the need for supplementation.');
+    });
+
     // ── Haloperidol Decanoate early: dual constraint (daysBeforeDue=2, minDays=14) ──
     describe('haloperidol decanoate early — dual constraint (daysBeforeDue=2, minDays=14)', () => {
         function submitEarly(daysUntilNext: number, daysSinceLast: number): void {
