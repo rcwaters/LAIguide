@@ -340,7 +340,8 @@ function supplementationBody(guidance: SupplementalGuidanceResult, common?: stri
     }
     const allNotifs = [...(guidance.providerNotifications ?? []), ...(common ?? [])];
     return `<div class="guidance-content">
-                <h3 class="guidance-heading">Administer the usual Aristada dose as soon as possible, then assess the need for supplementation.</h3>
+                <h3 class="guidance-heading">Next steps:</h3>
+                <div class="guidance-text">${md('Administer the usual Aristada dose as soon as possible, then assess the need for supplementation.')}</div>
             </div>
             <div class="guidance-content">
                 <h3 class="guidance-heading">Recommended supplementation:</h3>
