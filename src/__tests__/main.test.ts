@@ -536,7 +536,7 @@ describe('handleSubmit — guidance rendering', () => {
         setField('medication', 'abilify_maintena');
         setField('guidance-type', 'late');
         setField('last-abilify', daysAgo(35));
-        setField('abilify-doses', '3+');
+        setField('abilify-prior-dose-group', '3+');
         handleSubmit();
         expectGuidanceRendered();
     });
@@ -1030,7 +1030,7 @@ describe('provider notification aggregation', () => {
             setField('medication', 'abilify_maintena');
             setField('guidance-type', 'late');
             setField('last-abilify', daysAgo(50));
-            setField('abilify-doses', '3+');
+            setField('abilify-prior-dose-group', '3+');
             handleSubmit();
 
             const items = getNotifListItems();
@@ -1047,7 +1047,7 @@ describe('provider notification aggregation', () => {
             setField('medication', 'abilify_maintena');
             setField('guidance-type', 'late');
             setField('last-abilify', daysAgo(30));
-            setField('abilify-doses', '3+');
+            setField('abilify-prior-dose-group', '3+');
             handleSubmit();
 
             const items = getNotifListItems();
@@ -1060,7 +1060,7 @@ describe('provider notification aggregation', () => {
             setField('medication', 'abilify_maintena');
             setField('guidance-type', 'late');
             setField('last-abilify', daysAgo(50));
-            setField('abilify-doses', '3+');
+            setField('abilify-prior-dose-group', '3+');
             handleSubmit();
 
             const items = getNotifListItems();
@@ -1074,7 +1074,7 @@ describe('provider notification aggregation', () => {
             setField('medication', 'abilify_maintena');
             setField('guidance-type', 'late');
             setField('last-abilify', daysAgo(30));
-            setField('abilify-doses', '3+');
+            setField('abilify-prior-dose-group', '3+');
             handleSubmit();
 
             expect(getNotifListItems()).toHaveLength(0);

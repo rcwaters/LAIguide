@@ -15,10 +15,9 @@
             "minDays": 14
         },
         "late": {
-            "kind": "tiers-by-prior-doses",
-            "priorDoseGroups": [
+            "variants": [
                 {
-                    "priorDoses": "1-3",
+                    "key": "1-3",
                     "tiers": [
                         {
                             "maxDays": 84,
@@ -49,7 +48,7 @@
                     ]
                 },
                 {
-                    "priorDoses": "4+",
+                    "key": "4+",
                     "tiers": [
                         {
                             "maxDays": 41,

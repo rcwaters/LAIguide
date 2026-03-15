@@ -79,7 +79,7 @@ test.describe('guidance text snapshots', () => {
         await selectField(page, 'medication', 'abilify_maintena');
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-abilify', daysAgo(35));
-        await selectField(page, 'abilify-doses', '3+');
+        await selectField(page, 'abilify-prior-dose-group', '3+');
         await submit(page);
         await snapshotGuidance(page);
     });
@@ -88,7 +88,7 @@ test.describe('guidance text snapshots', () => {
         await selectField(page, 'medication', 'abilify_maintena');
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-abilify', daysAgo(50));
-        await selectField(page, 'abilify-doses', '1-2');
+        await selectField(page, 'abilify-prior-dose-group', '1-2');
         await submit(page);
         await snapshotGuidance(page);
     });

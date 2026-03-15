@@ -13,12 +13,9 @@
             "minDays": 21
         },
         "late": {
-            "kind": "aristada",
-            "notDueBeforeDays": 28,
-            "notDueMessage": "The Aristada injection is not yet due. Please consult the guidance on early dosing.",
-            "doseConfigs": [
+            "variants": [
                 {
-                    "dose": "441",
+                    "key": "441",
                     "tiers": [
                         {
                             "maxDays": 42
@@ -40,7 +37,7 @@
                     ]
                 },
                 {
-                    "dose": "662",
+                    "key": "662",
                     "tiers": [
                         {
                             "maxDays": 56
@@ -62,29 +59,11 @@
                     ]
                 },
                 {
-                    "dose": "882",
-                    "tiers": [
-                        {
-                            "maxDays": 56
-                        },
-                        {
-                            "maxDays": 84,
-                            "supplementation": "Oral aripiprazole for 7 days **OR** Aristada Initio 675 mg IM once (now or within next few days)",
-                            "providerNotifications": [
-                                "Notify provider with patient preference for supplementation and to order medications"
-                            ]
-                        },
-                        {
-                            "maxDays": null,
-                            "supplementation": "Oral aripiprazole for 21 days **OR** Aristada Initio 675 mg IM once (now or within next few days)",
-                            "providerNotifications": [
-                                "Notify provider with patient preference for supplementation and to order medications"
-                            ]
-                        }
-                    ]
+                    "key": "882",
+                    "sameAs": "662"
                 },
                 {
-                    "dose": "1064",
+                    "key": "1064",
                     "tiers": [
                         {
                             "maxDays": 70
@@ -105,7 +84,11 @@
                         }
                     ]
                 }
-            ]
+            ],
+            "notDue": {
+                "beforeDays": 28,
+                "message": "The Aristada injection is not yet due. Please consult the guidance on early dosing."
+            }
         }
     },
     "optgroupLabel": "Antipsychotics",
