@@ -53,7 +53,7 @@ function resolveLateTier(tiers: LateTier[], daysSince: number, dose?: string): G
         return tier.guidance;
     } catch (err) {
         console.error('[resolveLateTier] Failed to resolve tier for daysSince=%d dose=%s:', daysSince, dose, err);
-        return { idealSteps: '' };
+        return { idealSteps: [''] };
     }
 }
 

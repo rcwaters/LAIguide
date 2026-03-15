@@ -19,19 +19,25 @@
                         {
                             "maxDays": 20,
                             "guidance": {
-                                "idealSteps": "The injection is not yet overdue (less than 3 weeks since last administration). Please consult the early administration guidance."
+                                "idealSteps": [
+                                    "The injection is not yet overdue (less than 3 weeks since last administration). Please consult the early administration guidance."
+                                ]
                             }
                         },
                         {
                             "maxDays": 34,
                             "guidance": {
-                                "idealSteps": "**Administer the next injection**, regardless of the level of unregulated opioid use.\n\n*Note: If the patient reports active use of unregulated opioids, discuss a switch to Sublocade 300 mg and consult prescriber if the patient is interested.*"
+                                "idealSteps": [
+                                    "**Administer the next injection**, regardless of the level of unregulated opioid use.\n\n*Note: If the patient reports active use of unregulated opioids, discuss a switch to Sublocade 300 mg and consult prescriber if the patient is interested.*"
+                                ]
                             }
                         },
                         {
                             "maxDays": 41,
                             "guidance": {
-                                "idealSteps": "Conduct a fentanyl dependence assessment before administering:\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\nDetermine appropriate action:\n\n✔ **Administer** if client has \"minimal or no fentanyl dependence\" — *or* — client has taken at least **8 mg sublingual buprenorphine in the last 24 hours**.\n\n✔ **Administer** if client has moderate fentanyl dependence *and* is OK with the risk of some buprenorphine-induced withdrawal.\n\n✖ **Otherwise — consult prescriber** before administering.",
+                                "idealSteps": [
+                                    "Conduct a fentanyl dependence assessment before administering:\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\nDetermine appropriate action:\n\n✔ **Administer** if client has \"minimal or no fentanyl dependence\" — *or* — client has taken at least **8 mg sublingual buprenorphine in the last 24 hours**.\n\n✔ **Administer** if client has moderate fentanyl dependence *and* is OK with the risk of some buprenorphine-induced withdrawal.\n\n✖ **Otherwise — consult prescriber** before administering."
+                                ],
                                 "providerNotifications": [
                                     "Consult prescriber if patient does not meet minimal/no fentanyl dependence criteria and is not OK with withdrawal risk, or if unsure."
                                 ]
@@ -40,7 +46,9 @@
                         {
                             "maxDays": 55,
                             "guidance": {
-                                "idealSteps": "Conduct a fentanyl dependence assessment before administering:\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\nDetermine appropriate action:\n\n✔ **Administer** if client has \"minimal or no fentanyl dependence\" — *or* — client has taken at least **8 mg sublingual buprenorphine in the last 24 hours**.\n\n✖ **Otherwise — consult prescriber** before administering.",
+                                "idealSteps": [
+                                    "Conduct a fentanyl dependence assessment before administering:\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\nDetermine appropriate action:\n\n✔ **Administer** if client has \"minimal or no fentanyl dependence\" — *or* — client has taken at least **8 mg sublingual buprenorphine in the last 24 hours**.\n\n✖ **Otherwise — consult prescriber** before administering."
+                                ],
                                 "providerNotifications": [
                                     "Consult prescriber if patient does not meet minimal/no fentanyl dependence criteria or has not taken ≥8 mg sublingual buprenorphine in the last 24 hours."
                                 ]
@@ -49,7 +57,9 @@
                         {
                             "maxDays": null,
                             "guidance": {
-                                "idealSteps": "**Consult a prescriber in real-time** before administering. The goal is to avoid having the patient leave without guidance. You may consult the ORCA Center or medical director.",
+                                "idealSteps": [
+                                    "**Consult a prescriber in real-time** before administering. The goal is to avoid having the patient leave without guidance. You may consult the ORCA Center or medical director."
+                                ],
                                 "providerNotifications": [
                                     "Consult prescriber before any injection."
                                 ]
@@ -64,19 +74,25 @@
                         {
                             "maxDays": 20,
                             "guidance": {
-                                "idealSteps": "The injection is not yet overdue (less than 3 weeks since last administration). Please consult the early administration guidance."
+                                "idealSteps": [
+                                    "The injection is not yet overdue (less than 3 weeks since last administration). Please consult the early administration guidance."
+                                ]
                             }
                         },
                         {
                             "maxDays": 34,
                             "guidance": {
-                                "idealSteps": "**Administer the next injection**, regardless of the level of unregulated opioid use."
+                                "idealSteps": [
+                                    "**Administer the next injection**, regardless of the level of unregulated opioid use."
+                                ]
                             }
                         },
                         {
                             "maxDays": 48,
                             "guidance": {
-                                "idealSteps": "Conduct a fentanyl dependence assessment before administering:\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\nDetermine appropriate action:\n\n✔ **Administer** if client has \"minimal or no fentanyl dependence\" — *or* — client has taken at least **8 mg sublingual buprenorphine in the last 24 hours**.\n\n✔ **Administer** if client has moderate fentanyl dependence *and* is OK with the risk of some buprenorphine-induced withdrawal.\n\n✖ **Otherwise — consult prescriber** before administering.",
+                                "idealSteps": [
+                                    "Conduct a fentanyl dependence assessment before administering:\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\nDetermine appropriate action:\n\n✔ **Administer** if client has \"minimal or no fentanyl dependence\" — *or* — client has taken at least **8 mg sublingual buprenorphine in the last 24 hours**.\n\n✔ **Administer** if client has moderate fentanyl dependence *and* is OK with the risk of some buprenorphine-induced withdrawal.\n\n✖ **Otherwise — consult prescriber** before administering."
+                                ],
                                 "providerNotifications": [
                                     "Consult prescriber if patient does not meet minimal/no fentanyl dependence criteria and is not OK with withdrawal risk, or if unsure."
                                 ]
@@ -85,7 +101,9 @@
                         {
                             "maxDays": 55,
                             "guidance": {
-                                "idealSteps": "Conduct a fentanyl dependence assessment before administering:\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\nDetermine appropriate action:\n\n✔ **Administer** if client has \"minimal or no fentanyl dependence\" — *or* — client has taken at least **8 mg sublingual buprenorphine in the last 24 hours**.\n\n✖ **Otherwise — consult prescriber** before administering.",
+                                "idealSteps": [
+                                    "Conduct a fentanyl dependence assessment before administering:\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\nDetermine appropriate action:\n\n✔ **Administer** if client has \"minimal or no fentanyl dependence\" — *or* — client has taken at least **8 mg sublingual buprenorphine in the last 24 hours**.\n\n✖ **Otherwise — consult prescriber** before administering."
+                                ],
                                 "providerNotifications": [
                                     "Consult prescriber if patient does not meet minimal/no fentanyl dependence criteria or has not taken ≥8 mg sublingual buprenorphine in the last 24 hours."
                                 ]
@@ -94,7 +112,9 @@
                         {
                             "maxDays": null,
                             "guidance": {
-                                "idealSteps": "**Consult a prescriber in real-time** before administering. The goal is to avoid having the patient leave without guidance. You may consult the ORCA Center or medical director.",
+                                "idealSteps": [
+                                    "**Consult a prescriber in real-time** before administering. The goal is to avoid having the patient leave without guidance. You may consult the ORCA Center or medical director."
+                                ],
                                 "providerNotifications": [
                                     "Consult prescriber before any injection."
                                 ]
@@ -109,19 +129,25 @@
                         {
                             "maxDays": 20,
                             "guidance": {
-                                "idealSteps": "The injection is not yet overdue (less than 3 weeks since last administration). Please consult the early administration guidance."
+                                "idealSteps": [
+                                    "The injection is not yet overdue (less than 3 weeks since last administration). Please consult the early administration guidance."
+                                ]
                             }
                         },
                         {
                             "maxDays": 48,
                             "guidance": {
-                                "idealSteps": "**Administer the next injection**, regardless of the level of unregulated opioid use."
+                                "idealSteps": [
+                                    "**Administer the next injection**, regardless of the level of unregulated opioid use."
+                                ]
                             }
                         },
                         {
                             "maxDays": 55,
                             "guidance": {
-                                "idealSteps": "Conduct a fentanyl dependence assessment before administering:\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\nDetermine appropriate action:\n\n✔ **Administer** if client has \"minimal or no fentanyl dependence\" — *or* — client has taken at least **8 mg sublingual buprenorphine in the last 24 hours**.\n\n✔ **Administer** if client has moderate fentanyl dependence *and* is OK with the risk of some buprenorphine-induced withdrawal.\n\n✖ **Otherwise — consult prescriber** before administering.",
+                                "idealSteps": [
+                                    "Conduct a fentanyl dependence assessment before administering:\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\nDetermine appropriate action:\n\n✔ **Administer** if client has \"minimal or no fentanyl dependence\" — *or* — client has taken at least **8 mg sublingual buprenorphine in the last 24 hours**.\n\n✔ **Administer** if client has moderate fentanyl dependence *and* is OK with the risk of some buprenorphine-induced withdrawal.\n\n✖ **Otherwise — consult prescriber** before administering."
+                                ],
                                 "providerNotifications": [
                                     "Consult prescriber if patient does not meet minimal/no fentanyl dependence criteria and is not OK with withdrawal risk, or if unsure."
                                 ]
@@ -130,7 +156,9 @@
                         {
                             "maxDays": 69,
                             "guidance": {
-                                "idealSteps": "Conduct a fentanyl dependence assessment before administering:\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\nDetermine appropriate action:\n\n✔ **Administer** if client has \"minimal or no fentanyl dependence\" — *or* — client has taken at least **8 mg sublingual buprenorphine in the last 24 hours**.\n\n✖ **Otherwise — consult prescriber** before administering.",
+                                "idealSteps": [
+                                    "Conduct a fentanyl dependence assessment before administering:\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\nDetermine appropriate action:\n\n✔ **Administer** if client has \"minimal or no fentanyl dependence\" — *or* — client has taken at least **8 mg sublingual buprenorphine in the last 24 hours**.\n\n✖ **Otherwise — consult prescriber** before administering."
+                                ],
                                 "providerNotifications": [
                                     "Consult prescriber if patient does not meet minimal/no fentanyl dependence criteria or has not taken ≥8 mg sublingual buprenorphine in the last 24 hours."
                                 ]
@@ -139,7 +167,9 @@
                         {
                             "maxDays": null,
                             "guidance": {
-                                "idealSteps": "**Consult a prescriber in real-time** before administering. The goal is to avoid having the patient leave without guidance. You may consult the ORCA Center or medical director.",
+                                "idealSteps": [
+                                    "**Consult a prescriber in real-time** before administering. The goal is to avoid having the patient leave without guidance. You may consult the ORCA Center or medical director."
+                                ],
                                 "providerNotifications": [
                                     "Consult prescriber before any injection."
                                 ]

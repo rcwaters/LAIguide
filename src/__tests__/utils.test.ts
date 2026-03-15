@@ -103,4 +103,17 @@ describe('md', () => {
     it('returns a non-empty string for empty input', () => {
         expect(typeof md('')).toBe('string');
     });
+
+    it('renders single-element array without numbering', () => {
+        const output = md(['Single step']);
+        expect(output).toContain('<p>Single step</p>');
+        expect(output).not.toContain('1.');
+    });
+
+    it('renders multi-element array with numbering', () => {
+        const output = md(['First step', 'Second step']);
+        expect(output).toContain('<ol>');
+        expect(output).toContain('<li><p>First step</p>');
+        expect(output).toContain('<li><p>Second step</p>');
+    });
 });

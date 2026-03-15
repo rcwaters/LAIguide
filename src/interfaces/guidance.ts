@@ -2,7 +2,11 @@
 
 /** Standard three-part guidance returned by most late-injection functions. */
 export interface GuidanceResult {
-    idealSteps: string;
+    /**
+     * Ideal step-by-step guidance that may be rendered as multiple ordered
+     * items. Provided as an array to preserve ordering in structured UI.
+     */
+    idealSteps: string[];
     /** Omit when there are no meaningful pragmatic variations. */
     pragmaticVariations?: string[];
     /** Omit when no provider notification is needed; defaults to "No provider notification needed." */

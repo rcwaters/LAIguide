@@ -182,7 +182,7 @@ function infoRow(label: string, value: string): string {
 
 function threePartGuidance(guidance: GuidanceResult, common?: string[]): string {
     const hasPragmatic = !!guidance.pragmaticVariations?.length;
-    const idealTitle = hasPragmatic ? 'Ideal steps (if possible):' : 'Next steps:';
+    const idealTitle = hasPragmatic ? 'Ideal steps:' : 'Next steps:';
     const pragmaticBlock = hasPragmatic ? `
         <div class="guidance-content">
             <h3 class="guidance-heading">Acceptable pragmatic variations (if ideal is not possible):</h3>
