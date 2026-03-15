@@ -42,11 +42,19 @@ export function formatDate(dateString: string): string {
 // ─── Markdown renderer ────────────────────────────────────────────────────────
 
 /** Parse a Markdown string into an HTML string for safe innerHTML insertion. */
-export function md(text: string): string {
+export function md(text: string | string[]): string {
+    let input: string;
+    if (typeof text === 'string') {
+        input = text;
+    } else if (text.length === 1) {
+        input = text[0];
+    } else {
+        input = text.map((step, index) => `${index + 1}. ${step}`).join('\n\n');
+    }
     try {
-        return marked.parse(text) as string;
+        return marked.parse(input) as string;
     } catch (err) {
         console.error('[md] Failed to parse markdown:', err);
-        return text;
+        return input;
     }
 }

@@ -1,7 +1,7 @@
 import './styles.css';
 import { MED_REGISTRY } from './medLoader';
 import type { MedicationKey, FormGroupSpec, FieldSpec } from './interfaces/med';
-import type { SubmitContext, GuidanceResult, SupplementalGuidanceResult, CategoricalGuidanceResult } from './interfaces/guidance';
+import type { SubmitContext, GuidanceResult, SupplementalGuidanceResult } from './interfaces/guidance';
 import { md, daysSinceDate, formatDate } from './utils';
 import { NO_PROVIDER_NOTIFICATION, NO_SUPPLEMENTATION } from './constants';
 
@@ -156,9 +156,7 @@ export function handleSubmit(): void {
                    + entry.buildLateInfoRows(ctx, daysSince).map(([label, value]) => infoRow(label, value)).join('');
 
         let body: string;
-        if (entry.renderType === 'categorical') {
-            body = categoricalBody(guidance as CategoricalGuidanceResult);
-        } else if (entry.renderType === 'supplementation') {
+        if (entry.renderType === 'supplementation') {
             body = supplementationBody(guidance as SupplementalGuidanceResult, entry.commonProviderNotifications);
         } else {
             body = threePartGuidance(guidance as GuidanceResult, entry.commonProviderNotifications);
@@ -182,7 +180,7 @@ function infoRow(label: string, value: string): string {
 
 function threePartGuidance(guidance: GuidanceResult, common?: string[]): string {
     const hasPragmatic = !!guidance.pragmaticVariations?.length;
-    const idealTitle = hasPragmatic ? 'Ideal steps (if possible):' : 'Next steps:';
+    const idealTitle = hasPragmatic ? 'Ideal steps:' : 'Next steps:';
     const pragmaticBlock = hasPragmatic ? `
         <div class="guidance-content">
             <h3 class="guidance-heading">Acceptable pragmatic variations (if ideal is not possible):</h3>
@@ -331,21 +329,6 @@ function showEarlyGuidance(medication: string): void {
         </div>`;
 
     injectGuidanceSection(rows, body);
-}
-
-function categoricalBody(category: CategoricalGuidanceResult): string {
-    const textMap: Record<CategoricalGuidanceResult, string> = {
-        'early':   '<p>The Hafyera injection is not yet overdue. Please consult guidance on early dosing.</p>',
-        'on-time': '<p>Proceed with administering the Hafyera injection. Plan for the subsequent injection in 6 months.</p>',
-        'consult': `<p><strong>CONSULT PROVIDER REQUIRED</strong></p>
-                    <p>The patient is presenting more than 6 months and 3 weeks after the last Hafyera dose.</p>
-                    <p>Please consult a provider prior to proceeding with any injection.</p>`,
-    };
-    return `
-        <div class="guidance-content">
-            <h3 class="guidance-heading">Guidance:</h3>
-            <div class="guidance-text">${textMap[category]}</div>
-        </div>`;
 }
 
 function supplementationBody(guidance: SupplementalGuidanceResult, common?: string[]): string {

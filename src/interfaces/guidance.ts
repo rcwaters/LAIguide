@@ -2,18 +2,16 @@
 
 /** Standard three-part guidance returned by most late-injection functions. */
 export interface GuidanceResult {
-    idealSteps: string;
+    /**
+     * Ideal step-by-step guidance that may be rendered as multiple ordered
+     * items. Provided as an array to preserve ordering in structured UI.
+     */
+    idealSteps: string[];
     /** Omit when there are no meaningful pragmatic variations. */
     pragmaticVariations?: string[];
     /** Omit when no provider notification is needed; defaults to "No provider notification needed." */
     providerNotifications?: string[];
 }
-
-/**
- * Categorical output: the guidance decision is one of a small set of named
- * states (e.g. not-yet-due, proceeed, or consult-required).
- */
-export type CategoricalGuidanceResult = 'early' | 'on-time' | 'consult';
 
 /**
  * Supplemental output: the medication is overdue but the guidance may include
@@ -42,7 +40,9 @@ export interface StaticTier {
 export interface DoseVariantTier {
     type: 'dose-variant';
     maxDays: number;
-    guidanceByDose: Record<string, GuidanceResult>;
+    guidanceByDose?: Record<string, GuidanceResult>;
+    guidanceByDoseRules?: { doses: string[]; guidance: GuidanceResult }[];
+    defaultGuidance?: GuidanceResult;
 }
 
 export type LateTier = StaticTier | DoseVariantTier;

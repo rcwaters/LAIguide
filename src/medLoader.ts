@@ -1,4 +1,4 @@
-import type { LateTier, GuidanceResult, CategoricalGuidanceResult, SupplementalGuidanceResult, SubmitContext } from './interfaces/guidance';
+import type { LateTier, GuidanceResult, SupplementalGuidanceResult, SubmitContext } from './interfaces/guidance';
 import type { MedicationKey, LateGuidanceParams, RenderType, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition, RawTier, CoreDef } from './interfaces/med';
 import { DAYS_PER_MONTH } from './interfaces/med';
 import { daysSinceDate, formatDate, formatWeeksAndDays } from './utils';
@@ -33,8 +33,16 @@ export function composeEarlyGuidance(daysBeforeDue: number | undefined, minDays:
 
 function buildTier(raw: RawTier): LateTier {
     const maxDays = days(raw['maxDays'] as number | null);
-    if (raw['guidanceByDose'] != null) {
-        return { type: 'dose-variant', maxDays, guidanceByDose: raw['guidanceByDose'] as Record<string, GuidanceResult> };
+    if (raw['guidanceByDose'] != null || raw['guidanceByDoseRules'] != null) {
+        return {
+            type: 'dose-variant',
+            maxDays,
+            ...(raw['guidanceByDose'] != null ? { guidanceByDose: raw['guidanceByDose'] as Record<string, GuidanceResult> } : {}),
+            ...(raw['guidanceByDoseRules'] != null ? {
+                guidanceByDoseRules: raw['guidanceByDoseRules'] as { doses: string[]; guidance: GuidanceResult }[],
+                ...(raw['defaultGuidance'] != null ? { defaultGuidance: raw['defaultGuidance'] as GuidanceResult } : {}),
+            } : {}),
+        };
     }
     return { type: 'static', maxDays, guidance: raw['guidance'] as GuidanceResult };
 }
@@ -45,15 +53,28 @@ function resolveLateTier(tiers: LateTier[], daysSince: number, dose?: string): G
     try {
         const tier = tiers.find(t => daysSince <= t.maxDays) ?? tiers[tiers.length - 1];
         if (tier.type === 'dose-variant') {
-            if (!dose || !(dose in tier.guidanceByDose)) {
-                console.error('[resolveLateTier] Missing or unknown dose:', dose, '— available:', Object.keys(tier.guidanceByDose));
+            if (tier.guidanceByDoseRules) {
+                const matched = tier.guidanceByDoseRules.find(rule => dose != null && rule.doses.includes(dose));
+                if (matched) return matched.guidance;
+                if (tier.defaultGuidance) return tier.defaultGuidance;
+                console.error(
+                    '[resolveLateTier] Missing or unknown dose for rules:',
+                    dose,
+                    '— available:',
+                    tier.guidanceByDoseRules.flatMap(r => r.doses),
+                );
+                return { idealSteps: [''] };
+            }
+            if (!tier.guidanceByDose || !dose || !(dose in tier.guidanceByDose)) {
+                console.error('[resolveLateTier] Missing or unknown dose:', dose, '— available:', Object.keys(tier.guidanceByDose ?? {}));
+                return { idealSteps: [''] };
             }
             return tier.guidanceByDose[dose!];
         }
         return tier.guidance;
     } catch (err) {
         console.error('[resolveLateTier] Failed to resolve tier for daysSince=%d dose=%s:', daysSince, dose, err);
-        return { idealSteps: '' };
+        return { idealSteps: [''] };
     }
 }
 
@@ -109,16 +130,6 @@ function buildCoreDef(json: any): CoreDef {
                     ? resolveLateTier(initTiers, daysSince!)
                     : resolveLateTier(maintTiers, daysSince!, dose),
             };
-        }
-
-        case 'hafyera': {
-            const earlyMaxDays  = lg['earlyMaxDays']  as number;
-            const onTimeMaxDays = lg['onTimeMaxDays'] as number;
-            return { ...base, getLateGuidance: ({ daysSince }): CategoricalGuidanceResult => {
-                if (daysSince! <= earlyMaxDays)  return 'early';
-                if (daysSince! <= onTimeMaxDays) return 'on-time';
-                return 'consult';
-            }};
         }
 
         case 'abilify': {
