@@ -13,40 +13,44 @@
             "daysBeforeDue": 14
         },
         "late": {
-            "tiers": [
+            "variants": [
                 {
-                    "maxDays": 180,
-                    "guidance": {
-                        "idealSteps": [
-                            "Please refer to the early dosing guidance."
-                        ]
-                    }
-                },
-                {
-                    "maxDays": 202,
-                    "guidance": {
-                        "idealSteps": [
-                            "Proceed with administering the Hafyera injection.",
-                            "Plan for the subsequent injection in 6 months."
-                        ]
-                    }
-                },
-                {
-                    "maxDays": null,
-                    "guidance": {
-                        "idealSteps": [
-                            "The patient is presenting more than 6 months and 3 weeks after the last Hafyera dose. Consult provider prior to proceeding with any injection."
-                        ],
-                        "providerNotifications": [
-                            "**Before any injection:** Consult provider"
-                        ]
-                    }
+                    "key": "default",
+                    "tiers": [
+                        {
+                            "maxDays": 180,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Please refer to the early dosing guidance."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": 202,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Proceed with administering the Hafyera injection.",
+                                    "Plan for the subsequent injection in 6 months."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": null,
+                            "guidance": {
+                                "idealSteps": [
+                                    "The patient is presenting more than 6 months and 3 weeks after the last Hafyera dose. Consult provider prior to proceeding with any injection."
+                                ],
+                                "providerNotifications": [
+                                    "**Before any injection:** Consult provider"
+                                ]
+                            }
+                        }
+                    ]
                 }
             ]
         }
     },
     "optgroupLabel": "Antipsychotics",
-    "renderType": "three-part",
     "formGroupsSpec": [
         {
             "groupId": "hafyera-fields",

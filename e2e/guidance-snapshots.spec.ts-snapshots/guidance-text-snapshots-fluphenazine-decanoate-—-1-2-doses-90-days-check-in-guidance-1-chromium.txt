@@ -12,7 +12,7 @@ When to notify provider:
 
 Pre-injection: Consult provider only if fluphenazine decanoate dose is greater than 50 mg.
 
-Post-injection: Notify provider of the situation and request an order for oral supplementation if needed (returned or worsened psychosis symptoms).
+Post-injection: Notify provider of the situation and request an order for oral supplementation if needed.
 
 New side effects from recent injection
 

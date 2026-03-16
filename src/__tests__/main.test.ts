@@ -730,15 +730,16 @@ describe('handleSubmit — guidance rendering', () => {
     test('aristada late guidance uses Next steps heading format', () => {
         setField('medication', 'aristada');
         setField('guidance-type', 'late');
-        setField('last-aristada', daysAgo(50));
+        setField('last-aristada', daysAgo(90));
         setField('aristada-dose', '662');
         handleSubmit();
 
         const headings = Array.from(document.querySelectorAll('.guidance-heading')).map(h => h.textContent ?? '');
         expect(headings).toContain('Next steps:');
+        expect(headings).not.toContain('Recommended supplementation:');
 
-        const guidanceText = Array.from(document.querySelectorAll('.guidance-text')).map(n => n.textContent ?? '').join(' ');
-        expect(guidanceText).toContain('Administer the usual Aristada dose as soon as possible, then assess the need for supplementation.');
+        const guidanceText = Array.from(document.querySelectorAll('.guidance-text, .guidance-content li')).map(n => n.textContent ?? '').join(' ');
+        expect(guidanceText).toContain('Administer the usual dose as soon as possible. Supplement oral aripiprazole for 21 days');
     });
 
     // ── Haloperidol Decanoate early: dual constraint (daysBeforeDue=2, minDays=14) ──

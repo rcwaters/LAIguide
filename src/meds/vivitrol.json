@@ -128,7 +128,6 @@
         }
     },
     "optgroupLabel": "Addiction Medicine",
-    "renderType": "three-part",
     "formGroupsSpec": [
         {
             "groupId": "vivitrol-fields",

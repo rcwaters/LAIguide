@@ -19,6 +19,14 @@
                     "key": "1-2",
                     "tiers": [
                         {
+                            "maxDays": 27,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Dose not yet due. Please consult the fluphenazine early administration guidance."
+                                ]
+                            }
+                        },
+                        {
                             "maxDays": 120,
                             "guidance": {
                                 "idealSteps": [
@@ -28,7 +36,7 @@
                                 ],
                                 "providerNotifications": [
                                     "**Pre-injection:** Consult provider only if fluphenazine decanoate dose is greater than 50 mg.",
-                                    "**Post-injection:** Notify provider of the situation and request an order for oral supplementation if needed (returned or worsened psychosis symptoms)."
+                                    "**Post-injection:** Notify provider of the situation and request an order for oral supplementation if needed."
                                 ]
                             }
                         },
@@ -49,7 +57,15 @@
                     "key": "3+",
                     "tiers": [
                         {
-                            "maxDays": 41,
+                            "maxDays": 27,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Dose not yet due. Please consult the fluphenazine early administration guidance."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": 42,
                             "guidance": {
                                 "idealSteps": [
                                     "Administer usual fluphenazine decanoate injection.",
@@ -89,7 +105,6 @@
         }
     },
     "optgroupLabel": "Antipsychotics",
-    "renderType": "three-part",
     "formGroupsSpec": [
         {
             "groupId": "fluphenazine-fields",

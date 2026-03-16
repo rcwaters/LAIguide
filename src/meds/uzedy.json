@@ -14,69 +14,39 @@
             "minDays": 21
         },
         "late": {
-            "tiers": [
+            "variants": [
                 {
-                    "maxDays": 27,
-                    "guidance": {
-                        "idealSteps": [
-                            "Uzedy is not yet due. Please consult the Uzedy early administration guidance."
-                        ]
-                    }
-                },
-                {
-                    "maxDays": 119,
-                    "guidance": {
-                        "idealSteps": [
-                            "Administer usual Uzedy maintenance dose (unless it is not yet due, in which case consult the early administration guidance). Then arrange for the next injection at the usual dosing interval."
-                        ],
-                        "providerNotifications": [
-                            "After the injection, notify the provider as an FYI on the injection timing."
-                        ]
-                    }
-                },
-                {
-                    "maxDays": 180,
-                    "guidance": {
-                        "idealSteps": [
-                            "Administer usual Uzedy maintenance dose",
-                            "Arrange for care team to check in with patient within 1-2 days, to assess for sedation",
-                            "Next injection at usual dosing interval"
-                        ],
-                        "providerNotifications": [
-                            "After the injection, notify the provider as an FYI on the injection timing."
-                        ]
-                    }
-                },
-                {
-                    "maxDays": null,
-                    "guidanceByDoseRules": [
+                    "key": "default",
+                    "tiers": [
                         {
-                            "doses": [
-                                "150-or-less"
-                            ],
+                            "maxDays": 27,
                             "guidance": {
                                 "idealSteps": [
-                                    "Administer usual Uzedy maintenance dose (150 mg or less)",
-                                    "Arrange for care team to check in with patient within 1-2 days, to assess for sedation",
-                                    "Next injection at usual dosing interval"
-                                ],
-                                "providerNotifications": [
-                                    "After the injection, notify the provider as an FYI on the injection timing."
+                                    "Uzedy is not yet due. Please consult the Uzedy early administration guidance."
                                 ]
                             }
                         },
                         {
-                            "doses": [
-                                "200-or-more"
-                            ],
+                            "maxDays": 119,
                             "guidance": {
                                 "idealSteps": [
-                                    "Try to contact prescriber for discussion on whether this person is at risk for sedation or other severe antipsychotic adverse events",
-                                    "If prescriber cannot be reached, administer approximately 150 mg of the injection. Example: the typical injection is 200 mg; administer approximately ¾ of the medication",
-                                    "Arrange for care team to check in with patient within 1-2 days, to assess for sedation"
+                                    "Administer usual Uzedy maintenance dose (unless it is not yet due, in which case consult the early administration guidance)",
+                                    "Arrange for the next injection at the usual dosing interval."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": null,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Guidance for providers:",
+                                    "Administer usual Uzedy maintenance dose (150 mg or less), otherwise",
+                                    "If dose > 150 mg, administer aproximately 150 mg. Example: the typical injection is 200 mg; administer approximately ¾ of the medication (purpose: to reduce risk of sedation)",
+                                    "Arrange for care team to check in with patient within 1-2 days, to assess for sedation",
+                                    "Next injection at usual dosing interval"
                                 ],
                                 "providerNotifications": [
-                                    "If not already contacted, notify the provider after the injection to get guidance on next steps."
+                                    "Consult provider prior to any injection"
                                 ]
                             }
                         }
@@ -86,7 +56,6 @@
         }
     },
     "optgroupLabel": "Antipsychotics",
-    "renderType": "three-part",
     "formGroupsSpec": [
         {
             "groupId": "uzedy-fields",
