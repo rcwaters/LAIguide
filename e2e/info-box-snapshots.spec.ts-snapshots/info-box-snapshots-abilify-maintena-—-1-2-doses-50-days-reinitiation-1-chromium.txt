@@ -1,5 +1,5 @@
 Medication: Abilify Maintena (aripiprazole)
-Guidance Type: Late/Overdue Administration Guidance
+Guidance Type: Late/Overdue Administration
 Date of last injection: November 26, 2025
 Prior consecutive doses: 1 or 2 monthly doses
 Time since last injection: 50 days (7 weeks and 1 day)

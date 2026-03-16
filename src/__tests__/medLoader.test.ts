@@ -835,6 +835,120 @@ describe('getHaloperidolDecanoateGuidance', () => {
     });
 });
 
+// ─── getBrixadiGuidance ──────────────────────────────────────────────────
+function getBrixadiGuidance(days: number, variant: string): GuidanceResult {
+    return MED_REGISTRY['brixadi'].getLateGuidance({ daysSince: days, variant }) as GuidanceResult;
+}
+
+describe('getBrixadiGuidance', () => {
+    describe('monthly (64/96/128 mg) — 5 tiers', () => {
+        it('≤20 days: not yet overdue', () => {
+            const r = getBrixadiGuidance(20, 'monthly-64');
+            expect(r.idealSteps.some(s => s.includes('not yet overdue'))).toBe(true);
+            expect(r.providerNotifications).toBeUndefined();
+        });
+
+        it('21–34 days: administer regardless', () => {
+            const r = getBrixadiGuidance(30, 'monthly-64');
+            expect(r.idealSteps.some(s => s.includes('Administer the next injection'))).toBe(true);
+            expect(r.idealSteps.some(s => s.includes('regardless of the level of unregulated opioid use'))).toBe(true);
+            expect(r.providerNotifications).toBeUndefined();
+        });
+
+        it('35–41 days: fentanyl assessment (moderate dependence OK)', () => {
+            const r = getBrixadiGuidance(38, 'monthly-64');
+            expect(r.idealSteps.some(s => s.includes('Conduct a fentanyl dependence assessment'))).toBe(true);
+            expect(r.idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(true);
+            expect(hasNotif(r.providerNotifications, 'Consult prescriber if patient does not meet')).toBe(true);
+        });
+
+        it('42–55 days: fentanyl assessment (must meet criteria or 8 mg subl)', () => {
+            const r = getBrixadiGuidance(50, 'monthly-64');
+            expect(r.idealSteps.some(s => s.includes('Conduct a fentanyl dependence assessment'))).toBe(true);
+            expect(r.idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(false);
+            expect(r.idealSteps.some(s => s.includes('8 mg sublingual buprenorphine in the last 24 hours'))).toBe(true);
+            expect(hasNotif(r.providerNotifications, 'has not taken ≥8 mg sublingual buprenorphine in the last 24 hours')).toBe(true);
+        });
+
+        it('56+ days: consult prescriber in real-time', () => {
+            const r = getBrixadiGuidance(70, 'monthly-64');
+            expect(r.idealSteps.some(s => s.includes('Consult a prescriber in real-time'))).toBe(true);
+            expect(hasNotif(r.providerNotifications, 'Consult prescriber before any injection')).toBe(true);
+        });
+
+        it('exact tier boundaries: 20/21, 34/35, 41/42, 55/56', () => {
+            expect(getBrixadiGuidance(20, 'monthly-64').idealSteps.some(s => s.includes('not yet overdue'))).toBe(true);
+            expect(getBrixadiGuidance(21, 'monthly-64').idealSteps.some(s => s.includes('Administer the next injection'))).toBe(true);
+            expect(getBrixadiGuidance(34, 'monthly-64').idealSteps.some(s => s.includes('Administer the next injection'))).toBe(true);
+            expect(getBrixadiGuidance(35, 'monthly-64').idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(true);
+            expect(getBrixadiGuidance(41, 'monthly-64').idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(true);
+            expect(getBrixadiGuidance(42, 'monthly-64').idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(false);
+            expect(getBrixadiGuidance(55, 'monthly-64').idealSteps.some(s => s.includes('8 mg sublingual buprenorphine in the last 24 hours'))).toBe(true);
+            expect(getBrixadiGuidance(56, 'monthly-64').idealSteps.some(s => s.includes('Consult a prescriber in real-time'))).toBe(true);
+        });
+
+        it('monthly-96 and monthly-128 use same tiers as monthly-64 (sameAs)', () => {
+            const r64  = getBrixadiGuidance(30, 'monthly-64');
+            const r96  = getBrixadiGuidance(30, 'monthly-96');
+            const r128 = getBrixadiGuidance(30, 'monthly-128');
+            expect(r96.idealSteps).toEqual(r64.idealSteps);
+            expect(r128.idealSteps).toEqual(r64.idealSteps);
+        });
+    });
+
+    describe('weekly (24 mg / 32 mg) — 3 tiers', () => {
+        it('≤6 days: not yet due', () => {
+            const r = getBrixadiGuidance(6, 'weekly');
+            expect(r.idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+            expect(r.idealSteps.some(s => s.includes('early administration guidance'))).toBe(true);
+            expect(r.providerNotifications).toBeUndefined();
+        });
+
+        it('7–9 days: administer per standing order', () => {
+            const r = getBrixadiGuidance(8, 'weekly');
+            expect(r.idealSteps.some(s => s.includes('Administer the weekly Brixadi injection'))).toBe(true);
+            expect(r.idealSteps.some(s => s.includes('9 days'))).toBe(true);
+        });
+
+        it('10+ days: prescriber guidance required', () => {
+            const r = getBrixadiGuidance(15, 'weekly');
+            expect(r.idealSteps.some(s => s.includes('more than 9 days overdue'))).toBe(true);
+            expect(hasNotif(r.providerNotifications, 'Contact prescriber for guidance')).toBe(true);
+        });
+
+        it('exact boundaries: day 6/7 and day 9/10', () => {
+            expect(getBrixadiGuidance(6,  'weekly').idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+            expect(getBrixadiGuidance(7,  'weekly').idealSteps.some(s => s.includes('Administer the weekly Brixadi injection'))).toBe(true);
+            expect(getBrixadiGuidance(9,  'weekly').idealSteps.some(s => s.includes('Administer the weekly Brixadi injection'))).toBe(true);
+            expect(getBrixadiGuidance(10, 'weekly').idealSteps.some(s => s.includes('more than 9 days overdue'))).toBe(true);
+        });
+    });
+
+    describe('date-derived boundaries (via buildLateParams)', () => {
+        const entry = MED_REGISTRY['brixadi'];
+
+        it('monthly-64: day 20 → not due; day 21 → administer; day 35 → fentanyl assessment; day 56 → prescriber', () => {
+            const p20 = entry.buildLateParams({ 'last-brixadi': localDaysAgo(20), 'brixadi-type': 'monthly-64' });
+            const p21 = entry.buildLateParams({ 'last-brixadi': localDaysAgo(21), 'brixadi-type': 'monthly-64' });
+            const p35 = entry.buildLateParams({ 'last-brixadi': localDaysAgo(35), 'brixadi-type': 'monthly-64' });
+            const p56 = entry.buildLateParams({ 'last-brixadi': localDaysAgo(56), 'brixadi-type': 'monthly-64' });
+            expect((entry.getLateGuidance(p20) as GuidanceResult).idealSteps.some(s => s.includes('not yet overdue'))).toBe(true);
+            expect((entry.getLateGuidance(p21) as GuidanceResult).idealSteps.some(s => s.includes('Administer the next injection'))).toBe(true);
+            expect((entry.getLateGuidance(p35) as GuidanceResult).idealSteps.some(s => s.includes('Conduct a fentanyl dependence assessment'))).toBe(true);
+            expect((entry.getLateGuidance(p56) as GuidanceResult).idealSteps.some(s => s.includes('Consult a prescriber in real-time'))).toBe(true);
+        });
+
+        it('weekly: day 6 → not due; day 7 → administer; day 10 → prescriber guidance', () => {
+            const p6  = entry.buildLateParams({ 'last-brixadi': localDaysAgo(6),  'brixadi-type': 'weekly' });
+            const p7  = entry.buildLateParams({ 'last-brixadi': localDaysAgo(7),  'brixadi-type': 'weekly' });
+            const p10 = entry.buildLateParams({ 'last-brixadi': localDaysAgo(10), 'brixadi-type': 'weekly' });
+            expect((entry.getLateGuidance(p6)  as GuidanceResult).idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+            expect((entry.getLateGuidance(p7)  as GuidanceResult).idealSteps.some(s => s.includes('Administer the weekly Brixadi injection'))).toBe(true);
+            expect((entry.getLateGuidance(p10) as GuidanceResult).idealSteps.some(s => s.includes('more than 9 days overdue'))).toBe(true);
+        });
+    });
+});
+
 // ─── guidance.shared.providerNotifications — loader ──────────────────────────
 
 describe('guidance.shared.providerNotifications — loader', () => {
@@ -1191,5 +1305,54 @@ describe('buildCoreDef — sameAs variant deduplication', () => {
         // buildVariantMap processes own-tiers first, then sameAs, so 662 always exists when 882 aliases it
         const r = MED_REGISTRY['aristada'].getLateGuidance({ daysSince: 90, dose: '882' });
         expect(r.idealSteps.length).toBeGreaterThan(0);
+    });
+});
+
+// ─── buildCoreDef — earlyParamField / earlyDateField / earlyVariantMap ────────
+
+describe('buildCoreDef — earlyVariantMap (Brixadi)', () => {
+    it('earlyParamField is set from earlySpec.paramField', () => {
+        expect(MED_REGISTRY['brixadi'].earlyParamField).toBe('brixadi-type');
+    });
+
+    it('earlyDateField is set from earlySpec.dateField', () => {
+        expect(MED_REGISTRY['brixadi'].earlyDateField).toBe('last-brixadi');
+    });
+
+    it('earlyVariantMap is populated for all four Brixadi variants', () => {
+        const vm = MED_REGISTRY['brixadi'].earlyVariantMap!;
+        expect(vm).toBeDefined();
+        expect(Object.keys(vm)).toEqual(expect.arrayContaining(['monthly-64', 'monthly-96', 'monthly-128', 'weekly']));
+    });
+
+    it('monthly-64 variant has minDays 21', () => {
+        expect(MED_REGISTRY['brixadi'].earlyVariantMap!['monthly-64'].minDays).toBe(21);
+    });
+
+    it('monthly-96 sameAs monthly-64: still has minDays 21', () => {
+        expect(MED_REGISTRY['brixadi'].earlyVariantMap!['monthly-96'].minDays).toBe(21);
+    });
+
+    it('monthly-128 sameAs monthly-64: still has minDays 21', () => {
+        expect(MED_REGISTRY['brixadi'].earlyVariantMap!['monthly-128'].minDays).toBe(21);
+    });
+
+    it('monthly-96 and monthly-64 share the same object reference (sameAs deduplication)', () => {
+        const vm = MED_REGISTRY['brixadi'].earlyVariantMap!;
+        expect(vm['monthly-96']).toBe(vm['monthly-64']);
+        expect(vm['monthly-128']).toBe(vm['monthly-64']);
+    });
+
+    it('weekly variant has noGuidanceMessage and no minDays', () => {
+        const weekly = MED_REGISTRY['brixadi'].earlyVariantMap!['weekly'];
+        expect(weekly.noGuidanceMessage).toContain('does not exist at this time');
+        expect(weekly.minDays).toBeUndefined();
+    });
+
+    it('earlyParamField and earlyVariantMap are absent for non-variant-aware meds', () => {
+        expect(MED_REGISTRY['abilify_maintena'].earlyParamField).toBeUndefined();
+        expect(MED_REGISTRY['abilify_maintena'].earlyVariantMap).toBeUndefined();
+        expect(MED_REGISTRY['sublocade'].earlyParamField).toBeUndefined();
+        expect(MED_REGISTRY['uzedy'].earlyParamField).toBeUndefined();
     });
 });

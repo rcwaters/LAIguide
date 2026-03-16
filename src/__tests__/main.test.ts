@@ -617,12 +617,13 @@ describe('handleSubmit — guidance rendering', () => {
         });
     });
 
-    // ── Brixadi early: single constraint (minDays=21) ──
-    describe('brixadi early — single constraint (minDays=21)', () => {
-        function submitEarly(daysSinceLast: number): void {
+    // ── Brixadi early: monthly variant (minDays=21) ──
+    describe('brixadi early — monthly variant (minDays=21)', () => {
+        function submitEarly(daysSinceLast: number, variant = 'monthly-64'): void {
             setField('medication', 'brixadi');
             setField('guidance-type', 'early');
-            setField('last-injection-date', daysAgo(daysSinceLast));
+            setField('brixadi-type', variant);
+            setField('last-brixadi', daysAgo(daysSinceLast));
             handleSubmit();
         }
 
@@ -652,6 +653,21 @@ describe('handleSubmit — guidance rendering', () => {
             setupDOM();
             submitEarly(20);
             expect(resultText()).toContain('Too early to administer');
+        });
+
+        test('monthly-96 sameAs monthly-64: 21 days → allowed', () => {
+            submitEarly(21, 'monthly-96');
+            expect(resultText()).toContain('Early administration is allowed');
+        });
+
+        test('weekly variant: shows no-guidance message', () => {
+            setField('medication', 'brixadi');
+            setField('guidance-type', 'early');
+            setField('brixadi-type', 'weekly');
+            handleSubmit();
+            expectGuidanceRendered();
+            expect(document.querySelector('.guidance-content')!.textContent)
+                .toContain('does not exist at this time');
         });
     });
 

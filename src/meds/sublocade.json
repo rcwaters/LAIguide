@@ -13,7 +13,7 @@
             "variants": [
                 {
                     "key": "100mg",
-                    "_comment": "Standard monthly tiers — same threshold structure as Brixadi monthly",
+                    "internalNotes": ["Standard monthly tiers — same threshold structure as Brixadi monthly"],
                     "tiers": [
                         {
                             "maxDays": 20,
@@ -68,7 +68,7 @@
                 },
                 {
                     "key": "300mg-few",
-                    "_comment": "300 mg with few prior doses: longer window to administer regardless, then conditional",
+                    "internalNotes": ["300 mg with few prior doses: longer window to administer regardless, then conditional"],
                     "tiers": [
                         {
                             "maxDays": 20,
@@ -123,7 +123,7 @@
                 },
                 {
                     "key": "300mg-established",
-                    "_comment": "300 mg well-established: widest administer-regardless window before conditional tiers",
+                    "internalNotes": ["300 mg well-established: widest administer-regardless window before conditional tiers"],
                     "tiers": [
                         {
                             "maxDays": 20,

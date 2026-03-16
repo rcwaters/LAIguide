@@ -1,4 +1,4 @@
 Medication: Invega Hafyera (paliperidone palmitate 6-month)
-Guidance Type: Late/Overdue Administration Guidance
+Guidance Type: Late/Overdue Administration
 Date of last Hafyera injection: June 19, 2025
 Time since last injection: 210 days (30 weeks)

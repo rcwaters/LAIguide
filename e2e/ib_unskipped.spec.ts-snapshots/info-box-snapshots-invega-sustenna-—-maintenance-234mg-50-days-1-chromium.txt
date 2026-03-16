@@ -1,5 +1,5 @@
 Medication: Invega Sustenna (paliperidone palmitate)
-Guidance Type: Late/Overdue Administration Guidance
+Guidance Type: Late/Overdue Administration
 Injection Type: Missed/delayed monthly maintenance injection
 Date of last maintenance injection: November 26, 2025
 Monthly maintenance dose: 234 mg

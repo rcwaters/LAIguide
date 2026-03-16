@@ -33,6 +33,16 @@ export type InfoRowSpec =
     | { label: string; field: string; format: 'date' | 'option-label' }        // field value
     | { label: string; format: 'days-weeks' | 'days-months' | 'days-weeks-months' }; // computed time
 
+// ─── Early variant support ──────────────────────────────────────────────────
+
+/** Definition for a single early-guidance variant (e.g. monthly vs. weekly). */
+export interface EarlyVariantDef {
+    /** Minimum days since last injection required for early administration. */
+    minDays?: number;
+    /** If set, early guidance is not applicable — display this message instead. */
+    noGuidanceMessage?: string;
+}
+
 /** Auto-derives validateLate / buildLateParams / buildLateInfoRows from JSON data */
 export interface LateSpec {
     requiredFields:     { id: string; message: string }[];
@@ -67,6 +77,15 @@ export interface MedDefinition {
     earlyProviderNotification?: string[];
     /** Bullet points shown in BOTH early and late provider-notification sections. */
     commonProviderNotifications?: string[];
+    /**
+     * When set, early guidance is variant-aware. This is the form field ID
+     * (select) used to choose the variant (e.g. monthly vs. weekly).
+     */
+    earlyParamField?: string;
+    /** Form field ID for the last injection date when earlyParamField is used. */
+    earlyDateField?: string;
+    /** Maps each variant key to its early-guidance definition. */
+    earlyVariantMap?: Record<string, EarlyVariantDef>;
     getLateGuidance(params: LateGuidanceParams): GuidanceResult;
 
     // UI config: used by main.ts to generically handle form interaction
@@ -93,7 +112,7 @@ export type RawTier = Record<string, unknown>;
 export type VariantEntry = { key: string; tiers?: RawTier[]; sameAs?: string };
 
 /** Internal: the core fields built by buildCoreDef. */
-export type CoreDef = Pick<MedDefinition, 'displayName' | 'earlyGuidance' | 'earlyDaysBeforeDue' | 'earlyMinDays' | 'earlyProviderNotification' | 'commonProviderNotifications' | 'getLateGuidance'>;
+export type CoreDef = Pick<MedDefinition, 'displayName' | 'earlyGuidance' | 'earlyDaysBeforeDue' | 'earlyMinDays' | 'earlyProviderNotification' | 'commonProviderNotifications' | 'earlyParamField' | 'earlyDateField' | 'earlyVariantMap' | 'getLateGuidance'>;
 
 /** Average days per month (365.25 / 12). */
 export const DAYS_PER_MONTH = 30.44;
