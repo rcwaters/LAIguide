@@ -1,5 +1,5 @@
 import type { LateTier, GuidanceResult, SubmitContext } from './interfaces/guidance';
-import type { MedicationKey, LateGuidanceParams, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition, RawTier, CoreDef } from './interfaces/med';
+import type { MedicationKey, LateGuidanceParams, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition, RawTier, CoreDef, VariantEntry } from './interfaces/med';
 import { DAYS_PER_MONTH } from './interfaces/med';
 import { daysSinceDate, formatDate, formatWeeksAndDays } from './utils';
 
@@ -49,7 +49,7 @@ function buildTier(raw: RawTier): LateTier {
 
 function buildTiers(raws: RawTier[]): LateTier[] { return raws.map(buildTier); }
 
-type VariantEntry = { key: string; tiers?: RawTier[]; sameAs?: string };
+/** Builds a variant→tiers map; entries with `sameAs` reuse another variant's built value (avoids duplication in JSON). */
 function buildVariantMap<T>(variants: VariantEntry[], build: (tiers: RawTier[]) => T): Record<string, T> {
     const map: Record<string, T> = {};
     for (const v of variants) { if (v.tiers)  map[v.key] = build(v.tiers); }
@@ -107,7 +107,6 @@ function buildCoreDef(json: any): CoreDef {
 
     if (!lg['variants']) throw new Error(`No variants in late guidance for ${json.key}`);
 
-    // variants with a `sameAs` key reuse another variant's tiers (avoids duplication in JSON)
     const variants = lg['variants'] as VariantEntry[];
 
     const tiersMap = buildVariantMap(variants, buildTiers);

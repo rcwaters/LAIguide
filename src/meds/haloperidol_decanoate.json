@@ -20,17 +20,25 @@
                     "key": "1-3",
                     "tiers": [
                         {
+                            "maxDays": 27,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Dose not yet due. Please consult the haloperidol decanoate early administration guidance."
+                                ]
+                            }
+                        },
+                        {
                             "maxDays": 84,
                             "guidance": {
                                 "idealSteps": [
-                                    "Administer usual haloperidol decanoate injection **if the dose is 200 mg or less**.",
-                                    "> If the dose is greater than 200 mg, consult provider *before* administering.",
+                                    "Administer usual haloperidol decanoate injection **if the dose is 200 mg or less**, otherwise",
+                                    "If the dose is greater than 200 mg, consult provider *before* administering.",
                                     "If symptoms of psychosis have returned or worsened, recommend oral haloperidol supplementation (consult provider for order).",
                                     "Schedule a check-in with patient in **6–7 days** (near peak dose) to assess for haloperidol-related adverse effects."
                                 ],
                                 "providerNotifications": [
                                     "**Pre-injection:** Consult provider only if haloperidol decanoate dose is greater than 200 mg.",
-                                    "**Post-injection:** Notify provider of the situation and request an order for oral supplementation if needed (returned or worsened psychosis symptoms)."
+                                    "**Post-injection:** Notify provider of the situation and request an order for oral supplementation if needed."
                                 ]
                             }
                         },
@@ -51,6 +59,14 @@
                     "key": "4+",
                     "tiers": [
                         {
+                            "maxDays": 27,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Dose not yet due. Please consult the haloperidol decanoate early administration guidance."
+                                ]
+                            }
+                        },
+                        {
                             "maxDays": 41,
                             "guidance": {
                                 "idealSteps": [
@@ -64,13 +80,13 @@
                             "guidance": {
                                 "idealSteps": [
                                     "Administer usual haloperidol decanoate injection **if the dose is 200 mg or less**.",
-                                    "> If the dose is greater than 200 mg, consult provider *before* administering.",
+                                    "If the dose is greater than 200 mg, consult provider *before* administering.",
                                     "If symptoms of psychosis have returned or worsened, recommend oral haloperidol supplementation (consult provider for order).",
                                     "Schedule a check-in with patient in **6–7 days** (near peak dose) to assess for haloperidol-related adverse effects."
                                 ],
                                 "providerNotifications": [
                                     "**Pre-injection:** Consult provider only if haloperidol decanoate dose is greater than 200 mg.",
-                                    "**Post-injection:** Notify provider of the situation and request an order for oral supplementation if needed (returned or worsened psychosis symptoms)."
+                                    "**Post-injection:** Notify provider of the situation and request an order for oral supplementation if needed."
                                 ]
                             }
                         },

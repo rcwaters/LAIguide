@@ -1,6 +1,6 @@
 Next steps:
 
-Administer usual haloperidol decanoate injection if the dose is 200 mg or less.
+Administer usual haloperidol decanoate injection if the dose is 200 mg or less, otherwise
 
 If the dose is greater than 200 mg, consult provider before administering.
 
@@ -14,7 +14,7 @@ When to notify provider:
 
 Pre-injection: Consult provider only if haloperidol decanoate dose is greater than 200 mg.
 
-Post-injection: Notify provider of the situation and request an order for oral supplementation if needed (returned or worsened psychosis symptoms).
+Post-injection: Notify provider of the situation and request an order for oral supplementation if needed.
 
 Albumin is < 3.0 or total bilirubin is > 1.5 and if this is not known to the prescriber
 

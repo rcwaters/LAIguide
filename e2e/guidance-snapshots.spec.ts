@@ -111,6 +111,24 @@ test.describe('guidance text snapshots', () => {
         await snapshotGuidance(page);
     });
 
+    test('haloperidol_decanoate — 1-3 doses, 20 days (not yet due)', async ({ page }) => {
+        await selectField(page, 'medication', 'haloperidol_decanoate');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-haloperidol', daysAgo(20));
+        await selectField(page, 'haloperidol-prior-doses', '1-3');
+        await submit(page);
+        await snapshotGuidance(page);
+    });
+
+    test('haloperidol_decanoate — 4+ doses, 20 days (not yet due)', async ({ page }) => {
+        await selectField(page, 'medication', 'haloperidol_decanoate');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-haloperidol', daysAgo(20));
+        await selectField(page, 'haloperidol-prior-doses', '4+');
+        await submit(page);
+        await snapshotGuidance(page);
+    });
+
     test('haloperidol_decanoate — 4+ doses, 30 days (routine)', async ({ page }) => {
         await selectField(page, 'medication', 'haloperidol_decanoate');
         await selectField(page, 'guidance-type', 'late');
@@ -125,6 +143,24 @@ test.describe('guidance text snapshots', () => {
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-haloperidol', daysAgo(60));
         await selectField(page, 'haloperidol-prior-doses', '1-3');
+        await submit(page);
+        await snapshotGuidance(page);
+    });
+
+    test('fluphenazine_decanoate — 1-2 doses, 20 days (not yet due)', async ({ page }) => {
+        await selectField(page, 'medication', 'fluphenazine_decanoate');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-fluphenazine', daysAgo(20));
+        await selectField(page, 'fluphenazine-prior-doses', '1-2');
+        await submit(page);
+        await snapshotGuidance(page);
+    });
+
+    test('fluphenazine_decanoate — 3+ doses, 20 days (not yet due)', async ({ page }) => {
+        await selectField(page, 'medication', 'fluphenazine_decanoate');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-fluphenazine', daysAgo(20));
+        await selectField(page, 'fluphenazine-prior-doses', '3+');
         await submit(page);
         await snapshotGuidance(page);
     });

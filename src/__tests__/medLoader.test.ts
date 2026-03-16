@@ -603,49 +603,235 @@ describe('getAristadaGuidance', () => {
     });
 })
 describe('getUzedyGuidance', () => {
-    it('<28 days: not yet due', () => {
-        const r = getUzedyGuidance(10, '150-or-less');
+    it('≤27 days: not yet due', () => {
+        const r = getUzedyGuidance(27, '150-or-less');
         expect(r.idealSteps.some(s => s.includes('not yet due'))).toBe(true);
     });
 
     it('28–119 days: administer usual dose', () => {
         const r = getUzedyGuidance(60, '150-or-less');
-        expect(r.idealSteps.some(s => s.includes('usual Uzedy maintenance dose'))).toBe(true);
-        expect(hasNotif(r.providerNotifications, 'FYI')).toBe(true);
+        expect(r.idealSteps.some(s => s.includes('Administer usual Uzedy maintenance dose'))).toBe(true);
+        expect(r.idealSteps.some(s => s.includes('usual dosing interval'))).toBe(true);
     });
 
-    it('120–180 days: administer usual dose + sedation check', () => {
-        const r = getUzedyGuidance(150, '200-or-more');
-        expect(r.idealSteps.some(s => s.includes('Arrange for care team to check in with patient within 1-2 days, to assess for sedation'))).toBe(true);
-        expect(hasNotif(r.providerNotifications, 'FYI')).toBe(true);
+    it('120+ days: sedation guidance (static — same for all doses)', () => {
+        const r150 = getUzedyGuidance(150, '150-or-less');
+        const r200 = getUzedyGuidance(150, '200-or-more');
+        expect(r150.idealSteps.some(s => s.includes('Administer usual Uzedy maintenance dose (150 mg or less)'))).toBe(true);
+        expect(r150.idealSteps.some(s => s.includes('Arrange for care team to check in with patient within 1-2 days, to assess for sedation'))).toBe(true);
+        expect(hasNotif(r150.providerNotifications, 'Consult provider prior to any injection')).toBe(true);
+        // tier 3 is static — 200-or-more dose receives identical guidance
+        expect(r200.idealSteps).toEqual(r150.idealSteps);
     });
 
-    it('181+ days, 150-or-less: usual dose + sedation check', () => {
-        const r = getUzedyGuidance(200, '150-or-less');
-        expect(r.idealSteps.some(s => s.includes('Administer usual Uzedy maintenance dose (150 mg or less)'))).toBe(true);
-        expect(r.idealSteps.some(s => s.includes('Arrange for care team to check in with patient within 1-2 days, to assess for sedation'))).toBe(true);
-    });
-
-    it('181+ days, 200-or-more: try to contact prescriber first', () => {
-        const r = getUzedyGuidance(200, '200-or-more');
-        expect(r.idealSteps.some(s => s.includes('Try to contact prescriber for discussion on whether this person is at risk for sedation or other severe antipsychotic adverse events'))).toBe(true);
-        expect(r.idealSteps.some(s => s.includes('If prescriber cannot be reached, administer approximately 150 mg of the injection. Example: the typical injection is 200 mg; administer approximately ¾ of the medication'))).toBe(true);
-        expect(hasNotif(r.providerNotifications, 'notify the provider')).toBe(true);
-    });
-
-    it('exact tier boundaries (maxDays: 27, 119, 180, Infinity)', () => {
-        // day 27 → tier 1: not yet due
+    it('exact tier boundaries: day 27/28 and day 119/120', () => {
+        // day 27 → tier 1: not yet due (maxDays: 27)
         expect(getUzedyGuidance(27, '150-or-less').idealSteps.some(s => s.includes('not yet due'))).toBe(true);
-        // day 28 → tier 2: administer usual dose (maxDays:119)
-        expect(getUzedyGuidance(28, '150-or-less').idealSteps.some(s => s.includes('usual Uzedy maintenance dose'))).toBe(true);
-        // day 119 → tier 2: still administer usual dose
-        expect(getUzedyGuidance(119, '150-or-less').idealSteps.some(s => s.includes('usual Uzedy maintenance dose'))).toBe(true);
-        // day 120 → tier 3: administer + sedation check (maxDays:180)
+        // day 28 → tier 2: administer usual dose (maxDays: 119)
+        expect(getUzedyGuidance(28, '150-or-less').idealSteps.some(s => s.includes('Administer usual Uzedy maintenance dose'))).toBe(true);
+        // day 119 → tier 2: still usual dose
+        expect(getUzedyGuidance(119, '150-or-less').idealSteps.some(s => s.includes('usual dosing interval'))).toBe(true);
+        // day 120 → tier 3: sedation check (maxDays: null/∞)
         expect(getUzedyGuidance(120, '150-or-less').idealSteps.some(s => s.includes('Arrange for care team to check in with patient within 1-2 days, to assess for sedation'))).toBe(true);
-        // day 180 → tier 3: still sedation check
-        expect(getUzedyGuidance(180, '150-or-less').idealSteps.some(s => s.includes('Arrange for care team to check in with patient within 1-2 days, to assess for sedation'))).toBe(true);
-        // day 181 → tier 4: dose-variant (maxDays:Infinity)
-        expect(getUzedyGuidance(181, '150-or-less').idealSteps.some(s => s.includes('Administer usual Uzedy maintenance dose (150 mg or less)'))).toBe(true);
+        expect(getUzedyGuidance(120, '200-or-more').idealSteps.some(s => s.includes('Arrange for care team to check in with patient within 1-2 days, to assess for sedation'))).toBe(true);
+    });
+
+    describe('date-derived boundaries (via buildLateParams)', () => {
+        const entry = MED_REGISTRY['uzedy'];
+
+        it('day 27 → not yet due; day 28 → usual dose; day 119 → usual dose; day 120 → sedation check', () => {
+            const p27  = entry.buildLateParams({ 'last-uzedy': localDaysAgo(27),  'uzedy-dose': '150-or-less' });
+            const p28  = entry.buildLateParams({ 'last-uzedy': localDaysAgo(28),  'uzedy-dose': '150-or-less' });
+            const p119 = entry.buildLateParams({ 'last-uzedy': localDaysAgo(119), 'uzedy-dose': '150-or-less' });
+            const p120 = entry.buildLateParams({ 'last-uzedy': localDaysAgo(120), 'uzedy-dose': '200-or-more' });
+            expect(p27.daysSince).toBe(27);
+            expect(p120.daysSince).toBe(120);
+            expect((entry.getLateGuidance(p27)  as GuidanceResult).idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+            expect((entry.getLateGuidance(p28)  as GuidanceResult).idealSteps.some(s => s.includes('Administer usual Uzedy maintenance dose'))).toBe(true);
+            expect((entry.getLateGuidance(p119) as GuidanceResult).idealSteps.some(s => s.includes('usual dosing interval'))).toBe(true);
+            expect((entry.getLateGuidance(p120) as GuidanceResult).idealSteps.some(s => s.includes('Arrange for care team to check in with patient within 1-2 days, to assess for sedation'))).toBe(true);
+        });
+    });
+})
+// ─── getFluphenazineDecanoateGuidance ───────────────────────────────────────
+function getFluphenazineGuidance(days: number, variant: string): GuidanceResult {
+    return MED_REGISTRY['fluphenazine_decanoate'].getLateGuidance({ daysSince: days, variant }) as GuidanceResult;
+}
+
+describe('getFluphenazineDecanoateGuidance', () => {
+    describe('1-2 prior doses (2-tier: ≤27 not-due | ≪120 check-in | 121+ reinitiate)', () => {
+        it('≤27 days: not yet due', () => {
+            expect(getFluphenazineGuidance(20, '1-2').idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+        });
+
+        it('28–120 days: check-in guidance', () => {
+            const r = getFluphenazineGuidance(60, '1-2');
+            expect(r.idealSteps.some(s => s.includes('Administer usual fluphenazine decanoate injection'))).toBe(true);
+            expect(r.idealSteps.some(s => s.includes('24 hours'))).toBe(true);
+            expect(hasNotif(r.providerNotifications, 'Pre-injection')).toBe(true);
+        });
+
+        it('121+ days: reinitiation required', () => {
+            const r = getFluphenazineGuidance(150, '1-2');
+            expect(r.idealSteps.some(s => s.includes('Reinitiation is required'))).toBe(true);
+            expect(hasNotif(r.providerNotifications, 'Consult provider in all cases')).toBe(true);
+        });
+
+        it('exact boundaries: day 27/28 and day 120/121', () => {
+            expect(getFluphenazineGuidance(27, '1-2').idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+            expect(getFluphenazineGuidance(28, '1-2').idealSteps.some(s => s.includes('24 hours'))).toBe(true);
+            expect(getFluphenazineGuidance(120, '1-2').idealSteps.some(s => s.includes('24 hours'))).toBe(true);
+            expect(getFluphenazineGuidance(121, '1-2').idealSteps.some(s => s.includes('Reinitiation is required'))).toBe(true);
+        });
+    });
+
+    describe('3+ prior doses (3-tier: ≤27 not-due | ≤42 routine | 43–120 check-in | 121+ reinitiate)', () => {
+        it('≤27 days: not yet due', () => {
+            expect(getFluphenazineGuidance(20, '3+').idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+        });
+
+        it('28–42 days: routine', () => {
+            const r = getFluphenazineGuidance(35, '3+');
+            expect(r.idealSteps.some(s => s.includes('Administer usual fluphenazine decanoate injection'))).toBe(true);
+            expect(r.idealSteps.some(s => s.includes('previously planned dosing interval'))).toBe(true);
+            expect(r.providerNotifications).toBeUndefined();
+        });
+
+        it('43–120 days: check-in guidance', () => {
+            const r = getFluphenazineGuidance(80, '3+');
+            expect(r.idealSteps.some(s => s.includes('24 hours'))).toBe(true);
+            expect(hasNotif(r.providerNotifications, 'Pre-injection')).toBe(true);
+        });
+
+        it('121+ days: reinitiation required', () => {
+            const r = getFluphenazineGuidance(150, '3+');
+            expect(r.idealSteps.some(s => s.includes('Reinitiation is required'))).toBe(true);
+            expect(hasNotif(r.providerNotifications, 'Consult provider in all cases')).toBe(true);
+        });
+
+        it('exact boundaries: day 27/28, day 42/43, day 120/121', () => {
+            expect(getFluphenazineGuidance(27, '3+').idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+            expect(getFluphenazineGuidance(28, '3+').idealSteps.some(s => s.includes('previously planned dosing interval'))).toBe(true);
+            expect(getFluphenazineGuidance(42, '3+').idealSteps.some(s => s.includes('previously planned dosing interval'))).toBe(true);
+            expect(getFluphenazineGuidance(43, '3+').idealSteps.some(s => s.includes('24 hours'))).toBe(true);
+            expect(getFluphenazineGuidance(120, '3+').idealSteps.some(s => s.includes('24 hours'))).toBe(true);
+            expect(getFluphenazineGuidance(121, '3+').idealSteps.some(s => s.includes('Reinitiation is required'))).toBe(true);
+        });
+    });
+
+    describe('date-derived boundaries (via buildLateParams)', () => {
+        const entry = MED_REGISTRY['fluphenazine_decanoate'];
+
+        it('1-2 doses: day 27 → not due; day 28 → check-in; day 121 → reinitiation', () => {
+            const p27  = entry.buildLateParams({ 'last-fluphenazine': localDaysAgo(27),  'fluphenazine-prior-doses': '1-2' });
+            const p28  = entry.buildLateParams({ 'last-fluphenazine': localDaysAgo(28),  'fluphenazine-prior-doses': '1-2' });
+            const p121 = entry.buildLateParams({ 'last-fluphenazine': localDaysAgo(121), 'fluphenazine-prior-doses': '1-2' });
+            expect((entry.getLateGuidance(p27)  as GuidanceResult).idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+            expect((entry.getLateGuidance(p28)  as GuidanceResult).idealSteps.some(s => s.includes('24 hours'))).toBe(true);
+            expect((entry.getLateGuidance(p121) as GuidanceResult).idealSteps.some(s => s.includes('Reinitiation is required'))).toBe(true);
+        });
+
+        it('3+ doses: day 27 → not due; day 42 → routine; day 43 → check-in; day 121 → reinitiation', () => {
+            const p27  = entry.buildLateParams({ 'last-fluphenazine': localDaysAgo(27),  'fluphenazine-prior-doses': '3+' });
+            const p42  = entry.buildLateParams({ 'last-fluphenazine': localDaysAgo(42),  'fluphenazine-prior-doses': '3+' });
+            const p43  = entry.buildLateParams({ 'last-fluphenazine': localDaysAgo(43),  'fluphenazine-prior-doses': '3+' });
+            const p121 = entry.buildLateParams({ 'last-fluphenazine': localDaysAgo(121), 'fluphenazine-prior-doses': '3+' });
+            expect((entry.getLateGuidance(p27)  as GuidanceResult).idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+            expect((entry.getLateGuidance(p42)  as GuidanceResult).idealSteps.some(s => s.includes('previously planned dosing interval'))).toBe(true);
+            expect((entry.getLateGuidance(p43)  as GuidanceResult).idealSteps.some(s => s.includes('24 hours'))).toBe(true);
+            expect((entry.getLateGuidance(p121) as GuidanceResult).idealSteps.some(s => s.includes('Reinitiation is required'))).toBe(true);
+        });
+    });
+});
+
+// ─── getHaloperidolDecanoateGuidance ─────────────────────────────────────────
+function getHaloperidolGuidance(days: number, variant: string): GuidanceResult {
+    return MED_REGISTRY['haloperidol_decanoate'].getLateGuidance({ daysSince: days, variant }) as GuidanceResult;
+}
+
+describe('getHaloperidolDecanoateGuidance', () => {
+    describe('1-3 prior doses (2-tier: ≤27 not-due | ≤84 check-in | 85+ reinitiate)', () => {
+        it('≤27 days: not yet due', () => {
+            expect(getHaloperidolGuidance(20, '1-3').idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+        });
+
+        it('28–84 days: check-in guidance', () => {
+            const r = getHaloperidolGuidance(60, '1-3');
+            expect(r.idealSteps.some(s => s.includes('Administer usual haloperidol decanoate injection'))).toBe(true);
+            expect(r.idealSteps.some(s => s.includes('6–7 days'))).toBe(true);
+            expect(hasNotif(r.providerNotifications, 'Pre-injection')).toBe(true);
+        });
+
+        it('85+ days: reinitiation required', () => {
+            const r = getHaloperidolGuidance(100, '1-3');
+            expect(r.idealSteps.some(s => s.includes('Reinitiation is required'))).toBe(true);
+            expect(hasNotif(r.providerNotifications, 'Consult provider in all cases')).toBe(true);
+        });
+
+        it('exact boundaries: day 27/28 and day 84/85', () => {
+            expect(getHaloperidolGuidance(27, '1-3').idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+            expect(getHaloperidolGuidance(28, '1-3').idealSteps.some(s => s.includes('6–7 days'))).toBe(true);
+            expect(getHaloperidolGuidance(84, '1-3').idealSteps.some(s => s.includes('6–7 days'))).toBe(true);
+            expect(getHaloperidolGuidance(85, '1-3').idealSteps.some(s => s.includes('Reinitiation is required'))).toBe(true);
+        });
+    });
+
+    describe('4+ prior doses (3-tier: ≤27 not-due | ≤41 routine | 42–84 check-in | 85+ reinitiate)', () => {
+        it('≤27 days: not yet due', () => {
+            expect(getHaloperidolGuidance(20, '4+').idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+        });
+
+        it('28–41 days: routine', () => {
+            const r = getHaloperidolGuidance(35, '4+');
+            expect(r.idealSteps.some(s => s.includes('Administer usual haloperidol decanoate injection'))).toBe(true);
+            expect(r.idealSteps.some(s => s.includes('4 weeks'))).toBe(true);
+            expect(r.providerNotifications).toBeUndefined();
+        });
+
+        it('42–84 days: check-in guidance', () => {
+            const r = getHaloperidolGuidance(60, '4+');
+            expect(r.idealSteps.some(s => s.includes('6–7 days'))).toBe(true);
+            expect(hasNotif(r.providerNotifications, 'Pre-injection')).toBe(true);
+        });
+
+        it('85+ days: reinitiation required', () => {
+            const r = getHaloperidolGuidance(100, '4+');
+            expect(r.idealSteps.some(s => s.includes('Reinitiation is required'))).toBe(true);
+            expect(hasNotif(r.providerNotifications, 'Consult provider in all cases')).toBe(true);
+        });
+
+        it('exact boundaries: day 27/28, day 41/42, day 84/85', () => {
+            expect(getHaloperidolGuidance(27, '4+').idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+            expect(getHaloperidolGuidance(28, '4+').idealSteps.some(s => s.includes('4 weeks'))).toBe(true);
+            expect(getHaloperidolGuidance(41, '4+').idealSteps.some(s => s.includes('4 weeks'))).toBe(true);
+            expect(getHaloperidolGuidance(42, '4+').idealSteps.some(s => s.includes('6–7 days'))).toBe(true);
+            expect(getHaloperidolGuidance(84, '4+').idealSteps.some(s => s.includes('6–7 days'))).toBe(true);
+            expect(getHaloperidolGuidance(85, '4+').idealSteps.some(s => s.includes('Reinitiation is required'))).toBe(true);
+        });
+    });
+
+    describe('date-derived boundaries (via buildLateParams)', () => {
+        const entry = MED_REGISTRY['haloperidol_decanoate'];
+
+        it('1-3 doses: day 27 → not due; day 28 → check-in; day 85 → reinitiation', () => {
+            const p27 = entry.buildLateParams({ 'last-haloperidol': localDaysAgo(27), 'haloperidol-prior-doses': '1-3' });
+            const p28 = entry.buildLateParams({ 'last-haloperidol': localDaysAgo(28), 'haloperidol-prior-doses': '1-3' });
+            const p85 = entry.buildLateParams({ 'last-haloperidol': localDaysAgo(85), 'haloperidol-prior-doses': '1-3' });
+            expect((entry.getLateGuidance(p27) as GuidanceResult).idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+            expect((entry.getLateGuidance(p28) as GuidanceResult).idealSteps.some(s => s.includes('6–7 days'))).toBe(true);
+            expect((entry.getLateGuidance(p85) as GuidanceResult).idealSteps.some(s => s.includes('Reinitiation is required'))).toBe(true);
+        });
+
+        it('4+ doses: day 27 → not due; day 41 → routine; day 42 → check-in; day 85 → reinitiation', () => {
+            const p27 = entry.buildLateParams({ 'last-haloperidol': localDaysAgo(27), 'haloperidol-prior-doses': '4+' });
+            const p41 = entry.buildLateParams({ 'last-haloperidol': localDaysAgo(41), 'haloperidol-prior-doses': '4+' });
+            const p42 = entry.buildLateParams({ 'last-haloperidol': localDaysAgo(42), 'haloperidol-prior-doses': '4+' });
+            const p85 = entry.buildLateParams({ 'last-haloperidol': localDaysAgo(85), 'haloperidol-prior-doses': '4+' });
+            expect((entry.getLateGuidance(p27) as GuidanceResult).idealSteps.some(s => s.includes('not yet due'))).toBe(true);
+            expect((entry.getLateGuidance(p41) as GuidanceResult).idealSteps.some(s => s.includes('4 weeks'))).toBe(true);
+            expect((entry.getLateGuidance(p42) as GuidanceResult).idealSteps.some(s => s.includes('6–7 days'))).toBe(true);
+            expect((entry.getLateGuidance(p85) as GuidanceResult).idealSteps.some(s => s.includes('Reinitiation is required'))).toBe(true);
+        });
     });
 });
 
@@ -938,7 +1124,8 @@ describe('buildCoreDef — getLateGuidance variantKey dispatch', () => {
 
     it('falls back to "default" for Uzedy "200-or-more" (not a variant key)', () => {
         const r = MED_REGISTRY['uzedy'].getLateGuidance({ daysSince: 200, dose: '200-or-more' });
-        expect(r.idealSteps.some(s => s.includes('prescriber'))).toBe(true);
+        // tier 3 is static — 200-or-more falls back to "default" and gets the same content as 150-or-less
+        expect(r.idealSteps.some(s => s.includes('150 mg or less'))).toBe(true);
     });
 
     // 4. neither variant nor dose → 'default' used (single-variant med)

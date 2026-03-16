@@ -89,6 +89,9 @@ export interface MedDefinition {
 
 export type RawTier = Record<string, unknown>;
 
+/** A single entry in a `variants` array; `sameAs` reuses another variant's tiers. */
+export type VariantEntry = { key: string; tiers?: RawTier[]; sameAs?: string };
+
 /** Internal: the core fields built by buildCoreDef. */
 export type CoreDef = Pick<MedDefinition, 'displayName' | 'earlyGuidance' | 'earlyDaysBeforeDue' | 'earlyMinDays' | 'earlyProviderNotification' | 'commonProviderNotifications' | 'getLateGuidance'>;
 

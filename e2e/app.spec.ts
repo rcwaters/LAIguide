@@ -358,7 +358,7 @@ test.describe('late guidance — Uzedy', () => {
         await selectField(page, 'uzedy-dose', '200-or-more');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
-        await expect(page.locator('.guidance-section')).toContainText('contact prescriber');
+        await expect(page.locator('.guidance-section')).toContainText('Consult provider prior to any injection');
     });
 });
 
