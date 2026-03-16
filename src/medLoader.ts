@@ -1,5 +1,5 @@
-import type { LateTier, GuidanceResult, SupplementalGuidanceResult, SubmitContext } from './interfaces/guidance';
-import type { MedicationKey, LateGuidanceParams, RenderType, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition, RawTier, CoreDef } from './interfaces/med';
+import type { LateTier, GuidanceResult, SubmitContext } from './interfaces/guidance';
+import type { MedicationKey, LateGuidanceParams, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition, RawTier, CoreDef } from './interfaces/med';
 import { DAYS_PER_MONTH } from './interfaces/med';
 import { daysSinceDate, formatDate, formatWeeksAndDays } from './utils';
 
@@ -105,47 +105,20 @@ function buildCoreDef(json: any): CoreDef {
         ...(commonNotifs?.length             ? { commonProviderNotifications:   commonNotifs          } : {}),
     };
 
-    if (lg['variants']) {
-        // variants with a `sameAs` key reuse another variant's tiers (avoids duplication in JSON)
-        const variants = lg['variants'] as VariantEntry[];
+    if (!lg['variants']) throw new Error(`No variants in late guidance for ${json.key}`);
 
-        const notDueCfg = lg['notDue'] as { beforeDays: number; message: string } | undefined;
-        if (notDueCfg) {
-            const notDueBeforeDays = notDueCfg.beforeDays;
-            const notDueMessage    = notDueCfg.message;
-            type SupplementalTier = { maxDays: number; supplementation?: string; providerNotifications?: string[] };
-            const buildSupplementalTiers = (raws: RawTier[]): SupplementalTier[] => raws.map(t => ({
-                maxDays:               days(t['maxDays'] as number | null),
-                supplementation:       t['supplementation']       as string | undefined,
-                providerNotifications: t['providerNotifications'] as string[] | undefined,
-            }));
-            const tiersMap = buildVariantMap(variants, buildSupplementalTiers);
+    // variants with a `sameAs` key reuse another variant's tiers (avoids duplication in JSON)
+    const variants = lg['variants'] as VariantEntry[];
 
-            return { ...base, getLateGuidance: ({ daysSince, variant, dose }): SupplementalGuidanceResult => {
-                if (daysSince! < notDueBeforeDays) return { notDue: true, message: notDueMessage };
-
-                const variantKey = variant ?? dose;
-                const config = variantKey ? tiersMap[variantKey] : undefined;
-                if (!config) {
-                    console.error('[getLateGuidance] Missing or unknown variant for supplementation tiers:', variantKey, '— available:', Object.keys(tiersMap));
-                    return { notDue: false };
-                }
-
-                const tier = config.find(t => daysSince! <= t.maxDays) ?? config[config.length - 1];
-                return { notDue: false, supplementation: tier.supplementation, providerNotifications: tier.providerNotifications };
-            }};
-        }
-
-        const tiersMap = buildVariantMap(variants, buildTiers);
-        return { ...base, getLateGuidance: ({ daysSince, variant, dose }) => resolveLateTier(tiersMap[variant!], daysSince!, dose) };
-    }
-
-    if (lg['tiers']) {
-        const tiers = buildTiers(lg['tiers'] as RawTier[]);
-        return { ...base, getLateGuidance: ({ daysSince, dose }) => resolveLateTier(tiers, daysSince!, dose) };
-    }
-
-    throw new Error(`No tiers or variants in late guidance for ${json.key}`);
+    const tiersMap = buildVariantMap(variants, buildTiers);
+    return { ...base, getLateGuidance: ({ daysSince, variant, dose }) => {
+        // Use explicit variant if given; else use dose only when it matches a variant key
+        // (e.g. Aristada doses "441"/"662" ARE variant keys; Uzedy doses "150-or-less" are not)
+        const variantKey = variant ?? (dose != null && tiersMap[dose] ? dose : 'default');
+        const tiers = tiersMap[variantKey];
+        if (!tiers) throw new Error(`[getLateGuidance] Unknown variant key: "${variantKey}" — available: ${Object.keys(tiersMap).join(', ')}`);
+        return resolveLateTier(tiers, daysSince!, dose);
+    } };
 }
 
 // ─── Form spec helper ─────────────────────────────────────────────────────────
@@ -180,7 +153,6 @@ function buildStandardDef(json: any): Omit<MedDefinition, 'displayName' | 'early
     );
     const baseUI = {
         optgroupLabel: json.optgroupLabel as string,
-        renderType:    json.renderType    as RenderType,
         ...withGroups(formGroupsSpec),
     };
 

@@ -13,14 +13,6 @@ export interface GuidanceResult {
     providerNotifications?: string[];
 }
 
-/**
- * Supplemental output: the medication is overdue but the guidance may include
- * dose-specific supplementation rather than a straight three-part response.
- */
-export type SupplementalGuidanceResult =
-    | { notDue: true;  message: string }
-    | { notDue: false; supplementation?: string; providerNotifications?: string[] };
-
 // ─── Late Guidance Tier Types ─────────────────────────────────────────────────
 
 /**

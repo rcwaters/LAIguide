@@ -89,7 +89,6 @@
         }
     },
     "optgroupLabel": "Antipsychotics",
-    "renderType": "three-part",
     "formGroupsSpec": [
         {
             "groupId": "fluphenazine-fields",

@@ -1,6 +1,5 @@
 import type {
     GuidanceResult,
-    SupplementalGuidanceResult,
     SubmitContext,
 } from './guidance';
 
@@ -26,11 +25,7 @@ export interface LateGuidanceParams {
     dose?:       string;
 }
 
-export type LateGuidanceOutput = GuidanceResult | SupplementalGuidanceResult;
-
 // ─── Form / UI types ──────────────────────────────────────────────────────────
-
-export type RenderType = 'three-part' | 'supplementation';
 
 /** A row in the guidance summary panel. */
 export type InfoRowSpec =
@@ -72,14 +67,13 @@ export interface MedDefinition {
     earlyProviderNotification?: string[];
     /** Bullet points shown in BOTH early and late provider-notification sections. */
     commonProviderNotifications?: string[];
-    getLateGuidance(params: LateGuidanceParams): LateGuidanceOutput;
+    getLateGuidance(params: LateGuidanceParams): GuidanceResult;
 
     // UI config: used by main.ts to generically handle form interaction
     optgroupLabel:   string;           // medication <select> optgroup label
     formGroupsSpec:  FormGroupSpec[];  // declarative spec; drives runtime HTML generation
     lateFieldsGroup: string;
     subFieldGroups?: string[];         // extra groups to hide on medication change
-    renderType:      RenderType;
     /** All form field IDs this med uses — used to build ctx and clear fields on change */
     formFieldIds: string[];
     /** ID of the sub-group selector element (if this med has a sub-group toggle) */

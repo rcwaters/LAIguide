@@ -180,7 +180,6 @@
         }
     },
     "optgroupLabel": "Addiction Medicine",
-    "renderType": "three-part",
     "formGroupsSpec": [
         {
             "groupId": "sublocade-fields",

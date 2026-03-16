@@ -107,7 +107,6 @@
         }
     },
     "optgroupLabel": "Addiction Medicine",
-    "renderType": "three-part",
     "formGroupsSpec": [
         {
             "groupId": "brixadi-fields",

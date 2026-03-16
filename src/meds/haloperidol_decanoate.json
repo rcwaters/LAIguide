@@ -91,7 +91,6 @@
         }
     },
     "optgroupLabel": "Antipsychotics",
-    "renderType": "three-part",
     "formGroupsSpec": [
         {
             "groupId": "haloperidol-fields",

@@ -1,9 +1,9 @@
 import './styles.css';
 import { MED_REGISTRY } from './medLoader';
 import type { MedicationKey, FormGroupSpec, FieldSpec } from './interfaces/med';
-import type { SubmitContext, GuidanceResult, SupplementalGuidanceResult } from './interfaces/guidance';
+import type { SubmitContext, GuidanceResult } from './interfaces/guidance';
 import { md, daysSinceDate, formatDate } from './utils';
-import { NO_PROVIDER_NOTIFICATION, NO_SUPPLEMENTATION } from './constants';
+import { NO_PROVIDER_NOTIFICATION } from './constants';
 
 // ─── DOM ID constants ─────────────────────────────────────────────────────────
 
@@ -155,12 +155,7 @@ export function handleSubmit(): void {
                    + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
                    + entry.buildLateInfoRows(ctx, daysSince).map(([label, value]) => infoRow(label, value)).join('');
 
-        let body: string;
-        if (entry.renderType === 'supplementation') {
-            body = supplementationBody(guidance as SupplementalGuidanceResult, entry.commonProviderNotifications);
-        } else {
-            body = threePartGuidance(guidance as GuidanceResult, entry.commonProviderNotifications);
-        }
+        const body = threePartGuidance(guidance as GuidanceResult, entry.commonProviderNotifications);
 
         injectGuidanceSection(rows, body);
     } catch (err) {
@@ -331,29 +326,6 @@ function showEarlyGuidance(medication: string): void {
     injectGuidanceSection(rows, body);
 }
 
-function supplementationBody(guidance: SupplementalGuidanceResult, common?: string[]): string {
-    if (guidance.notDue) {
-        return `<div class="guidance-content">
-                    <h3 class="guidance-heading">Guidance:</h3>
-                    <div class="guidance-text">${md(guidance.message)}</div>
-                </div>`;
-    }
-    const allNotifs = [...(guidance.providerNotifications ?? []), ...(common ?? [])];
-    return `<div class="guidance-content">
-                <h3 class="guidance-heading">Next steps:</h3>
-                <div class="guidance-text">${md('Administer the usual Aristada dose as soon as possible, then assess the need for supplementation.')}</div>
-            </div>
-            <div class="guidance-content">
-                <h3 class="guidance-heading">Recommended supplementation:</h3>
-                <div class="guidance-text">${md(guidance.supplementation ?? NO_SUPPLEMENTATION)}</div>
-            </div>
-            <div class="guidance-content">
-                <h3 class="guidance-heading">When to notify provider:</h3>
-                ${allNotifs.length
-                    ? `<ul>${allNotifs.map(n => `<li>${md(n)}</li>`).join('')}</ul>`
-                    : `<div class="guidance-text">${md(NO_PROVIDER_NOTIFICATION)}</div>`}
-            </div>`;
-}
 // ─── Form Initialisation ──────────────────────────────────────────────────────
 
 function renderField(f: FieldSpec): string {
