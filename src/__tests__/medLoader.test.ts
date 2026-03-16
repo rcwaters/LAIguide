@@ -7,6 +7,16 @@ function hasNotif(arr: string[] | undefined, sub: string): boolean {
     return !!arr?.some(s => s.includes(sub));
 }
 
+function localDaysAgo(n: number): string {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - n);
+    const yyyy = d.getFullYear();
+    const mm   = String(d.getMonth() + 1).padStart(2, '0');
+    const dd   = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+}
+
 // Local wrappers that preserve the original test call signatures
 function getInvegaInitiationGuidance(days: number): GuidanceResult {
     return MED_REGISTRY['invega_sustenna'].getLateGuidance({ daysSince: days, variant: 'initiation' }) as GuidanceResult;
