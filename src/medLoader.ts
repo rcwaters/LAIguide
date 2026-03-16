@@ -1,5 +1,5 @@
 import type { LateTier, GuidanceResult, SubmitContext } from './interfaces/guidance';
-import type { MedicationKey, LateGuidanceParams, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition, RawTier, CoreDef, VariantEntry } from './interfaces/med';
+import type { MedicationKey, LateGuidanceParams, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition, RawTier, CoreDef, VariantEntry, EarlyVariantDef } from './interfaces/med';
 import { DAYS_PER_MONTH } from './interfaces/med';
 import { daysSinceDate, formatDate, formatWeeksAndDays } from './utils';
 
@@ -88,36 +88,66 @@ function resolveLateTier(tiers: LateTier[], daysSince: number, dose?: string): G
 
 // ─── Core guidance logic (dispatches on late.kind) ─────────────────────────
 
+type RawEarlyVariant = { key: string; minDays?: number; noGuidanceMessage?: string; sameAs?: string };
+
+/** Builds the early variant map, resolving `sameAs` aliases. */
+function buildEarlyVariantMap(variants: RawEarlyVariant[]): Record<string, EarlyVariantDef> {
+    const map: Record<string, EarlyVariantDef> = {};
+    for (const v of variants) {
+        if (!v.sameAs) map[v.key] = { minDays: v.minDays, noGuidanceMessage: v.noGuidanceMessage };
+    }
+    for (const v of variants) {
+        if (v.sameAs) map[v.key] = map[v.sameAs]!;
+    }
+    return map;
+}
+
+/** Builds the early-guidance portion of a CoreDef from `guidance.early` and optional `earlySpec`. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function buildCoreDef(json: any): CoreDef {
-    const lg            = json.guidance.late              as Record<string, unknown>;
-    const early         = json.guidance.early;
-    const daysBeforeDue = early?.daysBeforeDue            as number | undefined;
-    const minDays       = early?.minDays                  as number | undefined;
+function buildEarlyFields(early: any, earlySpec: any): Omit<Partial<CoreDef>, 'earlyGuidance'> {
+    const daysBeforeDue        = early?.daysBeforeDue        as number   | undefined;
+    const minDays              = early?.minDays              as number   | undefined;
     const providerNotifications = early?.providerNotifications as string[] | undefined;
-    const commonNotifs  = json.guidance.shared?.providerNotifications as string[] | undefined;
-    const base = {
-        displayName:   json.displayName as string,
-        earlyGuidance: composeEarlyGuidance(daysBeforeDue, minDays, early?.guidanceNote as string | undefined),
-        ...(daysBeforeDue != null           ? { earlyDaysBeforeDue:           daysBeforeDue         } : {}),
-        ...(minDays       != null           ? { earlyMinDays:                  minDays               } : {}),
-        ...(providerNotifications?.length    ? { earlyProviderNotification:     providerNotifications } : {}),
-        ...(commonNotifs?.length             ? { commonProviderNotifications:   commonNotifs          } : {}),
+    const rawVariants          = early?.variants             as RawEarlyVariant[] | undefined;
+    const paramField           = earlySpec?.paramField       as string   | undefined;
+    const dateField            = earlySpec?.dateField        as string   | undefined;
+    return {
+        ...(daysBeforeDue != null          ? { earlyDaysBeforeDue:        daysBeforeDue                    } : {}),
+        ...(minDays       != null          ? { earlyMinDays:              minDays                          } : {}),
+        ...(providerNotifications?.length  ? { earlyProviderNotification: providerNotifications            } : {}),
+        ...(rawVariants                    ? { earlyVariantMap:           buildEarlyVariantMap(rawVariants) } : {}),
+        ...(paramField                     ? { earlyParamField: paramField, earlyDateField: dateField }      : {}),
     };
+}
 
-    if (!lg['variants']) throw new Error(`No variants in late guidance for ${json.key}`);
-
-    const variants = lg['variants'] as VariantEntry[];
-
-    const tiersMap = buildVariantMap(variants, buildTiers);
-    return { ...base, getLateGuidance: ({ daysSince, variant, dose }) => {
-        // Use explicit variant if given; else use dose only when it matches a variant key
+/** Builds the `getLateGuidance` closure from a pre-built tiers map. */
+function buildLateGuidanceFn(tiersMap: Record<string, LateTier[]>): MedDefinition['getLateGuidance'] {
+    return ({ daysSince, variant, dose }) => {
+        // Use explicit variant if given; else fall back to dose key if it exists in the map
         // (e.g. Aristada doses "441"/"662" ARE variant keys; Uzedy doses "150-or-less" are not)
         const variantKey = variant ?? (dose != null && tiersMap[dose] ? dose : 'default');
         const tiers = tiersMap[variantKey];
         if (!tiers) throw new Error(`[getLateGuidance] Unknown variant key: "${variantKey}" — available: ${Object.keys(tiersMap).join(', ')}`);
         return resolveLateTier(tiers, daysSince!, dose);
-    } };
+    };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildCoreDef(json: any): CoreDef {
+    const lg         = json.guidance.late as Record<string, unknown>;
+    const commonNotifs = json.guidance.shared?.providerNotifications as string[] | undefined;
+
+    if (!lg['variants']) throw new Error(`No variants in late guidance for ${json.key}`);
+    const tiersMap = buildVariantMap(lg['variants'] as VariantEntry[], buildTiers);
+
+    const early = json.guidance.early;
+    return {
+        displayName:   json.displayName as string,
+        earlyGuidance: composeEarlyGuidance(early?.daysBeforeDue, early?.minDays, early?.guidanceNote as string | undefined),
+        ...buildEarlyFields(early, json.earlySpec),
+        ...(commonNotifs?.length ? { commonProviderNotifications: commonNotifs } : {}),
+        getLateGuidance: buildLateGuidanceFn(tiersMap),
+    };
 }
 
 // ─── Form spec helper ─────────────────────────────────────────────────────────

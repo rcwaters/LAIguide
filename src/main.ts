@@ -16,7 +16,8 @@ const GUIDANCE_TYPE_ID         = 'guidance-type';
 const GUIDANCE_TYPE_GROUP_ID   = 'guidance-type-group';
 const GUIDANCE_SECTION_SEL     = '.guidance-section';
 const FORM_SECTION_SEL         = '.form-section';
-const EARLY_GUIDANCE_LABEL     = 'Early Administration Guidance';
+const EARLY_GUIDANCE_LABEL     = 'Early Administration';
+const LATE_GUIDANCE_LABEL      = 'Late/Overdue Administration';
 
 // ─── Form Field Visibility ────────────────────────────────────────────────────
 
@@ -59,15 +60,23 @@ export function handleGuidanceTypeChange(): void {
     const earlyLastGroup = document.getElementById(EARLY_LAST_DATE_GROUP_ID) as HTMLElement | null;
     if (guidanceType === 'early' && medication) {
         const entry            = MED_REGISTRY[medication as MedicationKey];
-        const hasDaysBeforeDue = !!entry?.earlyDaysBeforeDue;
-        const hasMinDays       = !!entry?.earlyMinDays;
-        if (earlyGroup) {
-            earlyGroup.style.display = hasDaysBeforeDue ? 'block' : 'none';
-            if (!hasDaysBeforeDue) clear(NEXT_INJECTION_DATE_ID);
-        }
-        if (earlyLastGroup) {
-            earlyLastGroup.style.display = hasMinDays ? 'block' : 'none';
-            if (!hasMinDays) clear(LAST_INJECTION_DATE_ID);
+        if (entry?.earlyParamField) {
+            // Variant-aware early guidance: reuse the late fields group (contains
+            // the variant select + date field), hide the generic early date pickers.
+            show(entry.lateFieldsGroup);
+            if (earlyGroup)     { earlyGroup.style.display     = 'none';  clear(NEXT_INJECTION_DATE_ID); }
+            if (earlyLastGroup) { earlyLastGroup.style.display = 'none';  clear(LAST_INJECTION_DATE_ID); }
+        } else {
+            const hasDaysBeforeDue = !!entry?.earlyDaysBeforeDue;
+            const hasMinDays       = !!entry?.earlyMinDays;
+            if (earlyGroup) {
+                earlyGroup.style.display = hasDaysBeforeDue ? 'block' : 'none';
+                if (!hasDaysBeforeDue) clear(NEXT_INJECTION_DATE_ID);
+            }
+            if (earlyLastGroup) {
+                earlyLastGroup.style.display = hasMinDays ? 'block' : 'none';
+                if (!hasMinDays) clear(LAST_INJECTION_DATE_ID);
+            }
         }
     } else {
         if (earlyGroup)     { earlyGroup.style.display     = 'none';  clear(NEXT_INJECTION_DATE_ID); }
@@ -100,6 +109,16 @@ export function checkAutoSubmit(): void {
 
     if (guidanceType === 'early') {
         const entry = MED_REGISTRY[medication as MedicationKey];
+        if (entry?.earlyParamField) {
+            // Variant-aware: require variant selection; only require date for
+            // variants that use minDays (not for no-guidance variants like weekly).
+            const paramVal = val(entry.earlyParamField);
+            if (!paramVal) return;
+            const varDef = entry.earlyVariantMap?.[paramVal];
+            if (!varDef?.noGuidanceMessage && entry.earlyDateField && !val(entry.earlyDateField)) return;
+            handleSubmit();
+            return;
+        }
         if (entry?.earlyDaysBeforeDue && !val(NEXT_INJECTION_DATE_ID)) return;
         if (entry?.earlyMinDays       && !val(LAST_INJECTION_DATE_ID))  return;
         handleSubmit();
@@ -135,6 +154,16 @@ export function handleSubmit(): void {
 
         if (guidanceType === 'early') {
             const entry = MED_REGISTRY[medication as MedicationKey];
+            if (entry?.earlyParamField) {
+                const paramVal = val(entry.earlyParamField);
+                if (!paramVal) { alert('Please select the formulation and dose.'); return; }
+                const varDef = entry.earlyVariantMap?.[paramVal];
+                if (!varDef?.noGuidanceMessage && entry.earlyDateField && !val(entry.earlyDateField)) {
+                    alert('Please enter the date of the last injection.'); return;
+                }
+                showEarlyGuidance(medication, paramVal);
+                return;
+            }
             if (entry?.earlyDaysBeforeDue && !val(NEXT_INJECTION_DATE_ID)) { alert('Please enter the next scheduled injection date.'); return; }
             if (entry?.earlyMinDays       && !val(LAST_INJECTION_DATE_ID)) { alert('Please enter the date of the last injection.');        return; }
             showEarlyGuidance(medication);
@@ -142,7 +171,7 @@ export function handleSubmit(): void {
         }
 
         const entry = MED_REGISTRY[medication as MedicationKey];
-        if (!entry) { alert('Late/overdue guidance for this medication is coming soon!'); return; }
+        if (!entry) { alert('Late/overdue guidance for this medication does not exist.'); return; }
 
         const validationErr = entry.validateLate(ctx);
         if (validationErr) { alert(validationErr); return; }
@@ -152,7 +181,7 @@ export function handleSubmit(): void {
         const daysSince = params.daysSince!;
 
         const rows = infoRow('Medication:', entry.displayName)
-                   + infoRow('Guidance Type:', 'Late/Overdue Administration Guidance')
+                   + infoRow('Guidance Type:', LATE_GUIDANCE_LABEL)
                    + entry.buildLateInfoRows(ctx, daysSince).map(([label, value]) => infoRow(label, value)).join('');
 
         const body = threePartGuidance(guidance as GuidanceResult, entry.commonProviderNotifications);
@@ -213,8 +242,78 @@ function injectGuidanceSection(infoRows: string, bodyHTML: string): void {
 
 // ─── Guidance Display Functions ───────────────────────────────────────────────
 
-function showEarlyGuidance(medication: string): void {
+function showEarlyGuidance(medication: string, variantKey?: string): void {
     const entry = MED_REGISTRY[medication as MedicationKey];
+
+    // ── Variant-aware early guidance (e.g. Brixadi monthly vs. weekly) ────────
+    if (variantKey != null && entry.earlyVariantMap) {
+        const varDef = entry.earlyVariantMap[variantKey];
+
+        // Resolve the human-readable label for the selected variant
+        const allFields   = entry.formGroupsSpec.flatMap(g => g.fields);
+        const selectField = allFields.find(f => f.type === 'select' && f.id === entry.earlyParamField);
+        const selectedLabel = (selectField?.type === 'select')
+            ? (selectField.options.find(o => o.value === variantKey)?.label ?? variantKey)
+            : variantKey;
+
+        const rows = infoRow('Medication:', entry.displayName)
+                   + infoRow('Guidance Type:', EARLY_GUIDANCE_LABEL)
+                   + infoRow('Formulation:', selectedLabel);
+
+        if (varDef?.noGuidanceMessage) {
+            // No early dosing guidance for this variant (e.g. weekly)
+            const body = `
+                <div class="guidance-content early-not-allowed">
+                    <p>ℹ️ ${varDef.noGuidanceMessage}</p>
+                </div>`;
+            injectGuidanceSection(rows, body);
+            return;
+        }
+
+        // minDays variant (e.g. monthly-64/96/128)
+        const lastDate  = val(entry.earlyDateField ?? LAST_INJECTION_DATE_ID);
+        const daysSince = daysSinceDate(lastDate);
+        const minDays   = varDef?.minDays ?? entry.earlyMinDays!;
+        const rowsWithDate = rows + infoRow('Last injection:', formatDate(lastDate));
+
+        let resultHTML: string;
+        if (daysSince >= minDays) {
+            resultHTML = `<div class="guidance-content early-allowed">
+                <strong>✅ Early administration is allowed.</strong>
+                <p>It has been <strong>${daysSince} day${daysSince === 1 ? '' : 's'}</strong> since the last injection (minimum: ${minDays} days).</p>
+            </div>`;
+        } else {
+            const remaining = minDays - daysSince;
+            resultHTML = `<div class="guidance-content early-not-allowed">
+                <strong>❌ Too early to administer.</strong>
+                <p>It has been <strong>${daysSince} day${daysSince === 1 ? '' : 's'}</strong> since the last injection. Early administration requires at least <strong>${minDays} days</strong> since the last injection (<strong>${remaining} day${remaining === 1 ? '' : 's'}</strong> remaining).</p>
+            </div>`;
+        }
+
+        const body = `
+            ${resultHTML}
+            <div class="guidance-content">
+                <h3 class="guidance-heading">Early administration window:</h3>
+                <div class="guidance-text">${md(entry.earlyGuidance)}</div>
+            </div>
+            ${(() => {
+                const combined = [...(entry.earlyProviderNotification ?? []), ...(entry.commonProviderNotifications ?? [])];
+                return combined.length
+                    ? `<div class="guidance-content">
+                    <h3 class="guidance-heading">When to notify provider:</h3>
+                    <ul>${combined.map(n => `<li>${md(n)}</li>`).join('')}</ul>
+                </div>`
+                    : '';
+            })()}
+            <div class="important-note">
+                <strong>⚠️ Important:</strong> If there may be a reason to administer even earlier than the specified timeframe, provider approval must be obtained.
+            </div>`;
+
+        injectGuidanceSection(rowsWithDate, body);
+        return;
+    }
+
+    // ── Standard (non-variant) early guidance ─────────────────────────────────
     const hasDaysBeforeDue = !!entry.earlyDaysBeforeDue;
     const hasMinDays       = !!entry.earlyMinDays;
 

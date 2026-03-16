@@ -1,5 +1,5 @@
 Medication: Invega Trinza (paliperidone palmitate 3-month)
-Guidance Type: Late/Overdue Administration Guidance
+Guidance Type: Late/Overdue Administration
 Date of last Trinza injection: August 18, 2025
 Trinza injection dose: 546 mg
 Time since last injection: 150 days (approximately 5 months)

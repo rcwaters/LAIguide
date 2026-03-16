@@ -119,8 +119,9 @@ test.describe('conditional field visibility', () => {
         ['fluphenazine_decanoate', 'fluphenazine-fields'],
         ['vivitrol',               'vivitrol-fields'],
         ['sublocade',              'sublocade-fields'],
-        ['brixadi',                'brixadi-fields'],
     ];
+    // Brixadi is excluded: its fields group stays visible for both late AND
+    // early guidance (variant-aware early uses the same group for the date + select).
 
     for (const [medication, fieldId] of medFields) {
         test(`${medication} + late shows #${fieldId}`, async ({ page }) => {
@@ -138,6 +139,19 @@ test.describe('conditional field visibility', () => {
             await expect(page.locator(`#${fieldId}`)).not.toBeVisible();
         });
     }
+
+    // Brixadi: brixadi-fields stays VISIBLE for late AND early (variant-aware early)
+    test('brixadi + late shows #brixadi-fields', async ({ page }) => {
+        await selectField(page, 'medication', 'brixadi');
+        await selectField(page, 'guidance-type', 'late');
+        await expect(page.locator('#brixadi-fields')).toBeVisible();
+    });
+
+    test('brixadi + early shows #brixadi-fields (variant-aware)', async ({ page }) => {
+        await selectField(page, 'medication', 'brixadi');
+        await selectField(page, 'guidance-type', 'early');
+        await expect(page.locator('#brixadi-fields')).toBeVisible();
+    });
 
     test('invega_sustenna initiation shows date field', async ({ page }) => {
         await selectField(page, 'medication', 'invega_sustenna');
@@ -371,7 +385,8 @@ test.describe('early guidance flow — remaining medications', () => {
 
     // fluphenazine_decanoate is dual-constraint (daysBeforeDue + minDays)
     const dualConstraintMeds = ['fluphenazine_decanoate'];
-    const sinceLastMeds  = ['sublocade', 'brixadi'];
+    const sinceLastMeds  = ['sublocade'];
+    // Brixadi uses variant-aware early guidance (separate describe block below)
 
     for (const med of dualConstraintMeds) {
         test(`${med}: shows guidance and hides form`, async ({ page }) => {
@@ -395,6 +410,53 @@ test.describe('early guidance flow — remaining medications', () => {
             await expect(page.locator('.form-section')).not.toBeVisible();
         });
     }
+});
+
+// ─── Early guidance — Brixadi (variant-aware) ────────────────────────────────
+
+test.describe('early guidance — Brixadi (variant-aware)', () => {
+    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+
+    test('monthly-64, 25+ days: early administration allowed', async ({ page }) => {
+        await selectField(page, 'medication', 'brixadi');
+        await selectField(page, 'guidance-type', 'early');
+        await fillDate(page, 'last-brixadi', daysAgo(25));
+        await selectField(page, 'brixadi-type', 'monthly-64');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.form-section')).not.toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('Early administration is allowed');
+    });
+
+    test('monthly-96 (sameAs 64), 25+ days: early administration allowed', async ({ page }) => {
+        await selectField(page, 'medication', 'brixadi');
+        await selectField(page, 'guidance-type', 'early');
+        await fillDate(page, 'last-brixadi', daysAgo(25));
+        await selectField(page, 'brixadi-type', 'monthly-96');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('Early administration is allowed');
+    });
+
+    test('monthly-64, < 21 days: too early', async ({ page }) => {
+        await selectField(page, 'medication', 'brixadi');
+        await selectField(page, 'guidance-type', 'early');
+        await fillDate(page, 'last-brixadi', daysAgo(15));
+        await selectField(page, 'brixadi-type', 'monthly-64');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('Too early to administer');
+    });
+
+    test('weekly: no early dosing guidance message shown', async ({ page }) => {
+        await selectField(page, 'medication', 'brixadi');
+        await selectField(page, 'guidance-type', 'early');
+        await selectField(page, 'brixadi-type', 'weekly');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.form-section')).not.toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('does not exist at this time');
+    });
 });
 
 // ─── Late guidance — Haloperidol Decanoate ────────────────────────────────────
@@ -678,21 +740,21 @@ test.describe('late guidance — Brixadi', () => {
     test('weekly, ≤ 9 days: administer per standing order', async ({ page }) => {
         await selectField(page, 'medication', 'brixadi');
         await selectField(page, 'guidance-type', 'late');
-        await fillDate(page, 'last-brixadi', daysAgo(7));
+        await fillDate(page, 'last-brixadi', daysAgo(9));  // yields ~8 daysSince → inside 7-9 day window
         await selectField(page, 'brixadi-type', 'weekly');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
-        await expect(page.locator('.guidance-section')).toContainText('9 days');
+        await expect(page.locator('.guidance-section')).toContainText('Administer the weekly Brixadi injection');
     });
 
-    test('weekly, > 9 days: per prescriber guidance', async ({ page }) => {
+    test('weekly, > 9 days: contact prescriber before administering', async ({ page }) => {
         await selectField(page, 'medication', 'brixadi');
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-brixadi', daysAgo(12));
         await selectField(page, 'brixadi-type', 'weekly');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
-        await expect(page.locator('.guidance-section')).toContainText('per prescriber guidance');
+        await expect(page.locator('.guidance-section')).toContainText('Contact prescriber');
     });
 });
 
