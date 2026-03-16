@@ -122,11 +122,11 @@
                     "options": [
                         {
                             "value": "1-2",
-                            "label": "1–2 injections (4–8 weeks into therapy; steady state not yet achieved)"
+                            "label": "1–2 injections (before steady state achieved)"
                         },
                         {
                             "value": "3+",
-                            "label": "3 or more injections (beyond ~6–8 weeks; steady state likely achieved)"
+                            "label": "3 or more injections (steady state achieved)"
                         }
                     ]
                 }
