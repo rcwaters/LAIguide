@@ -4,20 +4,21 @@ import type { MedicationKey, FormGroupSpec, FieldSpec } from './interfaces/med';
 import type { SubmitContext, GuidanceResult } from './interfaces/guidance';
 import { md, daysSinceDate, formatDate } from './utils';
 import { NO_PROVIDER_NOTIFICATION } from './constants';
+import DEFINITIONS from './meds/definitions.json';
 
 // ─── DOM ID constants ─────────────────────────────────────────────────────────
 
-const NEXT_INJECTION_DATE_ID   = 'next-injection-date';
-const LAST_INJECTION_DATE_ID   = 'last-injection-date';
-const EARLY_DATE_GROUP_ID      = 'early-date-group';
+const NEXT_INJECTION_DATE_ID = 'next-injection-date';
+const LAST_INJECTION_DATE_ID = 'last-injection-date';
+const EARLY_DATE_GROUP_ID = 'early-date-group';
 const EARLY_LAST_DATE_GROUP_ID = 'early-last-date-group';
-const MEDICATION_ID            = 'medication';
-const GUIDANCE_TYPE_ID         = 'guidance-type';
-const GUIDANCE_TYPE_GROUP_ID   = 'guidance-type-group';
-const GUIDANCE_SECTION_SEL     = '.guidance-section';
-const FORM_SECTION_SEL         = '.form-section';
-const EARLY_GUIDANCE_LABEL     = 'Early Administration';
-const LATE_GUIDANCE_LABEL      = 'Late/Overdue Administration';
+const MEDICATION_ID = 'medication';
+const GUIDANCE_TYPE_ID = 'guidance-type';
+const GUIDANCE_TYPE_GROUP_ID = 'guidance-type-group';
+const GUIDANCE_SECTION_SEL = '.guidance-section';
+const FORM_SECTION_SEL = '.form-section';
+const EARLY_GUIDANCE_LABEL = 'Early Administration';
+const LATE_GUIDANCE_LABEL = 'Late/Overdue Administration';
 
 // ─── Form Field Visibility ────────────────────────────────────────────────────
 
@@ -26,7 +27,7 @@ function el<T extends HTMLElement>(id: string): T {
 }
 
 function show(id: string): void { el(id).style.display = 'block'; }
-function hide(id: string): void { el(id).style.display = 'none';  }
+function hide(id: string): void { el(id).style.display = 'none'; }
 function val(id: string): string {
     const elem = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
     if (elem) return elem.value;
@@ -39,7 +40,7 @@ function clear(id: string): void {
 }
 
 export function handleGuidanceTypeChange(): void {
-    const medication   = val(MEDICATION_ID);
+    const medication = val(MEDICATION_ID);
     const guidanceType = val(GUIDANCE_TYPE_ID);
 
     // Show/hide the guidance-type selector based on whether a medication is chosen
@@ -56,19 +57,19 @@ export function handleGuidanceTypeChange(): void {
     Object.values(MED_REGISTRY).flatMap(e => e.formFieldIds).forEach(clear);
 
     // Show/hide the correct early date picker(s) based on which early fields are set
-    const earlyGroup     = document.getElementById(EARLY_DATE_GROUP_ID)      as HTMLElement | null;
+    const earlyGroup = document.getElementById(EARLY_DATE_GROUP_ID) as HTMLElement | null;
     const earlyLastGroup = document.getElementById(EARLY_LAST_DATE_GROUP_ID) as HTMLElement | null;
     if (guidanceType === 'early' && medication) {
-        const entry            = MED_REGISTRY[medication as MedicationKey];
+        const entry = MED_REGISTRY[medication as MedicationKey];
         if (entry?.earlyParamField) {
             // Variant-aware early guidance: reuse the late fields group (contains
             // the variant select + date field), hide the generic early date pickers.
             show(entry.lateFieldsGroup);
-            if (earlyGroup)     { earlyGroup.style.display     = 'none';  clear(NEXT_INJECTION_DATE_ID); }
-            if (earlyLastGroup) { earlyLastGroup.style.display = 'none';  clear(LAST_INJECTION_DATE_ID); }
+            if (earlyGroup) { earlyGroup.style.display = 'none'; clear(NEXT_INJECTION_DATE_ID); }
+            if (earlyLastGroup) { earlyLastGroup.style.display = 'none'; clear(LAST_INJECTION_DATE_ID); }
         } else {
             const hasDaysBeforeDue = !!entry?.earlyDaysBeforeDue;
-            const hasMinDays       = !!entry?.earlyMinDays;
+            const hasMinDays = !!entry?.earlyMinDays;
             if (earlyGroup) {
                 earlyGroup.style.display = hasDaysBeforeDue ? 'block' : 'none';
                 if (!hasDaysBeforeDue) clear(NEXT_INJECTION_DATE_ID);
@@ -79,8 +80,8 @@ export function handleGuidanceTypeChange(): void {
             }
         }
     } else {
-        if (earlyGroup)     { earlyGroup.style.display     = 'none';  clear(NEXT_INJECTION_DATE_ID); }
-        if (earlyLastGroup) { earlyLastGroup.style.display = 'none';  clear(LAST_INJECTION_DATE_ID); }
+        if (earlyGroup) { earlyGroup.style.display = 'none'; clear(NEXT_INJECTION_DATE_ID); }
+        if (earlyLastGroup) { earlyLastGroup.style.display = 'none'; clear(LAST_INJECTION_DATE_ID); }
     }
 
     if (guidanceType === 'late') {
@@ -103,7 +104,7 @@ export function handleInvegaTypeChange(): void {
 export function checkAutoSubmit(): void {
     // If guidance is already displayed, don't re-submit
     if (document.querySelector(GUIDANCE_SECTION_SEL)) return;
-    const medication   = val(MEDICATION_ID);
+    const medication = val(MEDICATION_ID);
     const guidanceType = val(GUIDANCE_TYPE_ID);
     if (!medication || !guidanceType) return;
 
@@ -120,7 +121,7 @@ export function checkAutoSubmit(): void {
             return;
         }
         if (entry?.earlyDaysBeforeDue && !val(NEXT_INJECTION_DATE_ID)) return;
-        if (entry?.earlyMinDays       && !val(LAST_INJECTION_DATE_ID))  return;
+        if (entry?.earlyMinDays && !val(LAST_INJECTION_DATE_ID)) return;
         handleSubmit();
         return;
     }
@@ -142,10 +143,10 @@ export function checkAutoSubmit(): void {
 
 export function handleSubmit(): void {
     try {
-        const medication   = val(MEDICATION_ID);
+        const medication = val(MEDICATION_ID);
         const guidanceType = val(GUIDANCE_TYPE_ID);
 
-        if (!medication)   { alert('Please select a medication.');    return; }
+        if (!medication) { alert('Please select a medication.'); return; }
         if (!guidanceType) { alert('Please select a guidance type.'); return; }
 
         const ctx: SubmitContext = Object.fromEntries(
@@ -165,7 +166,7 @@ export function handleSubmit(): void {
                 return;
             }
             if (entry?.earlyDaysBeforeDue && !val(NEXT_INJECTION_DATE_ID)) { alert('Please enter the next scheduled injection date.'); return; }
-            if (entry?.earlyMinDays       && !val(LAST_INJECTION_DATE_ID)) { alert('Please enter the date of the last injection.');        return; }
+            if (entry?.earlyMinDays && !val(LAST_INJECTION_DATE_ID)) { alert('Please enter the date of the last injection.'); return; }
             showEarlyGuidance(medication);
             return;
         }
@@ -176,15 +177,15 @@ export function handleSubmit(): void {
         const validationErr = entry.validateLate(ctx);
         if (validationErr) { alert(validationErr); return; }
 
-        const params    = entry.buildLateParams(ctx);
-        const guidance  = entry.getLateGuidance(params);
+        const params = entry.buildLateParams(ctx);
+        const guidance = entry.getLateGuidance(params);
         const daysSince = params.daysSince!;
 
         const rows = infoRow('Medication:', entry.displayName)
-                   + infoRow('Guidance Type:', LATE_GUIDANCE_LABEL)
-                   + entry.buildLateInfoRows(ctx, daysSince).map(([label, value]) => infoRow(label, value)).join('');
+            + infoRow('Guidance Type:', LATE_GUIDANCE_LABEL)
+            + entry.buildLateInfoRows(ctx, daysSince).map(([label, value]) => infoRow(label, value)).join('');
 
-        const body = threePartGuidance(guidance as GuidanceResult, entry.commonProviderNotifications);
+        const body = threePartGuidance(guidance as GuidanceResult, entry.commonProviderNotifications, entry.optgroupLabel === 'Addiction Medicine');
 
         injectGuidanceSection(rows, body);
     } catch (err) {
@@ -202,7 +203,28 @@ function infoRow(label: string, value: string): string {
         </div>`;
 }
 
-function threePartGuidance(guidance: GuidanceResult, common?: string[]): string {
+function addictionMedicineAccordion(): string {
+    const phases = DEFINITIONS.addictionMedicine.definitions;
+
+    const items = phases.map(p => {
+        const body = p.allCriteria?.length
+            ? `<p>Must meet ALL of the following:</p><ul>${p.allCriteria.map((c: string) => `<li>${c}</li>`).join('')}</ul>`
+            : `<p>${(p as { description: string }).description}</p>`;
+        return `
+        <details class="fpa-item">
+            <summary class="fpa-summary">${p.label}</summary>
+            <div class="fpa-body">${body}</div>
+        </details>`;
+    }).join('');
+
+    return `
+        <div class="guidance-content fpa-box">
+            <h3 class="guidance-heading">${DEFINITIONS.addictionMedicine.groupTitle} <span class="fpa-hint">(click to expand)</span></h3>
+            ${items}
+        </div>`;
+}
+
+function threePartGuidance(guidance: GuidanceResult, common?: string[], isAddictionMed = false): string {
     const hasPragmatic = !!guidance.pragmaticVariations?.length;
     const idealTitle = hasPragmatic ? 'Ideal steps:' : 'Next steps:';
     const pragmaticBlock = hasPragmatic ? `
@@ -211,6 +233,7 @@ function threePartGuidance(guidance: GuidanceResult, common?: string[]): string 
             <div class="guidance-text">${guidance.pragmaticVariations!.map(v => md(v)).join('')}</div>
         </div>` : '';
     const allNotifs = [...(guidance.providerNotifications ?? []), ...(common ?? [])];
+    const phasesBlock = isAddictionMed ? addictionMedicineAccordion() : '';
     return `
         <div class="guidance-content">
             <h3 class="guidance-heading">${idealTitle}</h3>
@@ -219,9 +242,9 @@ function threePartGuidance(guidance: GuidanceResult, common?: string[]): string 
         <div class="guidance-content">
             <h3 class="guidance-heading">When to notify provider:</h3>
             ${allNotifs.length
-                ? `<ul>${allNotifs.map(n => `<li>${md(n)}</li>`).join('')}</ul>`
-                : `<div class="guidance-text">${md(NO_PROVIDER_NOTIFICATION)}</div>`}
-        </div>`;
+            ? `<ul>${allNotifs.map(n => `<li>${md(n)}</li>`).join('')}</ul>`
+            : `<div class="guidance-text">${md(NO_PROVIDER_NOTIFICATION)}</div>`}
+        </div>${phasesBlock}`;
 }
 
 function injectGuidanceSection(infoRows: string, bodyHTML: string): void {
@@ -250,15 +273,15 @@ function showEarlyGuidance(medication: string, variantKey?: string): void {
         const varDef = entry.earlyVariantMap[variantKey];
 
         // Resolve the human-readable label for the selected variant
-        const allFields   = entry.formGroupsSpec.flatMap(g => g.fields);
+        const allFields = entry.formGroupsSpec.flatMap(g => g.fields);
         const selectField = allFields.find(f => f.type === 'select' && f.id === entry.earlyParamField);
         const selectedLabel = (selectField?.type === 'select')
             ? (selectField.options.find(o => o.value === variantKey)?.label ?? variantKey)
             : variantKey;
 
         const rows = infoRow('Medication:', entry.displayName)
-                   + infoRow('Guidance Type:', EARLY_GUIDANCE_LABEL)
-                   + infoRow('Formulation:', selectedLabel);
+            + infoRow('Guidance Type:', EARLY_GUIDANCE_LABEL)
+            + infoRow('Formulation:', selectedLabel);
 
         if (varDef?.noGuidanceMessage) {
             // No early dosing guidance for this variant (e.g. weekly)
@@ -271,9 +294,9 @@ function showEarlyGuidance(medication: string, variantKey?: string): void {
         }
 
         // minDays variant (e.g. monthly-64/96/128)
-        const lastDate  = val(entry.earlyDateField ?? LAST_INJECTION_DATE_ID);
+        const lastDate = val(entry.earlyDateField ?? LAST_INJECTION_DATE_ID);
         const daysSince = daysSinceDate(lastDate);
-        const minDays   = varDef?.minDays ?? entry.earlyMinDays!;
+        const minDays = varDef?.minDays ?? entry.earlyMinDays!;
         const rowsWithDate = rows + infoRow('Last injection:', formatDate(lastDate));
 
         let resultHTML: string;
@@ -305,9 +328,7 @@ function showEarlyGuidance(medication: string, variantKey?: string): void {
                 </div>`
                     : '';
             })()}
-            <div class="important-note">
-                <strong>⚠️ Important:</strong> If there may be a reason to administer even earlier than the specified timeframe, provider approval must be obtained.
-            </div>`;
+            ${entry.optgroupLabel === 'Addiction Medicine' ? addictionMedicineAccordion() : ''}`;
 
         injectGuidanceSection(rowsWithDate, body);
         return;
@@ -315,27 +336,27 @@ function showEarlyGuidance(medication: string, variantKey?: string): void {
 
     // ── Standard (non-variant) early guidance ─────────────────────────────────
     const hasDaysBeforeDue = !!entry.earlyDaysBeforeDue;
-    const hasMinDays       = !!entry.earlyMinDays;
+    const hasMinDays = !!entry.earlyMinDays;
 
     let rows: string;
     let resultHTML: string;
 
     if (hasDaysBeforeDue && hasMinDays) {
         // Dual constraint: within X days of due date AND at least Y days since last injection
-        const nextDate   = val(NEXT_INJECTION_DATE_ID);
-        const lastDate   = val(LAST_INJECTION_DATE_ID);
-        const daysUntil  = Math.max(0, -daysSinceDate(nextDate));
-        const daysSince  = daysSinceDate(lastDate);
+        const nextDate = val(NEXT_INJECTION_DATE_ID);
+        const lastDate = val(LAST_INJECTION_DATE_ID);
+        const daysUntil = Math.max(0, -daysSinceDate(nextDate));
+        const daysSince = daysSinceDate(lastDate);
         const windowDays = entry.earlyDaysBeforeDue!;
-        const minDays    = entry.earlyMinDays!;
+        const minDays = entry.earlyMinDays!;
 
         rows = infoRow('Medication:', entry.displayName)
-             + infoRow('Guidance Type:', EARLY_GUIDANCE_LABEL)
-             + infoRow('Next injection scheduled:', formatDate(nextDate))
-             + infoRow('Last injection:', formatDate(lastDate));
+            + infoRow('Guidance Type:', EARLY_GUIDANCE_LABEL)
+            + infoRow('Next injection scheduled:', formatDate(nextDate))
+            + infoRow('Last injection:', formatDate(lastDate));
 
         const withinWindow = daysUntil === 0 || daysUntil <= windowDays;
-        const pastMinimum  = daysSince >= minDays;
+        const pastMinimum = daysSince >= minDays;
 
         if (withinWindow && pastMinimum) {
             resultHTML = `<div class="guidance-content early-allowed">
@@ -343,7 +364,7 @@ function showEarlyGuidance(medication: string, variantKey?: string): void {
                 <p>Both criteria are met: the scheduled injection is <strong>${daysUntil} day${daysUntil === 1 ? '' : 's'}</strong> away (within ${windowDays}-day window), and it has been <strong>${daysSince} day${daysSince === 1 ? '' : 's'}</strong> since the last injection (minimum: ${minDays} days).</p>
             </div>`;
         } else {
-            const windowMsg  = withinWindow
+            const windowMsg = withinWindow
                 ? `\u2705 Within ${windowDays}-day window (${daysUntil} day${daysUntil === 1 ? '' : 's'} away)`
                 : `\u274c Not yet within ${windowDays}-day window (${daysUntil - windowDays} day${daysUntil - windowDays === 1 ? '' : 's'} remaining)`;
             const minDaysMsg = pastMinimum
@@ -356,13 +377,13 @@ function showEarlyGuidance(medication: string, variantKey?: string): void {
         }
     } else if (hasMinDays) {
         // Pure since-last
-        const lastDate  = val(LAST_INJECTION_DATE_ID);
+        const lastDate = val(LAST_INJECTION_DATE_ID);
         const daysSince = daysSinceDate(lastDate);
-        const minDays   = entry.earlyMinDays!;
+        const minDays = entry.earlyMinDays!;
 
         rows = infoRow('Medication:', entry.displayName)
-             + infoRow('Guidance Type:', EARLY_GUIDANCE_LABEL)
-             + infoRow('Last injection:', formatDate(lastDate));
+            + infoRow('Guidance Type:', EARLY_GUIDANCE_LABEL)
+            + infoRow('Last injection:', formatDate(lastDate));
 
         if (daysSince >= minDays) {
             resultHTML = `<div class="guidance-content early-allowed">
@@ -378,13 +399,13 @@ function showEarlyGuidance(medication: string, variantKey?: string): void {
         }
     } else {
         // Pure before-next
-        const nextDate   = val(NEXT_INJECTION_DATE_ID);
-        const daysUntil  = Math.max(0, -daysSinceDate(nextDate));
+        const nextDate = val(NEXT_INJECTION_DATE_ID);
+        const daysUntil = Math.max(0, -daysSinceDate(nextDate));
         const windowDays = entry.earlyDaysBeforeDue!;
 
         rows = infoRow('Medication:', entry.displayName)
-             + infoRow('Guidance Type:', EARLY_GUIDANCE_LABEL)
-             + infoRow('Next injection scheduled:', formatDate(nextDate));
+            + infoRow('Guidance Type:', EARLY_GUIDANCE_LABEL)
+            + infoRow('Next injection scheduled:', formatDate(nextDate));
 
         if (daysUntil === 0) {
             resultHTML = `<div class="guidance-content early-allowed">
@@ -418,9 +439,7 @@ function showEarlyGuidance(medication: string, variantKey?: string): void {
             </div>`
                 : '';
         })()}
-        <div class="important-note">
-            <strong>\u26a0\ufe0f Important:</strong> If there may be a reason to administer even earlier than the specified timeframe, provider approval must be obtained.
-        </div>`;
+        ${entry.optgroupLabel === 'Addiction Medicine' ? addictionMedicineAccordion() : ''}`;
 
     injectGuidanceSection(rows, body);
 }
@@ -516,7 +535,7 @@ export function startOver(): void {
             e.subFieldGroups?.forEach(hide);
         });
 
-        const earlyDateGroup = document.getElementById(EARLY_DATE_GROUP_ID)      as HTMLElement | null;
+        const earlyDateGroup = document.getElementById(EARLY_DATE_GROUP_ID) as HTMLElement | null;
         const earlyLastGroup = document.getElementById(EARLY_LAST_DATE_GROUP_ID) as HTMLElement | null;
         if (earlyDateGroup) { earlyDateGroup.style.display = 'none'; }
         if (earlyLastGroup) { earlyLastGroup.style.display = 'none'; }
@@ -537,18 +556,20 @@ export function startOver(): void {
 
 // ─── Expose to HTML onclick handlers ─────────────────────────────────────────
 
-declare global { interface Window {
-    handleGuidanceTypeChange: typeof handleGuidanceTypeChange;
-    handleInvegaTypeChange: typeof handleInvegaTypeChange;
-    handleSubmit: typeof handleSubmit;
-    checkAutoSubmit: typeof checkAutoSubmit;
-    startOver: typeof startOver;
-    selectGuidanceType: typeof selectGuidanceType;
-} }
+declare global {
+    interface Window {
+        handleGuidanceTypeChange: typeof handleGuidanceTypeChange;
+        handleInvegaTypeChange: typeof handleInvegaTypeChange;
+        handleSubmit: typeof handleSubmit;
+        checkAutoSubmit: typeof checkAutoSubmit;
+        startOver: typeof startOver;
+        selectGuidanceType: typeof selectGuidanceType;
+    }
+}
 
 window.handleGuidanceTypeChange = handleGuidanceTypeChange;
-window.handleInvegaTypeChange   = handleInvegaTypeChange;
-window.handleSubmit             = handleSubmit;
-window.checkAutoSubmit          = checkAutoSubmit;
-window.startOver                = startOver;
-window.selectGuidanceType       = selectGuidanceType;
+window.handleInvegaTypeChange = handleInvegaTypeChange;
+window.handleSubmit = handleSubmit;
+window.checkAutoSubmit = checkAutoSubmit;
+window.startOver = startOver;
+window.selectGuidanceType = selectGuidanceType;

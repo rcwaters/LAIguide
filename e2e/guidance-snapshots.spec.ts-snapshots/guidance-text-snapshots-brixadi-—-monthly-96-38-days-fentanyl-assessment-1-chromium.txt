@@ -25,3 +25,10 @@ Determine appropriate action:
 When to notify provider:
 
 Consult prescriber if patient does not meet minimal/no fentanyl dependence criteria and is not OK with withdrawal risk, or if unsure.
+
+---
+
+Addiction Medicine definitions (click to expand)
+Minimal or no fentanyl dependence
+Moderate fentanyl dependence
+Significant fentanyl dependence

@@ -9,17 +9,31 @@
             "guidanceNote": "This may be given earlier with provider approval",
             "minDays": 21,
             "variants": [
-                { "key": "monthly-64",  "minDays": 21 },
-                { "key": "monthly-96",  "sameAs": "monthly-64" },
-                { "key": "monthly-128", "sameAs": "monthly-64" },
-                { "key": "weekly", "noGuidanceMessage": "Brixadi weekly early dosing guidance does not exist at this time. Please wait for the next scheduled dosing." }
+                {
+                    "key": "monthly-64",
+                    "minDays": 21
+                },
+                {
+                    "key": "monthly-96",
+                    "sameAs": "monthly-64"
+                },
+                {
+                    "key": "monthly-128",
+                    "sameAs": "monthly-64"
+                },
+                {
+                    "key": "weekly",
+                    "noGuidanceMessage": "Brixadi weekly early dosing guidance does not exist at this time. Please wait for the next scheduled dosing."
+                }
             ]
         },
         "late": {
             "variants": [
                 {
                     "key": "monthly-64",
-                    "internalNotes": ["Standard monthly tiers shared with 96 mg and 128 mg monthly formulations"],
+                    "internalNotes": [
+                        "Standard monthly tiers shared with 96 mg and 128 mg monthly formulations"
+                    ],
                     "tiers": [
                         {
                             "maxDays": 20,
@@ -83,7 +97,9 @@
                 },
                 {
                     "key": "weekly",
-                    "internalNotes": ["Weekly injections (24 mg or 32 mg): 9-day window, then prescriber guidance required"],
+                    "internalNotes": [
+                        "Weekly injections (24 mg or 32 mg): 9-day window, then prescriber guidance required"
+                    ],
                     "tiers": [
                         {
                             "maxDays": 6,
