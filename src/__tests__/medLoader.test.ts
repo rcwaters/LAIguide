@@ -325,8 +325,14 @@ describe('buildCoreDef — base fields', () => {
     });
 
     it('commonProviderNotifications is absent when guidance.shared.providerNotifications is empty', () => {
-        // vivitrol has shared.providerNotifications: [] — zero length → field omitted
-        expect(MED_REGISTRY['vivitrol'].commonProviderNotifications).toBeUndefined();
+        // sublocade has shared.providerNotifications: [] — zero length → field omitted
+        expect(MED_REGISTRY['sublocade'].commonProviderNotifications).toBeUndefined();
+    });
+
+    it('commonProviderNotifications is present when guidance.shared.providerNotifications is non-empty (vivitrol)', () => {
+        const notifs = MED_REGISTRY['vivitrol'].commonProviderNotifications;
+        expect(notifs).toBeDefined();
+        expect(notifs!.some(s => s.includes('minimal or no fentanyl dependence'))).toBe(true);
     });
 });
 

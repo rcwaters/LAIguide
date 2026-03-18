@@ -109,16 +109,16 @@ test.describe('conditional field visibility', () => {
     });
 
     const medFields: [string, string][] = [
-        ['invega_sustenna',        'invega-sustenna-options'],
-        ['invega_trinza',          'trinza-fields'],
-        ['invega_hafyera',         'hafyera-fields'],
-        ['abilify_maintena',       'abilify-fields'],
-        ['aristada',               'aristada-fields'],
-        ['uzedy',                  'uzedy-fields'],
-        ['haloperidol_decanoate',  'haloperidol-fields'],
+        ['invega_sustenna', 'invega-sustenna-options'],
+        ['invega_trinza', 'trinza-fields'],
+        ['invega_hafyera', 'hafyera-fields'],
+        ['abilify_maintena', 'abilify-fields'],
+        ['aristada', 'aristada-fields'],
+        ['uzedy', 'uzedy-fields'],
+        ['haloperidol_decanoate', 'haloperidol-fields'],
         ['fluphenazine_decanoate', 'fluphenazine-fields'],
-        ['vivitrol',               'vivitrol-fields'],
-        ['sublocade',              'sublocade-fields'],
+        ['vivitrol', 'vivitrol-fields'],
+        ['sublocade', 'sublocade-fields'],
     ];
     // Brixadi is excluded: its fields group stays visible for both late AND
     // early guidance (variant-aware early uses the same group for the date + select).
@@ -385,7 +385,7 @@ test.describe('early guidance flow — remaining medications', () => {
 
     // fluphenazine_decanoate is dual-constraint (daysBeforeDue + minDays)
     const dualConstraintMeds = ['fluphenazine_decanoate'];
-    const sinceLastMeds  = ['sublocade'];
+    const sinceLastMeds = ['sublocade'];
     // Brixadi uses variant-aware early guidance (separate describe block below)
 
     for (const med of dualConstraintMeds) {
@@ -588,7 +588,7 @@ test.describe('late guidance — Vivitrol', () => {
         await selectField(page, 'vivitrol-indication', 'oud');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
-        await expect(page.locator('.guidance-section')).toContainText('point-of-care UDS');
+        await expect(page.locator('.guidance-section')).toContainText('point-of-care urine drug screen');
     });
 
     test('OUD, 8+ weeks: consult provider', async ({ page }) => {
@@ -609,6 +609,26 @@ test.describe('late guidance — Vivitrol', () => {
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('no intentional daily use');
+    });
+
+    test('overdose prevention, 5-6 weeks: UDS unless confident', async ({ page }) => {
+        await selectField(page, 'medication', 'vivitrol');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-vivitrol', daysAgo(38));
+        await selectField(page, 'vivitrol-indication', 'overdose-prevention');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('unless you have strong confidence');
+    });
+
+    test('overdose prevention, 6-8 weeks: UDS required', async ({ page }) => {
+        await selectField(page, 'medication', 'vivitrol');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-vivitrol', daysAgo(48));
+        await selectField(page, 'vivitrol-indication', 'overdose-prevention');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('point-of-care urine drug screen');
     });
 
     test('overdose prevention, 8+ weeks: consult provider', async ({ page }) => {
@@ -637,53 +657,64 @@ test.describe('late guidance — Vivitrol', () => {
 test.describe('late guidance — Sublocade', () => {
     test.beforeEach(async ({ page }) => { await page.goto('/'); });
 
-    test('100mg, < 5 weeks: administer regardless', async ({ page }) => {
+    test('100mg-monthly, < 5 weeks: administer regardless', async ({ page }) => {
         await selectField(page, 'medication', 'sublocade');
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-sublocade', daysAgo(25));
-        await selectField(page, 'sublocade-type', '100mg');
+        await selectField(page, 'sublocade-type', '100mg-monthly');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.medication-info')).toContainText('Sublocade');
         await expect(page.locator('.guidance-section')).toContainText('Administer the next injection');
     });
 
-    test('100mg, 5-6 weeks: conditional guidance with moderate dependence option', async ({ page }) => {
+    test('100mg-monthly, 5-6 weeks: conditional guidance with moderate dependence option', async ({ page }) => {
         await selectField(page, 'medication', 'sublocade');
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-sublocade', daysAgo(38));
-        await selectField(page, 'sublocade-type', '100mg');
+        await selectField(page, 'sublocade-type', '100mg-monthly');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('fentanyl dependence assessment');
         await expect(page.locator('.guidance-section')).toContainText('moderate fentanyl dependence');
     });
 
-    test('100mg, 6-8 weeks: strict conditional guidance (no moderate option)', async ({ page }) => {
+    test('100mg-monthly, 6-8 weeks: strict conditional guidance (no moderate option)', async ({ page }) => {
         await selectField(page, 'medication', 'sublocade');
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-sublocade', daysAgo(48));
-        await selectField(page, 'sublocade-type', '100mg');
+        await selectField(page, 'sublocade-type', '100mg-monthly');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('fentanyl dependence assessment');
     });
 
-    test('100mg, 8+ weeks: consult prescriber', async ({ page }) => {
+    test('100mg-monthly, 8+ weeks: consult prescriber', async ({ page }) => {
         await selectField(page, 'medication', 'sublocade');
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-sublocade', daysAgo(60));
-        await selectField(page, 'sublocade-type', '100mg');
+        await selectField(page, 'sublocade-type', '100mg-monthly');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Consult a prescriber in real-time');
+    });
+
+    test('100mg booster: administrable any time with criteria', async ({ page }) => {
+        await selectField(page, 'medication', 'sublocade');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-sublocade', daysAgo(5));
+        await selectField(page, 'sublocade-type', '100mg-booster');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).toContainText('booster dose');
+        await expect(page.locator('.guidance-section')).toContainText('At least 24 hours');
     });
 
     test('300mg established, < 7 weeks: administer regardless', async ({ page }) => {
         await selectField(page, 'medication', 'sublocade');
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-sublocade', daysAgo(45));
-        await selectField(page, 'sublocade-type', '300mg-established');
+        await selectField(page, 'sublocade-type', '300mg-more-than-2-doses');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Administer the next injection');
@@ -693,7 +724,7 @@ test.describe('late guidance — Sublocade', () => {
         await selectField(page, 'medication', 'sublocade');
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-sublocade', daysAgo(75));
-        await selectField(page, 'sublocade-type', '300mg-established');
+        await selectField(page, 'sublocade-type', '300mg-more-than-2-doses');
 
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Consult a prescriber in real-time');
