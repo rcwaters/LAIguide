@@ -44,6 +44,8 @@ jobs:
           EOF
 
       - name: Build
+        env:
+          VITE_GITHUB_TOKEN: ${{ secrets.ADMIN_PAT }}
         run: npm run build
 
       # Deploy built dist/ back to main root so GitHub Pages (serving main/(root))
