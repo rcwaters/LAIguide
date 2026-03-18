@@ -49,8 +49,8 @@ function daysAgo(n: number): string {
     d.setHours(0, 0, 0, 0);
     d.setDate(d.getDate() - n);
     const yyyy = d.getFullYear();
-    const mm   = String(d.getMonth() + 1).padStart(2, '0');
-    const dd   = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
     return `${yyyy}-${mm}-${dd}`;
 }
 
@@ -60,12 +60,12 @@ describe('handleGuidanceTypeChange', () => {
     beforeEach(setupDOM);
 
     const medFields: [string, string][] = [
-        ['invega_sustenna',  'invega-sustenna-options'],
-        ['invega_trinza',    'trinza-fields'],
-        ['invega_hafyera',   'hafyera-fields'],
+        ['invega_sustenna', 'invega-sustenna-options'],
+        ['invega_trinza', 'trinza-fields'],
+        ['invega_hafyera', 'hafyera-fields'],
         ['abilify_maintena', 'abilify-fields'],
-        ['aristada',         'aristada-fields'],
-        ['uzedy',            'uzedy-fields'],
+        ['aristada', 'aristada-fields'],
+        ['uzedy', 'uzedy-fields'],
     ];
 
     test.each(medFields)(
@@ -994,10 +994,10 @@ describe('startOver', () => {
 
         startOver();
 
-        expect((document.getElementById('medication')       as HTMLSelectElement).value).toBe('');
-        expect((document.getElementById('guidance-type')   as HTMLSelectElement).value).toBe('');
-        expect((document.getElementById('last-uzedy')       as HTMLInputElement).value).toBe('');
-        expect((document.getElementById('uzedy-dose')       as HTMLSelectElement).value).toBe('');
+        expect((document.getElementById('medication') as HTMLSelectElement).value).toBe('');
+        expect((document.getElementById('guidance-type') as HTMLSelectElement).value).toBe('');
+        expect((document.getElementById('last-uzedy') as HTMLInputElement).value).toBe('');
+        expect((document.getElementById('uzedy-dose') as HTMLSelectElement).value).toBe('');
     });
 
     test('hides all conditional field groups', () => {
@@ -1015,15 +1015,15 @@ describe('startOver', () => {
 
 describe('provider notification aggregation', () => {
     // Save originals so afterEach can restore the registry to its loaded state
-    let origAbilifyCommon:  string[] | undefined;
+    let origAbilifyCommon: string[] | undefined;
     let origSustennaCommon: string[] | undefined;
-    let origSustennaEarly:  string[] | undefined;
+    let origSustennaEarly: string[] | undefined;
 
     beforeEach(() => {
         setupDOM();
-        origAbilifyCommon  = MED_REGISTRY['abilify_maintena'].commonProviderNotifications;
+        origAbilifyCommon = MED_REGISTRY['abilify_maintena'].commonProviderNotifications;
         origSustennaCommon = MED_REGISTRY['invega_sustenna'].commonProviderNotifications;
-        origSustennaEarly  = MED_REGISTRY['invega_sustenna'].earlyProviderNotification;
+        origSustennaEarly = MED_REGISTRY['invega_sustenna'].earlyProviderNotification;
     });
 
     afterEach(() => {
@@ -1031,8 +1031,8 @@ describe('provider notification aggregation', () => {
             if (orig === undefined) delete entry[key]; else entry[key] = orig;
         };
         restore(MED_REGISTRY['abilify_maintena'], 'commonProviderNotifications', origAbilifyCommon);
-        restore(MED_REGISTRY['invega_sustenna'],  'commonProviderNotifications', origSustennaCommon);
-        restore(MED_REGISTRY['invega_sustenna'],  'earlyProviderNotification',   origSustennaEarly);
+        restore(MED_REGISTRY['invega_sustenna'], 'commonProviderNotifications', origSustennaCommon);
+        restore(MED_REGISTRY['invega_sustenna'], 'earlyProviderNotification', origSustennaEarly);
     });
 
     /** Returns the <li> text contents from the "When to notify provider:" section */
@@ -1151,7 +1151,7 @@ describe('provider notification aggregation', () => {
         });
 
         test('early first, shared last: correct order when both are present', () => {
-            (MED_REGISTRY['invega_sustenna'] as any).earlyProviderNotification   = ['EARLY-NOTIF'];
+            (MED_REGISTRY['invega_sustenna'] as any).earlyProviderNotification = ['EARLY-NOTIF'];
             (MED_REGISTRY['invega_sustenna'] as any).commonProviderNotifications = ['SHARED-NOTIF'];
             submitEarlyAllowed();
 
@@ -1183,5 +1183,73 @@ describe('initForm — double-injection guard', () => {
         initForm();
         initForm();
         expect(document.querySelectorAll('#trinza-fields')).toHaveLength(1);
+    });
+});
+
+// ─── Addiction Medicine accordion ──────────────────────────────────────
+
+describe('addiction medicine accordion', () => {
+    beforeEach(setupDOM);
+
+    function submitBrixadi(days: number): void {
+        setField('medication', 'brixadi');
+        setField('guidance-type', 'late');
+        setField('last-brixadi', daysAgo(days));
+        setField('brixadi-type', 'monthly-64');
+        handleSubmit();
+    }
+
+    function submitAbilify(days: number): void {
+        setField('medication', 'abilify_maintena');
+        setField('guidance-type', 'late');
+        setField('last-abilify', daysAgo(days));
+        setField('abilify-prior-dose-group', '3+');
+        handleSubmit();
+    }
+
+    test('accordion renders for addiction medicine med on fentanyl-assessment tier (35–41 days)', () => {
+        submitBrixadi(38);
+        expect(document.querySelector('.fpa-box')).not.toBeNull();
+    });
+
+    test('accordion renders for addiction medicine med on fentanyl-assessment tier (42–55 days)', () => {
+        submitBrixadi(50);
+        expect(document.querySelector('.fpa-box')).not.toBeNull();
+    });
+
+    test('accordion renders for addiction medicine med on administer-regardless tier (21–34 days)', () => {
+        submitBrixadi(30);
+        expect(document.querySelector('.fpa-box')).not.toBeNull();
+    });
+
+    test('accordion does NOT render for non-addiction-medicine med (abilify_maintena)', () => {
+        submitAbilify(50);
+        expect(document.querySelector('.fpa-box')).toBeNull();
+    });
+
+    test('accordion contains exactly 3 phase items', () => {
+        submitBrixadi(38);
+        expect(document.querySelectorAll('.fpa-item')).toHaveLength(3);
+    });
+
+    test('all three phase labels are present', () => {
+        submitBrixadi(38);
+        const summaries = Array.from(document.querySelectorAll('.fpa-summary')).map(s => s.textContent ?? '');
+        expect(summaries.some(t => t.includes('Minimal or no fentanyl dependence'))).toBe(true);
+        expect(summaries.some(t => t.includes('Moderate fentanyl dependence'))).toBe(true);
+        expect(summaries.some(t => t.includes('Significant fentanyl dependence'))).toBe(true);
+    });
+
+    test('allCriteria phases render bullet items', () => {
+        submitBrixadi(38);
+        const firstItem = document.querySelectorAll('.fpa-item')[0].querySelector('.fpa-body');
+        expect(firstItem?.querySelectorAll('li').length).toBeGreaterThanOrEqual(4);
+    });
+
+    test('description-only phase renders paragraph text, not a list', () => {
+        submitBrixadi(38);
+        const secondBody = document.querySelectorAll('.fpa-item')[1].querySelector('.fpa-body');
+        expect(secondBody?.querySelector('ul')).toBeNull();
+        expect(secondBody?.querySelector('p')?.textContent).toContain('between');
     });
 });
