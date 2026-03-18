@@ -208,6 +208,198 @@
             font-size: 14px;
             color: #555;
         }
+
+        /* ─── Structured form ───────────────────────────────── */
+        .form-section {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .form-section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f5f5f5;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            user-select: none;
+        }
+
+        .form-section-header:hover {
+            background: #eee;
+        }
+
+        .form-section-header .chevron {
+            transition: transform 0.15s;
+            font-size: 12px;
+        }
+
+        .form-section.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .form-section.collapsed .form-section-body {
+            display: none;
+        }
+
+        .form-section-body {
+            padding: 14px;
+        }
+
+        .form-row {
+            margin-bottom: 12px;
+        }
+
+        .form-row label {
+            display: block;
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .form-row input[type="text"],
+        .form-row input[type="number"],
+        .form-row select {
+            width: 100%;
+            max-width: 400px;
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .list-editor {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 8px;
+            background: #fafafa;
+        }
+
+        .list-item {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+
+        .list-item textarea {
+            flex: 1;
+            min-height: 50px;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .list-item .remove-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 28px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .list-item .remove-btn:hover {
+            background: #c0392b;
+        }
+
+        .add-item-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 4px;
+        }
+
+        .add-item-btn:hover {
+            background: #2980b9;
+        }
+
+        /* Tier styling */
+        .tier-block {
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .tier-header {
+            background: #e8f4f2;
+            padding: 8px 12px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tier-header:hover {
+            background: #d5ece8;
+        }
+
+        .tier-block.collapsed .tier-body {
+            display: none;
+        }
+
+        .tier-block.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .tier-body {
+            padding: 12px;
+        }
+
+        .tier-body .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Variant styling */
+        .variant-block {
+            border-left: 3px solid #3c8476;
+            margin-bottom: 10px;
+            padding-left: 12px;
+        }
+
+        .variant-label {
+            font-weight: 700;
+            font-size: 14px;
+            color: #3c8476;
+            margin-bottom: 8px;
+        }
+
+        .sameAs-note {
+            font-style: italic;
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        #toggle-json-btn {
+            background: #8e44ad;
+            color: white;
+        }
+
+        #toggle-json-btn:hover {
+            background: #7d3c98;
+        }
     </style>
 </head>
 
@@ -225,8 +417,6 @@
             <input type="email" id="email-input" autocomplete="email">
             <label for="code-input">Access Code</label>
             <input type="password" id="code-input" autocomplete="off">
-            <label for="token-input">GitHub Token</label>
-            <input type="password" id="token-input" autocomplete="off" placeholder="ghp_…">
             <button id="login-btn">Sign In</button>
             <div id="login-error"></div>
         </div>
@@ -242,13 +432,19 @@
                 <select id="med-select">
                     <option value="">Select a medication…</option>
                 </select>
-                <input id="new-key-input" placeholder="new-med-key">
-                <button id="add-btn">+ New</button>
                 <button id="save-btn">Save</button>
                 <button id="delete-btn">Delete</button>
+                <button id="toggle-json-btn" type="button">Raw JSON</button>
             </div>
 
-            <textarea id="json-editor" spellcheck="false"></textarea>
+            <!-- Structured form editor -->
+            <div id="form-editor"></div>
+
+            <!-- Raw JSON editor (hidden by default) -->
+            <div id="json-section" style="display:none;">
+                <textarea id="json-editor" spellcheck="false"></textarea>
+            </div>
+
             <div id="editor-status"></div>
             <div id="deploy-status" style="margin-top:8px;font-size:13px;color:#555;"></div>
         </div>
