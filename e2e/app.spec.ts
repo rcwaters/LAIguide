@@ -207,7 +207,7 @@ test.describe('early guidance flow', () => {
             await selectField(page, 'medication', med);
             await selectField(page, 'guidance-type', 'early');
             await fillDate(page, 'next-injection-date', daysFromNow(1));
-            await fillDate(page, 'last-injection-date', daysAgo(25));
+            await fillDate(page, 'last-injection-date', daysAgo(30));
 
             await expect(page.locator('.guidance-section')).toBeVisible();
             await expect(page.locator('.form-section')).not.toBeVisible();
@@ -218,7 +218,7 @@ test.describe('early guidance flow', () => {
         test(`${med}: shows guidance and hides form`, async ({ page }) => {
             await selectField(page, 'medication', med);
             await selectField(page, 'guidance-type', 'early');
-            await fillDate(page, 'last-injection-date', daysAgo(25));
+            await fillDate(page, 'last-injection-date', daysAgo(30));
 
             await expect(page.locator('.guidance-section')).toBeVisible();
             await expect(page.locator('.form-section')).not.toBeVisible();

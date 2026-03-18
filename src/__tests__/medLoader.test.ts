@@ -47,7 +47,7 @@ describe('earlyGuidance', () => {
             ['uzedy', '2 days before due date; no sooner than 3 weeks after last injection  \n*(DESC created guidance)*'],
             ['brixadi', 'No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*'],
             ['sublocade', 'No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*'],
-            ['vivitrol', 'No sooner than 3 weeks after last injection'],
+            ['vivitrol', 'No sooner than 4 weeks after last injection'],
         ];
         for (const [key, expected] of cases) {
             it(`${key} earlyGuidance`, () =>
@@ -74,7 +74,7 @@ describe('earlyGuidance', () => {
             ['abilify_maintena', 26],
             ['brixadi', 21],
             ['sublocade', 21],
-            ['vivitrol', 21],
+            ['vivitrol', 28],
             ['invega_sustenna', 21],
             ['aristada', 21],
             ['uzedy', 21],

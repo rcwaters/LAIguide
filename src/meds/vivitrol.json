@@ -10,7 +10,7 @@
             ]
         },
         "early": {
-            "minDays": 21
+            "minDays": 28
         },
         "late": {
             "variants": [
