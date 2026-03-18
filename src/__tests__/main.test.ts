@@ -13,6 +13,7 @@ import { MED_REGISTRY } from '../medLoader';
 
 // vitest 1.6+ provides a typed helper for mocking DOM globals
 vi.stubGlobal('alert', vi.fn());
+vi.stubGlobal('scrollTo', vi.fn());
 
 
 // ─── jsdom stubs ──────────────────────────────────────────────────────────────

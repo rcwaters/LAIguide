@@ -1,5 +1,5 @@
 import type { SubmitContext } from '../interfaces/guidance';
-import type { MedicationKey, LateGuidanceParams, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition, VariantEntry } from '../interfaces/med';
+import type { LateGuidanceParams, InfoRowSpec, LateSpec, SelectOption, FieldSpec, FormGroupSpec, MedDefinition, VariantEntry } from '../interfaces/med';
 import { DAYS_PER_MONTH } from '../interfaces/med';
 import { daysSinceDate, formatDate, formatWeeksAndDays } from '../utils';
 import { buildTiers, buildVariantMap, resolveLateTier } from './tierBuilder';
