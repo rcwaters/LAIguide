@@ -25,6 +25,7 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
+    "firebase": "^12.10.0",
     "marked": "^17.0.4"
   }
 }

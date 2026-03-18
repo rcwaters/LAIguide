@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAI Admin Portal</title>
+    <script type="module" src="/src/admin.ts"></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #aecfcc;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-header {
+            text-align: center;
+            background: #3c8476;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px 16px;
+        }
+
+        .admin-header h1 {
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .admin-header p {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 14px;
+        }
+
+        .admin-container {
+            background: white;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        /* ─── Login ─────────────────────────────────────────── */
+        #login-section {
+            max-width: 360px;
+            margin: 0 auto;
+        }
+
+        #login-section h2 {
+            margin-bottom: 16px;
+            font-size: 20px;
+        }
+
+        #login-section label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        #login-section input {
+            width: 100%;
+            padding: 8px 10px;
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        #login-btn {
+            width: 100%;
+            padding: 10px;
+            background: #3c8476;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        #login-btn:hover {
+            background: #2d6a5e;
+        }
+
+        #login-error {
+            color: #c0392b;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        /* ─── Editor ────────────────────────────────────────── */
+        #editor-section {
+            display: none;
+        }
+
+        .editor-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .editor-toolbar select {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .editor-toolbar button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        #save-btn {
+            background: #27ae60;
+            color: white;
+        }
+
+        #save-btn:hover {
+            background: #219a52;
+        }
+
+        #delete-btn {
+            background: #c0392b;
+            color: white;
+        }
+
+        #delete-btn:hover {
+            background: #a93226;
+        }
+
+        #logout-btn {
+            background: #7f8c8d;
+            color: white;
+        }
+
+        #logout-btn:hover {
+            background: #6c7a7b;
+        }
+
+        #new-key-input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 180px;
+            display: none;
+        }
+
+        #add-btn {
+            background: #2980b9;
+            color: white;
+        }
+
+        #add-btn:hover {
+            background: #2471a3;
+        }
+
+        #json-editor {
+            width: 100%;
+            min-height: 500px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+            tab-size: 2;
+        }
+
+        #editor-status {
+            margin-top: 8px;
+            font-size: 13px;
+            min-height: 20px;
+        }
+
+        .status-ok {
+            color: #27ae60;
+        }
+
+        .status-err {
+            color: #c0392b;
+        }
+
+        .user-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-header">
+        <h1>🔧 LAI Admin Portal</h1>
+        <p>Manage medication JSON data</p>
+    </div>
+
+    <div class="admin-container">
+        <!-- Login -->
+        <div id="login-section">
+            <h2>Admin Login</h2>
+            <label for="email-input">Email</label>
+            <input type="email" id="email-input" autocomplete="email">
+            <label for="code-input">Access Code</label>
+            <input type="password" id="code-input" autocomplete="off">
+            <button id="login-btn">Sign In</button>
+            <div id="login-error"></div>
+        </div>
+
+        <!-- Editor (hidden until authenticated) -->
+        <div id="editor-section">
+            <div class="user-bar">
+                <span id="user-email"></span>
+                <button id="logout-btn">Sign Out</button>
+            </div>
+
+            <div class="editor-toolbar">
+                <select id="med-select">
+                    <option value="">Select a medication…</option>
+                </select>
+                <input id="new-key-input" placeholder="new-med-key">
+                <button id="add-btn">+ New</button>
+                <button id="save-btn">Save</button>
+                <button id="delete-btn">Delete</button>
+            </div>
+
+            <textarea id="json-editor" spellcheck="false"></textarea>
+            <div id="editor-status"></div>
+        </div>
+    </div>
+</body>
+
+</html>
