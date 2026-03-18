@@ -1,4 +1,4 @@
-import { createFirestoreStore } from './services/firebase';
+import { createGitHubStore } from './services/github/store';
 import type { MedDataStore } from './services/interfaces';
 
 // ── Admin configuration ─────────────────────────────────────────────────────
@@ -14,10 +14,13 @@ const REQUIRED_EMAIL_VALUE = '@desc.org';
 const ACCESS_CODE_HASH =
     '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'; // "1234"
 const SESSION_TTL_HOURS = 24;
+const GITHUB_OWNER = 'rcwaters';
+const GITHUB_REPO = 'LAIguide';
 // ─────────────────────────────────────────────────────────────────────────────
 
 const SESSION_KEY = 'lai_admin_session';
-const store: MedDataStore = createFirestoreStore();
+const TOKEN_KEY = 'lai_admin_gh_token';
+let store: MedDataStore;
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -25,8 +28,10 @@ const loginSection = $<HTMLDivElement>('login-section');
 const editorSection = $<HTMLDivElement>('editor-section');
 const emailInput = $<HTMLInputElement>('email-input');
 const codeInput = $<HTMLInputElement>('code-input');
+const tokenInput = $<HTMLInputElement>('token-input');
 const loginBtn = $<HTMLButtonElement>('login-btn');
 const loginError = $<HTMLDivElement>('login-error');
+const deployStatus = $<HTMLDivElement>('deploy-status');
 
 const userEmail = $<HTMLSpanElement>('user-email');
 const logoutBtn = $<HTMLButtonElement>('logout-btn');
@@ -40,7 +45,7 @@ const editorStatus = $<HTMLDivElement>('editor-status');
 
 // ── Session helpers ─────────────────────────────────────────────────────────
 
-interface AdminSession { email: string; loginAt: number }
+interface AdminSession { email: string; loginAt: number; hasToken: boolean }
 
 function getSession(): AdminSession | null {
     const raw = localStorage.getItem(SESSION_KEY);
@@ -61,12 +66,29 @@ function getSession(): AdminSession | null {
 function setSession(email: string) {
     localStorage.setItem(
         SESSION_KEY,
-        JSON.stringify({ email, loginAt: Date.now() }),
+        JSON.stringify({ email, loginAt: Date.now(), hasToken: true }),
     );
+}
+
+function storeToken(token: string) {
+    sessionStorage.setItem(TOKEN_KEY, token);
+}
+
+function getToken(): string | null {
+    return sessionStorage.getItem(TOKEN_KEY);
+}
+
+function clearToken() {
+    sessionStorage.removeItem(TOKEN_KEY);
+}
+
+function initStore(token: string) {
+    store = createGitHubStore(GITHUB_OWNER, GITHUB_REPO, token);
 }
 
 function clearSession() {
     localStorage.removeItem(SESSION_KEY);
+    clearToken();
 }
 
 async function sha256(text: string): Promise<string> {
@@ -145,12 +167,17 @@ loginBtn.addEventListener('click', async () => {
     }
     if (!code) { showError('Access code is required.'); return; }
 
+    const token = tokenInput.value.trim();
+    if (!token) { showError('GitHub token is required.'); return; }
+
     const hash = await sha256(code);
     if (hash !== ACCESS_CODE_HASH) {
         showError('Invalid access code.');
         return;
     }
 
+    storeToken(token);
+    initStore(token);
     setSession(email);
     showEditor(email);
 });
@@ -166,9 +193,12 @@ logoutBtn.addEventListener('click', () => {
 
 // Restore session on page load
 const existing = getSession();
-if (existing) {
+const savedToken = getToken();
+if (existing && savedToken) {
+    initStore(savedToken);
     showEditor(existing.email);
 } else {
+    clearSession();
     showLogin();
 }
 
@@ -210,7 +240,9 @@ saveBtn.addEventListener('click', async () => {
     }
     try {
         await store.saveMed(key, data);
-        showStatus(`Saved "${key}" successfully.`, true);
+        showStatus(`Saved "${key}" — commit pushed. Site will redeploy shortly.`, true);
+        deployStatus.textContent = '⏳ Deploy triggered — changes will be live in ~1-2 minutes.';
+        deployStatus.style.color = '#2980b9';
     } catch (err: unknown) {
         showStatus(err instanceof Error ? err.message : 'Save failed.', false);
     }
@@ -225,7 +257,9 @@ deleteBtn.addEventListener('click', async () => {
     if (!confirm(`Delete "${key}"? This cannot be undone.`)) return;
     try {
         await store.deleteMed(key);
-        showStatus(`Deleted "${key}".`, true);
+        showStatus(`Deleted "${key}" — commit pushed. Site will redeploy shortly.`, true);
+        deployStatus.textContent = '⏳ Deploy triggered — changes will be live in ~1-2 minutes.';
+        deployStatus.style.color = '#2980b9';
         await loadMedList();
         jsonEditor.value = '';
     } catch (err: unknown) {
