@@ -94,9 +94,8 @@ export function createGitHubStore(
         async saveMed(key: string, data: Record<string, unknown>): Promise<void> {
             const filePath = `${MEDS_PATH}/${key}.json`;
             const sha = await getFileSha(owner, repo, filePath, token, branch);
-            const content = btoa(
-                unescape(encodeURIComponent(JSON.stringify(data, null, 2) + '\n')),
-            );
+            const bytes = new TextEncoder().encode(JSON.stringify(data, null, 2) + '\n');
+            const content = btoa(String.fromCodePoint(...bytes));
             await ghFetch(
                 `${api}/contents/${filePath}`,
                 token,
