@@ -44,33 +44,38 @@
                             }
                         },
                         {
-                            "maxDays": 34,
+                            "maxDays": 35,
                             "guidance": {
                                 "idealSteps": [
-                                    "**Administer the next injection**, regardless of the level of unregulated opioid use.",
-                                    "*Note: If the patient reports active use of unregulated opioids, discuss a switch to Sublocade 300 mg and consult prescriber if the patient is interested.*"
+                                    "Administer the next injection, regardless of the level of unregulated opioid use.",
+                                    "If the patient reports active use of unregulated opioids, discuss a switch to Sublocade 300 mg and consult prescriber if the patient is interested.*"
                                 ]
                             }
                         },
                         {
-                            "maxDays": 41,
+                            "maxDays": 42,
                             "guidance": {
                                 "idealSteps": [
-                                    "Conduct a fentanyl dependence assessment before administering:\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\nDetermine appropriate action:\n\n✔ **Administer** if client has \"minimal or no fentanyl dependence\" — *or* — client has taken at least **8 mg sublingual buprenorphine in the last 24 hours**.\n\n✔ **Administer** if client has moderate fentanyl dependence *and* is OK with the risk of some buprenorphine-induced withdrawal.\n\n✖ **Otherwise — consult prescriber** before administering."
+                                    "Conduct a fentanyl dependence assessment before administering:",
+                                    "Administer next injection if the client has **“minimal/no fentanyl dependence”, see definition below**, or if the client has taken at least 8 mg of sublingual buprenorphine in the last 24 hours.",
+                                    "Administer if they have “moderate fentanyl dependence” and are ok with the risk of some bup-induced withdrawal.",
+                                    "If the patient reports active use of unregulated opioids, discuss a switch to Sublocade 300 mg and consult prescriber if the patient is interested.*"
                                 ],
                                 "providerNotifications": [
-                                    "Consult prescriber if patient does not meet minimal/no fentanyl dependence criteria and is not OK with withdrawal risk, or if unsure."
+                                    "Consult prescriber if patient does not meet minimal/no, or moderate fentanyl dependence criteria."
                                 ]
                             }
                         },
                         {
-                            "maxDays": 55,
+                            "maxDays": 56,
                             "guidance": {
                                 "idealSteps": [
-                                    "Conduct a fentanyl dependence assessment before administering:\n\n**Criteria for \"minimal or no fentanyl dependence\" — all must apply:**\n\n- Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)\n\n- Client does not feel significant effects of fentanyl if they use it\n\n- Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal\n\n- Client's fentanyl use remains \"much less\" than before starting MOUD\n\nDetermine appropriate action:\n\n✔ **Administer** if client has \"minimal or no fentanyl dependence\" — *or* — client has taken at least **8 mg sublingual buprenorphine in the last 24 hours**.\n\n✖ **Otherwise — consult prescriber** before administering."
+                                    "Conduct a fentanyl dependence assessment before administering:",
+                                    "Administer next injection if the client has **“minimal/no fentanyl dependence”, see definition below**, or if the client has taken at least 8 mg of sublingual buprenorphine in the last 24 hours.",
+                                    "If the patient reports active use of unregulated opioids, discuss a switch to Sublocade 300 mg and consult prescriber if the patient is interested.*"
                                 ],
                                 "providerNotifications": [
-                                    "Consult prescriber if patient does not meet minimal/no fentanyl dependence criteria or has not taken ≥8 mg sublingual buprenorphine in the last 24 hours."
+                                    "Consult prescriber if patient does not meet minimal/no fentanyl dependence criteria."
                                 ]
                             }
                         },

@@ -210,20 +210,20 @@ test.describe('guidance text snapshots', () => {
         await snapshotGuidance(page);
     });
 
-    test('sublocade — 100mg, 25 days (administer)', async ({ page }) => {
+    test('sublocade — 100mg-monthly, 25 days (administer)', async ({ page }) => {
         await selectField(page, 'medication', 'sublocade');
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-sublocade', daysAgo(25));
-        await selectField(page, 'sublocade-type', '100mg');
+        await selectField(page, 'sublocade-type', '100mg-monthly');
         await submit(page);
         await snapshotGuidance(page);
     });
 
-    test('sublocade — 300mg-established, 45 days (administer regardless)', async ({ page }) => {
+    test('sublocade — 300mg-more-than-2-doses, 45 days (administer regardless)', async ({ page }) => {
         await selectField(page, 'medication', 'sublocade');
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-sublocade', daysAgo(45));
-        await selectField(page, 'sublocade-type', '300mg-established');
+        await selectField(page, 'sublocade-type', '300mg-more-than-2-doses');
         await submit(page);
         await snapshotGuidance(page);
     });

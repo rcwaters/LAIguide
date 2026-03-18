@@ -13,6 +13,7 @@ import { MED_REGISTRY } from '../medLoader';
 
 // vitest 1.6+ provides a typed helper for mocking DOM globals
 vi.stubGlobal('alert', vi.fn());
+vi.stubGlobal('scrollTo', vi.fn());
 
 
 // ─── jsdom stubs ──────────────────────────────────────────────────────────────
@@ -541,8 +542,7 @@ describe('handleSubmit — guidance rendering', () => {
         expectGuidanceRendered();
     });
 
-    // ── Vivitrol early: single constraint (minDays=21) ──
-    describe('vivitrol early — single constraint (minDays=21)', () => {
+    describe('vivitrol early — single constraint (minDays=28)', () => {
         function submitEarly(daysSinceLast: number): void {
             setField('medication', 'vivitrol');
             setField('guidance-type', 'early');
@@ -554,27 +554,27 @@ describe('handleSubmit — guidance rendering', () => {
             return document.querySelector('.guidance-content')!.textContent ?? '';
         }
 
-        test('allowed: exactly 21 days since last (on boundary)', () => {
-            submitEarly(21);
+        test('allowed: exactly 28 days since last (on boundary)', () => {
+            submitEarly(28);
             expectGuidanceRendered();
             expect(resultText()).toContain('Early administration is allowed');
         });
 
-        test('allowed: 28 days since last (inside window)', () => {
-            submitEarly(28);
+        test('allowed: 35 days since last (inside window)', () => {
+            submitEarly(35);
             expect(resultText()).toContain('Early administration is allowed');
         });
 
-        test('not allowed: 20 days since last (1 day under minimum)', () => {
-            submitEarly(20);
+        test('not allowed: 27 days since last (1 day under minimum)', () => {
+            submitEarly(27);
             expect(resultText()).toContain('Too early to administer');
         });
 
-        test('boundary: 21 days → allowed, 20 days → not allowed', () => {
-            submitEarly(21);
+        test('boundary: 28 days → allowed, 27 days → not allowed', () => {
+            submitEarly(28);
             expect(resultText()).toContain('Early administration is allowed');
             setupDOM();
-            submitEarly(20);
+            submitEarly(27);
             expect(resultText()).toContain('Too early to administer');
         });
     });

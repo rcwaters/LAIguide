@@ -1,0 +1,11 @@
+export const NEXT_INJECTION_DATE_ID = 'next-injection-date';
+export const LAST_INJECTION_DATE_ID = 'last-injection-date';
+export const EARLY_DATE_GROUP_ID = 'early-date-group';
+export const EARLY_LAST_DATE_GROUP_ID = 'early-last-date-group';
+export const MEDICATION_ID = 'medication';
+export const GUIDANCE_TYPE_ID = 'guidance-type';
+export const GUIDANCE_TYPE_GROUP_ID = 'guidance-type-group';
+export const GUIDANCE_SECTION_SEL = '.guidance-section';
+export const FORM_SECTION_SEL = '.form-section';
+export const EARLY_GUIDANCE_LABEL = 'Early Administration';
+export const LATE_GUIDANCE_LABEL = 'Late/Overdue Administration';

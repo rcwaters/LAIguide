@@ -1,26 +1,22 @@
 Next steps:
 
-Obtain a point-of-care UDS (consult provider if unable).
+Obtain a point-of-care urine drug screen
 
-UDS Negative → Administer Vivitrol (if patient meets criteria for minimal/no fentanyl dependence).
+If UDS negative AND criteria for "minimal or no fentanyl dependence" are met, administer Vivitrol.
 
-UDS Positive → Do NOT administer. Consult provider.
-
-Criteria for "minimal or no fentanyl dependence" — all must apply:
-
-Client does not experience significant opioid withdrawal symptoms during a typical day (no more than mild morning withdrawals)
-
-Client does not feel significant effects of fentanyl if they use it
-
-Client can go 6 or more hours without fentanyl or other unregulated opioids without significant withdrawal
-
-Client's fentanyl use remains "much less" than before starting MOUD
+If UDS positive, do NOT administer. Further discussion needed on degree of opioid dependence. Consult provider.
 
 ---
 
 When to notify provider:
 
-Consult provider if unable to obtain UDS, if UDS is positive, or if there is concern about opioid dependence.
+Consult provider if unable to obtain UDS, if UDS is positive, or if patient does not meet "minimal or no fentanyl dependence" criteria.
+
+Do not administer and consult provider if patient does not meet criteria for "minimal or no fentanyl dependence", see definition below.
+
+Patient has any signs of opioid depedency: more than minimal depedency, need to use opioids to avoid withdrawals, unable to go without opioids.
+
+Do not rely only on drug tests as they can be falsely negative, consult if there is suspicion of opioid depedency.
 
 ---
 
