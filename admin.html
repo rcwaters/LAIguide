@@ -5,6 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LAI Admin Portal</title>
+    <link rel="icon" id="favicon" type="image/png" href="./media/logo-desc.png">
+    <script>
+        const img = new Image();
+        img.onload = () => {
+            const c = document.createElement('canvas');
+            c.width = c.height = 64;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#3c8476';
+            ctx.fillRect(0, 0, 64, 64);
+            ctx.drawImage(img, 0, 0, 64, 64);
+            document.getElementById('favicon').href = c.toDataURL('image/png');
+        };
+        img.src = './media/logo-desc.png';
+    </script>
     <script type="module" src="/src/admin.ts"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Domine:wght@400;500;600;700&display=swap');
