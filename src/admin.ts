@@ -119,7 +119,7 @@ function showStatus(msg: string, ok: boolean) {
 function showEditor(email: string) {
     loginSection.style.display = 'none';
     editorSection.style.display = 'block';
-    userEmail.textContent = `Signed in as ${email}`;
+    userEmail.textContent = email;
     loadMedList();
 }
 

@@ -95,7 +95,7 @@ test.describe('page load', () => {
     test('includes protocol download link on page load', async ({ page }) => {
         const link = page.locator('.protocol-link a');
         await expect(link).toBeVisible();
-        await expect(link).toHaveAttribute('href', './docs/protocol.pdf');
+        await expect(link).toHaveAttribute('href', './media/protocol.pdf');
         await expect(link).toHaveAttribute('download', 'DESC LAI Protocol.pdf');
         await expect(link).toHaveText('document');
     });

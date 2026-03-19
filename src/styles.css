@@ -1,6 +1,6 @@
 /* ─── Reset & base ────────────────────────────────────────────────────────── */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Domine:wght@400;500;600;700&display=swap');
 
 *,
 *::before,
@@ -11,23 +11,22 @@
 }
 
 body {
-    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    font-family: 'Domine', Georgia, serif;
     background: #aecfcc;
     min-height: 100vh;
-    /* mobile: tighter padding; phones with notches get safe-area insets */
-    padding: 8px;
-    padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+    padding: 0 8px 8px;
+    padding: 0 max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
 }
 
 @media (min-width: 480px) {
     body {
-        padding: 16px;
+        padding: 0 16px 16px;
     }
 }
 
 @media (min-width: 768px) {
     body {
-        padding: 20px;
+        padding: 0 20px 20px;
     }
 }
 
@@ -50,7 +49,7 @@ body {
     background: white;
     border-radius: 0;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    padding: 16px;
+    padding: 1px 16px 16px;
     max-width: 900px;
     margin: 0 auto;
 }
@@ -58,14 +57,14 @@ body {
 @media (min-width: 480px) {
     .app-container {
         border-radius: 0;
-        padding: 24px;
+        padding: 1px 24px 24px;
     }
 }
 
 @media (min-width: 768px) {
     .app-container {
         border-radius: 0;
-        padding: 30px;
+        padding: 1px 30px 30px;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     }
 }
@@ -77,10 +76,20 @@ body {
     background: #3c8476;
     max-width: 900px;
     margin: 0 auto;
+    position: relative;
     padding: 20px 16px;
 }
 
 
+
+.header-logo {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    height: 72px;
+    width: auto;
+}
 
 .app-title {
     color: white;
@@ -99,18 +108,18 @@ body {
 
 .form-section {
     margin-bottom: 24px;
-    padding: 16px;
+    padding: 12px 16px 16px;
     border-radius: 0;
 }
 
 @media (min-width: 768px) {
     .form-section {
-        padding: 20px;
+        padding: 12px 20px 20px;
     }
 }
 
 .section-title {
-    color: #475564;
+    color: #000;
     font-size: clamp(17px, 4vw, 20px);
     font-weight: 600;
     margin-bottom: 15px;
@@ -126,7 +135,7 @@ body {
 label {
     display: block;
     margin-bottom: 8px;
-    color: #475564;
+    color: #000;
     font-weight: 500;
 }
 
@@ -162,7 +171,7 @@ optgroup {
 }
 
 optgroup option {
-    color: #374151;
+    color: #000;
     font-weight: 400;
 }
 
@@ -240,50 +249,39 @@ optgroup option {
 }
 
 .medication-info {
-    background: #eff6ff;
-    padding: 16px;
+    background: transparent;
+    padding: 12px 16px 8px;
     border-radius: 10px;
-    margin: 16px 0;
-    border: 1px solid #bfdbfe;
+    margin: 0 0 8px;
+    border: none;
+    font-size: 0.88em;
 }
 
 @media (min-width: 768px) {
     .medication-info {
-        padding: 20px;
-        margin: 20px 0;
+        padding: 12px 20px 8px;
+        margin: 0 0 8px;
     }
 }
 
 .info-row {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    margin: 8px 0;
-}
-
-@media (min-width: 480px) {
-    .info-row {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        gap: 0;
-    }
+    display: block;
+    margin: 4px 0;
 }
 
 .info-label {
     font-weight: 600;
-    color: #006c87;
-}
-
-@media (min-width: 480px) {
-    .info-label {
-        min-width: 150px;
-    }
+    color: #000;
 }
 
 .info-value {
-    color: #374151;
+    color: #000;
     font-weight: 500;
+}
+
+.guidance-content.ideal-content {
+    background: #ecfdf5;
+    border: none;
 }
 
 .guidance-content {
@@ -303,14 +301,14 @@ optgroup option {
 }
 
 .guidance-heading {
-    color: #475564;
-    font-size: clamp(15px, 3.5vw, 19px);
+    color: #000;
+    font-size: clamp(15px, 3vw, 17px);
     font-weight: 600;
     margin-bottom: 12px;
 }
 
 .guidance-text {
-    color: #374151;
+    color: #000;
     font-size: clamp(15px, 3vw, 17px);
     font-weight: 500;
     line-height: 1.65;
@@ -319,7 +317,7 @@ optgroup option {
 
 .guidance-content ul,
 .guidance-content ol {
-    color: #374151;
+    color: #000;
     font-size: clamp(15px, 3vw, 17px);
     font-weight: 500;
     line-height: 1.65;
@@ -365,7 +363,7 @@ optgroup option {
     border: 2px solid #d1d5db;
     border-radius: 8px;
     background: #fff;
-    color: #374151;
+    color: #000;
     font-size: 15px;
     font-weight: 500;
     cursor: pointer;
@@ -427,7 +425,7 @@ optgroup option {
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     background: transparent;
-    color: #374151;
+    color: #000;
 }
 
 .fpa-summary::-webkit-details-marker {
@@ -449,13 +447,13 @@ optgroup option {
 }
 
 .fpa-summary:hover {
-    color: #111827;
+    color: #000;
 }
 
 .fpa-body {
     padding: 8px 0 8px 12px;
     font-size: clamp(13px, 2.6vw, 14px);
-    color: #374151;
+    color: #000;
     line-height: 1.6;
 }
 
