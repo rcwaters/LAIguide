@@ -37,14 +37,14 @@ export function threePartGuidance(guidance: GuidanceResult, common?: string[], i
     const hasPragmatic = !!guidance.pragmaticVariations?.length;
     const idealTitle = hasPragmatic ? 'Ideal steps:' : 'Next steps:';
     const pragmaticBlock = hasPragmatic ? `
-        <div class="guidance-content">
+        <div class="guidance-content ideal-content">
             <h3 class="guidance-heading">Acceptable pragmatic variations (if ideal is not possible):</h3>
             <div class="guidance-text">${guidance.pragmaticVariations!.map(v => md(v)).join('')}</div>
         </div>` : '';
     const allNotifs = [...(guidance.providerNotifications ?? []), ...(common ?? [])];
     const phasesBlock = isAddictionMed ? addictionMedicineAccordion() : '';
     return `
-        <div class="guidance-content">
+        <div class="guidance-content ideal-content">
             <h3 class="guidance-heading">${idealTitle}</h3>
             <div class="guidance-text">${md(guidance.idealSteps)}</div>
         </div>${pragmaticBlock}

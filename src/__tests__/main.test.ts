@@ -24,7 +24,7 @@ test('DOM load includes protocol download link', () => {
     document.documentElement.innerHTML = HTML;
     const link = document.querySelector('.protocol-link a') as HTMLAnchorElement | null;
     expect(link).not.toBeNull();
-    expect(link?.getAttribute('href')).toBe('./docs/protocol.pdf');
+    expect(link?.getAttribute('href')).toBe('./media/protocol.pdf');
     // HTML `download` can specify a user-friendly filename. ensure the
     // attribute reflects the desired name rather than the raw URL.
     expect(link?.getAttribute('download')).toBe('DESC LAI Protocol.pdf');

@@ -5,7 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LAI Admin Portal</title>
+    <script type="module" src="/src/admin.ts"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Domine:wght@400;500;600;700&display=swap');
+
         *,
         *::before,
         *::after {
@@ -15,7 +18,7 @@
         }
 
         body {
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: 'Domine', Georgia, serif;
             background: #aecfcc;
             min-height: 100vh;
             padding: 20px;
@@ -29,7 +32,7 @@
             padding: 20px 16px;
         }
 
-        .admin-header h1 {
+        s .admin-header h1 {
             color: white;
             font-size: 24px;
             font-weight: 700;
@@ -129,30 +132,31 @@
         }
 
         #save-btn {
-            background: #27ae60;
-            color: white;
+            background: #c8e8d2;
+            color: #2d6a4f;
         }
 
         #save-btn:hover {
-            background: #219a52;
+            background: #b5dfc2;
         }
 
         #delete-btn {
-            background: #c0392b;
-            color: white;
+            background: #f7c8c3;
+            color: #7b2d26;
         }
 
         #delete-btn:hover {
-            background: #a93226;
+            background: #f2b5ae;
         }
 
         #logout-btn {
-            background: #7f8c8d;
-            color: white;
+            background: none;
+            border: none;
+            color: #2d6a5e;
         }
 
         #logout-btn:hover {
-            background: #6c7a7b;
+            color: #1a3f38;
         }
 
         #new-key-input {
@@ -392,15 +396,14 @@
         }
 
         #toggle-json-btn {
-            background: #8e44ad;
-            color: white;
+            background: #dfd0ee;
+            color: #4a2770;
         }
 
         #toggle-json-btn:hover {
-            background: #7d3c98;
+            background: #d0bde6;
         }
     </style>
-  <script type="module" crossorigin src="./assets/admin-CNw8veAY.js"></script>
 </head>
 
 <body>
@@ -449,6 +452,9 @@
             <div id="deploy-status" style="margin-top:8px;font-size:13px;color:#555;"></div>
         </div>
     </div>
+    <p style="text-align:center; margin-top: 1rem;">
+        <a href="./index.html" style="color: #1a5c3a; text-decoration: none;">Back to Clinical Tool</a>
+    </p>
 </body>
 
 </html>
