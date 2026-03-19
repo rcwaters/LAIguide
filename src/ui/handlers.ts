@@ -153,6 +153,10 @@ export function handleSubmit(): void {
         injectGuidanceSection(rows, body);
     } catch (err) {
         console.error('[handleSubmit] Unexpected error:', err);
+        const errorBody = `<div class="guidance-content early-not-allowed">
+            <p>⚠️ An internal error has occurred, please refer to protocol document for now.</p>
+        </div>`;
+        injectGuidanceSection('', errorBody);
     }
 }
 
