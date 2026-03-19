@@ -1,5 +1,7 @@
 /* ─── Reset & base ────────────────────────────────────────────────────────── */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 *,
 *::before,
 *::after {
@@ -9,7 +11,7 @@
 }
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
     background: #aecfcc;
     min-height: 100vh;
     /* mobile: tighter padding; phones with notches get safe-area insets */
