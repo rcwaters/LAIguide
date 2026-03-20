@@ -1,4 +1,5 @@
 import type { RawMedJson, RawVariant, RawTier } from './types';
+import { NO_PROVIDER_NOTIFICATION } from '../constants';
 
 // ── DOM helpers ──────────────────────────────────────────────────────────────
 
@@ -82,7 +83,8 @@ function renderTier(tier: RawTier, variantIdx: number, tierIdx: number): HTMLDiv
     body.append(makeNumberInput('Days Overdue Ceiling (blank = no limit)', tier.maxDays, `${path}.maxDays`));
     body.append(makeListEditor('Recommended Steps', tier.guidance?.idealSteps ?? [], `${path}.guidance.idealSteps`));
     body.append(makeListEditor('Acceptable Alternatives', tier.guidance?.pragmaticVariations ?? [], `${path}.guidance.pragmaticVariations`));
-    body.append(makeListEditor('When to Notify Provider', tier.guidance?.providerNotifications ?? [], `${path}.guidance.providerNotifications`));
+    const providerNotifs = tier.guidance?.providerNotifications ?? [];
+    body.append(makeListEditor('When to Notify Provider', providerNotifs.length ? providerNotifs : [NO_PROVIDER_NOTIFICATION], `${path}.guidance.providerNotifications`));
 
     block.append(header, body);
     return block;

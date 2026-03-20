@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from 'vitest';
 import { renderForm, collectFormData } from '../form';
+import { NO_PROVIDER_NOTIFICATION } from '../../constants';
 import type { RawMedJson } from '../types';
 
 // ── Fixture ──────────────────────────────────────────────────────────────────
@@ -133,6 +134,30 @@ describe('renderForm', () => {
         expect(note).not.toBeNull();
         expect(note?.textContent).toContain('Uses the same guidance as');
         expect(note?.textContent).toContain('maintenance');
+    });
+
+    it('shows the NO_PROVIDER_NOTIFICATION default when providerNotifications is empty', () => {
+        const med = makeMed();
+        med.guidance.late.variants[0].tiers![1].guidance!.providerNotifications = [];
+        renderForm(container, med);
+        const list = container.querySelector<HTMLDivElement>('[data-path="guidance.late.variants.0.tiers.1.guidance.providerNotifications"]');
+        expect(list?.querySelector('textarea')?.value).toBe(NO_PROVIDER_NOTIFICATION);
+    });
+
+    it('shows the NO_PROVIDER_NOTIFICATION default when providerNotifications is absent', () => {
+        const med = makeMed();
+        delete med.guidance.late.variants[0].tiers![1].guidance!.providerNotifications;
+        renderForm(container, med);
+        const list = container.querySelector<HTMLDivElement>('[data-path="guidance.late.variants.0.tiers.1.guidance.providerNotifications"]');
+        expect(list?.querySelector('textarea')?.value).toBe(NO_PROVIDER_NOTIFICATION);
+    });
+
+    it('does not show the default when providerNotifications has values', () => {
+        renderForm(container, makeMed());
+        const list = container.querySelector<HTMLDivElement>('[data-path="guidance.late.variants.0.tiers.0.guidance.providerNotifications"]');
+        expect(list?.querySelector('textarea')?.value).toBe('Notify provider.');
+        const textareas = list?.querySelectorAll('textarea');
+        expect(textareas?.length).toBe(1);
     });
 });
 
