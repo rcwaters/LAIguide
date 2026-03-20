@@ -6,6 +6,6 @@ REFERENCED=$(grep -Eo 'assets/[^"]+' index.html admin.html 2>/dev/null | sort -u
 git ls-files assets/ | while IFS= read -r f; do
   fname=$(basename "$f")
   if ! echo "$REFERENCED" | grep -qF "$fname"; then
-    git rm --cached -q "$f"
+    git rm -q "$f"
   fi
 done
