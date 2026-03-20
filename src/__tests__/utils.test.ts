@@ -7,8 +7,8 @@ function localDaysAgo(n: number): string {
     d.setHours(0, 0, 0, 0);
     d.setDate(d.getDate() - n);
     const yyyy = d.getFullYear();
-    const mm   = String(d.getMonth() + 1).padStart(2, '0');
-    const dd   = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
     return `${yyyy}-${mm}-${dd}`;
 }
 
@@ -69,9 +69,9 @@ describe('formatDate', () => {
         // Build a date string from local time to confirm no off-by-one
         const today = new Date();
         today.setHours(12, 0, 0, 0);
-        const yyyy  = today.getFullYear();
-        const mm    = String(today.getMonth() + 1).padStart(2, '0');
-        const dd    = String(today.getDate()).padStart(2, '0');
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
         const input = `${yyyy}-${mm}-${dd}`;
         const formatted = formatDate(input);
         // The formatted string must include the correct day number

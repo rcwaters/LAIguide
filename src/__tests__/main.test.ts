@@ -15,7 +15,6 @@ import { MED_REGISTRY } from '../medLoader';
 vi.stubGlobal('alert', vi.fn());
 vi.stubGlobal('scrollTo', vi.fn());
 
-
 // ─── jsdom stubs ──────────────────────────────────────────────────────────────
 
 const HTML = readFileSync(resolve(__dirname, '../../index.html'), 'utf-8');
@@ -69,25 +68,19 @@ describe('handleGuidanceTypeChange', () => {
         ['uzedy', 'uzedy-fields'],
     ];
 
-    test.each(medFields)(
-        '%s + late → shows %s',
-        (medication, fieldId) => {
-            setField('medication', medication);
-            setField('guidance-type', 'late');
-            handleGuidanceTypeChange();
-            expect(isVisible(fieldId)).toBe(true);
-        },
-    );
+    test.each(medFields)('%s + late → shows %s', (medication, fieldId) => {
+        setField('medication', medication);
+        setField('guidance-type', 'late');
+        handleGuidanceTypeChange();
+        expect(isVisible(fieldId)).toBe(true);
+    });
 
-    test.each(medFields)(
-        '%s + early → hides %s',
-        (medication, fieldId) => {
-            setField('medication', medication);
-            setField('guidance-type', 'early');
-            handleGuidanceTypeChange();
-            expect(isVisible(fieldId)).toBe(false);
-        },
-    );
+    test.each(medFields)('%s + early → hides %s', (medication, fieldId) => {
+        setField('medication', medication);
+        setField('guidance-type', 'early');
+        handleGuidanceTypeChange();
+        expect(isVisible(fieldId)).toBe(false);
+    });
 
     test('switching from invega_sustenna to another medication hides invega options', () => {
         setField('medication', 'invega_sustenna');
@@ -179,7 +172,9 @@ describe('handleSubmit — validation', () => {
         setField('medication', 'invega_sustenna');
         setField('guidance-type', 'late');
         handleSubmit();
-        expect(window.alert).toHaveBeenCalledWith('Please select the Invega Sustenna injection type.');
+        expect(window.alert).toHaveBeenCalledWith(
+            'Please select the Invega Sustenna injection type.',
+        );
     });
 
     test('invega_sustenna + initiation: alerts when no date entered', () => {
@@ -187,7 +182,9 @@ describe('handleSubmit — validation', () => {
         setField('guidance-type', 'late');
         setField('invega-type', 'initiation');
         handleSubmit();
-        expect(window.alert).toHaveBeenCalledWith('Please enter the date of first (234 mg) injection.');
+        expect(window.alert).toHaveBeenCalledWith(
+            'Please enter the date of first (234 mg) injection.',
+        );
     });
 
     test('invega_sustenna + maintenance: alerts when no date entered', () => {
@@ -195,7 +192,9 @@ describe('handleSubmit — validation', () => {
         setField('guidance-type', 'late');
         setField('invega-type', 'maintenance');
         handleSubmit();
-        expect(window.alert).toHaveBeenCalledWith('Please enter the date of last maintenance injection.');
+        expect(window.alert).toHaveBeenCalledWith(
+            'Please enter the date of last maintenance injection.',
+        );
     });
 
     test('invega_sustenna + maintenance: alerts when no dose selected', () => {
@@ -204,14 +203,18 @@ describe('handleSubmit — validation', () => {
         setField('invega-type', 'maintenance');
         setField('last-maintenance', daysAgo(35));
         handleSubmit();
-        expect(window.alert).toHaveBeenCalledWith('Please select the monthly maintenance injection dose.');
+        expect(window.alert).toHaveBeenCalledWith(
+            'Please select the monthly maintenance injection dose.',
+        );
     });
 
     test('invega_trinza + late: alerts when no date entered', () => {
         setField('medication', 'invega_trinza');
         setField('guidance-type', 'late');
         handleSubmit();
-        expect(window.alert).toHaveBeenCalledWith('Please enter the date of last Trinza injection.');
+        expect(window.alert).toHaveBeenCalledWith(
+            'Please enter the date of last Trinza injection.',
+        );
     });
 
     test('invega_trinza + late: alerts when no dose selected', () => {
@@ -226,14 +229,18 @@ describe('handleSubmit — validation', () => {
         setField('medication', 'invega_hafyera');
         setField('guidance-type', 'late');
         handleSubmit();
-        expect(window.alert).toHaveBeenCalledWith('Please enter the date of last Hafyera injection.');
+        expect(window.alert).toHaveBeenCalledWith(
+            'Please enter the date of last Hafyera injection.',
+        );
     });
 
     test('abilify_maintena + late: alerts when no date entered', () => {
         setField('medication', 'abilify_maintena');
         setField('guidance-type', 'late');
         handleSubmit();
-        expect(window.alert).toHaveBeenCalledWith('Please enter the date of last Abilify Maintena injection.');
+        expect(window.alert).toHaveBeenCalledWith(
+            'Please enter the date of last Abilify Maintena injection.',
+        );
     });
 
     test('abilify_maintena + late: alerts when no prior doses selected', () => {
@@ -241,14 +248,18 @@ describe('handleSubmit — validation', () => {
         setField('guidance-type', 'late');
         setField('last-abilify', daysAgo(35));
         handleSubmit();
-        expect(window.alert).toHaveBeenCalledWith('Please select the number of prior consecutive monthly injections.');
+        expect(window.alert).toHaveBeenCalledWith(
+            'Please select the number of prior consecutive monthly injections.',
+        );
     });
 
     test('aristada + late: alerts when no date entered', () => {
         setField('medication', 'aristada');
         setField('guidance-type', 'late');
         handleSubmit();
-        expect(window.alert).toHaveBeenCalledWith('Please enter the date of last Aristada injection.');
+        expect(window.alert).toHaveBeenCalledWith(
+            'Please enter the date of last Aristada injection.',
+        );
     });
 
     test('aristada + late: alerts when no dose selected', () => {
@@ -256,7 +267,9 @@ describe('handleSubmit — validation', () => {
         setField('guidance-type', 'late');
         setField('last-aristada', daysAgo(50));
         handleSubmit();
-        expect(window.alert).toHaveBeenCalledWith('Please select the dose of last Aristada injection.');
+        expect(window.alert).toHaveBeenCalledWith(
+            'Please select the dose of last Aristada injection.',
+        );
     });
 
     test('uzedy + late: alerts when no date entered', () => {
@@ -278,7 +291,9 @@ describe('handleSubmit — validation', () => {
         setField('medication', 'haloperidol_decanoate');
         setField('guidance-type', 'late');
         handleSubmit();
-        expect(window.alert).toHaveBeenCalledWith('Please enter the date of last Haloperidol Decanoate injection.');
+        expect(window.alert).toHaveBeenCalledWith(
+            'Please enter the date of last Haloperidol Decanoate injection.',
+        );
     });
 
     test('haloperidol_decanoate + late: alerts when no prior doses selected', () => {
@@ -286,14 +301,18 @@ describe('handleSubmit — validation', () => {
         setField('guidance-type', 'late');
         setField('last-haloperidol', daysAgo(60));
         handleSubmit();
-        expect(window.alert).toHaveBeenCalledWith('Please select the number of prior Haloperidol Decanoate injections.');
+        expect(window.alert).toHaveBeenCalledWith(
+            'Please select the number of prior Haloperidol Decanoate injections.',
+        );
     });
 
     test('fluphenazine_decanoate + late: alerts when no date entered', () => {
         setField('medication', 'fluphenazine_decanoate');
         setField('guidance-type', 'late');
         handleSubmit();
-        expect(window.alert).toHaveBeenCalledWith('Please enter the date of last Fluphenazine Decanoate injection.');
+        expect(window.alert).toHaveBeenCalledWith(
+            'Please enter the date of last Fluphenazine Decanoate injection.',
+        );
     });
 
     test('vivitrol + late: alerts when no indication selected', () => {
@@ -317,7 +336,9 @@ describe('handleSubmit — validation', () => {
         setField('guidance-type', 'late');
         setField('last-brixadi', daysAgo(7));
         handleSubmit();
-        expect(window.alert).toHaveBeenCalledWith('Please select the Brixadi formulation and dose.');
+        expect(window.alert).toHaveBeenCalledWith(
+            'Please select the Brixadi formulation and dose.',
+        );
     });
 });
 
@@ -358,8 +379,8 @@ describe('handleSubmit — guidance rendering', () => {
         function submitEarly(daysUntilNext: number, daysSinceLast: number): void {
             setField('medication', 'invega_sustenna');
             setField('guidance-type', 'early');
-            setField('next-injection-date', daysAgo(-daysUntilNext));  // future date
-            setField('last-injection-date', daysAgo(daysSinceLast));   // past date
+            setField('next-injection-date', daysAgo(-daysUntilNext)); // future date
+            setField('last-injection-date', daysAgo(daysSinceLast)); // past date
             handleSubmit();
         }
 
@@ -666,8 +687,9 @@ describe('handleSubmit — guidance rendering', () => {
             setField('brixadi-type', 'weekly');
             handleSubmit();
             expectGuidanceRendered();
-            expect(document.querySelector('.guidance-content')!.textContent)
-                .toContain('does not exist at this time');
+            expect(document.querySelector('.guidance-content')!.textContent).toContain(
+                'does not exist at this time',
+            );
         });
     });
 
@@ -750,12 +772,20 @@ describe('handleSubmit — guidance rendering', () => {
         setField('aristada-dose', '662');
         handleSubmit();
 
-        const headings = Array.from(document.querySelectorAll('.guidance-heading')).map(h => h.textContent ?? '');
+        const headings = Array.from(document.querySelectorAll('.guidance-heading')).map(
+            (h) => h.textContent ?? '',
+        );
         expect(headings).toContain('Next steps:');
         expect(headings).not.toContain('Recommended supplementation:');
 
-        const guidanceText = Array.from(document.querySelectorAll('.guidance-text, .guidance-content li')).map(n => n.textContent ?? '').join(' ');
-        expect(guidanceText).toContain('Administer the usual dose as soon as possible. Supplement oral aripiprazole for 21 days');
+        const guidanceText = Array.from(
+            document.querySelectorAll('.guidance-text, .guidance-content li'),
+        )
+            .map((n) => n.textContent ?? '')
+            .join(' ');
+        expect(guidanceText).toContain(
+            'Administer the usual dose as soon as possible. Supplement oral aripiprazole for 21 days',
+        );
     });
 
     // ── Haloperidol Decanoate early: dual constraint (daysBeforeDue=2, minDays=14) ──
@@ -1028,7 +1058,8 @@ describe('provider notification aggregation', () => {
 
     afterEach(() => {
         const restore = (entry: any, key: string, orig: string[] | undefined) => {
-            if (orig === undefined) delete entry[key]; else entry[key] = orig;
+            if (orig === undefined) delete entry[key];
+            else entry[key] = orig;
         };
         restore(MED_REGISTRY['abilify_maintena'], 'commonProviderNotifications', origAbilifyCommon);
         restore(MED_REGISTRY['invega_sustenna'], 'commonProviderNotifications', origSustennaCommon);
@@ -1037,17 +1068,19 @@ describe('provider notification aggregation', () => {
 
     /** Returns the <li> text contents from the "When to notify provider:" section */
     function getNotifListItems(): string[] {
-        const section = Array.from(document.querySelectorAll('.guidance-content'))
-            .find(el => el.querySelector('h3')?.textContent?.includes('When to notify provider'));
+        const section = Array.from(document.querySelectorAll('.guidance-content')).find((el) =>
+            el.querySelector('h3')?.textContent?.includes('When to notify provider'),
+        );
         return section
-            ? Array.from(section.querySelectorAll('li')).map(li => li.textContent ?? '')
+            ? Array.from(section.querySelectorAll('li')).map((li) => li.textContent ?? '')
             : [];
     }
 
     /** Returns text content of the "When to notify provider" section, or null if absent */
     function getNotifSectionText(): string | null {
-        const section = Array.from(document.querySelectorAll('.guidance-content'))
-            .find(el => el.querySelector('h3')?.textContent?.includes('When to notify provider'));
+        const section = Array.from(document.querySelectorAll('.guidance-content')).find((el) =>
+            el.querySelector('h3')?.textContent?.includes('When to notify provider'),
+        );
         return section ? (section.textContent ?? '') : null;
     }
 
@@ -1066,7 +1099,7 @@ describe('provider notification aggregation', () => {
 
             const items = getNotifListItems();
             expect(items.length).toBeGreaterThanOrEqual(2);
-            expect(items[0]).toContain('Post-injection');  // tier first
+            expect(items[0]).toContain('Post-injection'); // tier first
             // shared items follow — verify both are present somewhere after index 0
             const sharedText = items.slice(1).join(' ');
             expect(sharedText).toContain('abnormal involuntary');
@@ -1074,7 +1107,9 @@ describe('provider notification aggregation', () => {
         });
 
         test('shared-only: only shared notification appears when tier has none', () => {
-            (MED_REGISTRY['abilify_maintena'] as any).commonProviderNotifications = ['SHARED-NOTIF'];
+            (MED_REGISTRY['abilify_maintena'] as any).commonProviderNotifications = [
+                'SHARED-NOTIF',
+            ];
             setField('medication', 'abilify_maintena');
             setField('guidance-type', 'late');
             setField('last-abilify', daysAgo(30));
@@ -1087,7 +1122,9 @@ describe('provider notification aggregation', () => {
         });
 
         test('tier first, shared last: correct order when both are present', () => {
-            (MED_REGISTRY['abilify_maintena'] as any).commonProviderNotifications = ['SHARED-NOTIF'];
+            (MED_REGISTRY['abilify_maintena'] as any).commonProviderNotifications = [
+                'SHARED-NOTIF',
+            ];
             setField('medication', 'abilify_maintena');
             setField('guidance-type', 'late');
             setField('last-abilify', daysAgo(50));
@@ -1097,7 +1134,7 @@ describe('provider notification aggregation', () => {
             const items = getNotifListItems();
             expect(items).toHaveLength(2);
             expect(items[0]).toContain('Post-injection'); // tier first
-            expect(items[1]).toContain('SHARED-NOTIF');   // shared last
+            expect(items[1]).toContain('SHARED-NOTIF'); // shared last
         });
 
         test('neither: fallback "No provider notification needed" text is shown', () => {
@@ -1157,7 +1194,7 @@ describe('provider notification aggregation', () => {
 
             const items = getNotifListItems();
             expect(items).toHaveLength(2);
-            expect(items[0]).toContain('EARLY-NOTIF');  // early-specific first
+            expect(items[0]).toContain('EARLY-NOTIF'); // early-specific first
             expect(items[1]).toContain('SHARED-NOTIF'); // shared last
         });
     });
@@ -1234,10 +1271,12 @@ describe('addiction medicine accordion', () => {
 
     test('all three phase labels are present', () => {
         submitBrixadi(38);
-        const summaries = Array.from(document.querySelectorAll('.fpa-summary')).map(s => s.textContent ?? '');
-        expect(summaries.some(t => t.includes('Minimal or no fentanyl dependence'))).toBe(true);
-        expect(summaries.some(t => t.includes('Moderate fentanyl dependence'))).toBe(true);
-        expect(summaries.some(t => t.includes('Significant fentanyl dependence'))).toBe(true);
+        const summaries = Array.from(document.querySelectorAll('.fpa-summary')).map(
+            (s) => s.textContent ?? '',
+        );
+        expect(summaries.some((t) => t.includes('Minimal or no fentanyl dependence'))).toBe(true);
+        expect(summaries.some((t) => t.includes('Moderate fentanyl dependence'))).toBe(true);
+        expect(summaries.some((t) => t.includes('Significant fentanyl dependence'))).toBe(true);
     });
 
     test('allCriteria phases render bullet items', () => {

@@ -10,39 +10,51 @@ describe('handleSubGroupChange — invega_sustenna (branched spec)', () => {
     });
 
     it('shows the initiation sub-group when branch is "initiation"', () => {
-        const show = vi.fn(); const hide = vi.fn(); const clear = vi.fn();
+        const show = vi.fn();
+        const hide = vi.fn();
+        const clear = vi.fn();
         entry.handleSubGroupChange!('initiation', show, hide, clear);
         expect(show).toHaveBeenCalledWith('first-injection-date');
     });
 
     it('hides the maintenance sub-group when branch is "initiation"', () => {
-        const show = vi.fn(); const hide = vi.fn(); const clear = vi.fn();
+        const show = vi.fn();
+        const hide = vi.fn();
+        const clear = vi.fn();
         entry.handleSubGroupChange!('initiation', show, hide, clear);
         expect(hide).toHaveBeenCalledWith('maintenance-fields');
     });
 
     it('clears maintenance fields when branch is "initiation"', () => {
-        const show = vi.fn(); const hide = vi.fn(); const clear = vi.fn();
+        const show = vi.fn();
+        const hide = vi.fn();
+        const clear = vi.fn();
         entry.handleSubGroupChange!('initiation', show, hide, clear);
         // clear must have been called at least once for the hidden group's fields
         expect(clear).toHaveBeenCalled();
     });
 
     it('shows the maintenance sub-group when branch is "maintenance"', () => {
-        const show = vi.fn(); const hide = vi.fn(); const clear = vi.fn();
+        const show = vi.fn();
+        const hide = vi.fn();
+        const clear = vi.fn();
         entry.handleSubGroupChange!('maintenance', show, hide, clear);
         expect(show).toHaveBeenCalledWith('maintenance-fields');
     });
 
     it('hides and clears the initiation sub-group when branch is "maintenance"', () => {
-        const show = vi.fn(); const hide = vi.fn(); const clear = vi.fn();
+        const show = vi.fn();
+        const hide = vi.fn();
+        const clear = vi.fn();
         entry.handleSubGroupChange!('maintenance', show, hide, clear);
         expect(hide).toHaveBeenCalledWith('first-injection-date');
         expect(clear).toHaveBeenCalled();
     });
 
     it('show and hide are called exactly once each (two sub-groups total)', () => {
-        const show = vi.fn(); const hide = vi.fn(); const clear = vi.fn();
+        const show = vi.fn();
+        const hide = vi.fn();
+        const clear = vi.fn();
         entry.handleSubGroupChange!('initiation', show, hide, clear);
         expect(show).toHaveBeenCalledTimes(1);
         expect(hide).toHaveBeenCalledTimes(1);
@@ -63,22 +75,76 @@ describe('handleSubGroupChange absent on standard (non-branched) meds', () => {
     });
 });
 
+describe('buildCoreDef — success path', () => {
+    const minJson = {
+        displayName: 'Test Med',
+        guidance: {
+            late: {
+                variants: [
+                    {
+                        key: 'default',
+                        tiers: [{ maxDays: 30, guidance: { idealSteps: ['Administer.'] } }],
+                    },
+                ],
+            },
+        },
+    };
+
+    it('returns a displayName field', () => {
+        const def = buildCoreDef(minJson);
+        expect(def.displayName).toBe('Test Med');
+    });
+
+    it('returns a getLateGuidance function', () => {
+        const def = buildCoreDef(minJson);
+        expect(typeof def.getLateGuidance).toBe('function');
+    });
+
+    it('getLateGuidance resolves the correct tier for daysSince within maxDays', () => {
+        const def = buildCoreDef(minJson);
+        const result = def.getLateGuidance({ daysSince: 20 });
+        expect(result.idealSteps).toContain('Administer.');
+    });
+
+    it('returns earlyGuidance when early block is present', () => {
+        const json = { ...minJson, guidance: { ...minJson.guidance, early: { minDays: 21 } } };
+        const def = buildCoreDef(json);
+        expect(def.earlyGuidance).toBeDefined();
+    });
+
+    it('includes commonProviderNotifications when shared block has them', () => {
+        const json = {
+            ...minJson,
+            guidance: {
+                ...minJson.guidance,
+                shared: { providerNotifications: ['Notify on side effects'] },
+            },
+        };
+        const def = buildCoreDef(json);
+        expect(def.commonProviderNotifications).toEqual(['Notify on side effects']);
+    });
+
+    it('omits commonProviderNotifications when shared block is absent', () => {
+        const def = buildCoreDef(minJson);
+        expect(def.commonProviderNotifications).toBeUndefined();
+    });
+});
+
 describe('buildCoreDef — error paths', () => {
     it('throws with a descriptive message when guidance.late has no variants', () => {
         const badJson = {
-            key: 'test-med',
             displayName: 'Test Med',
             guidance: { late: {} },
         };
-        expect(() => buildCoreDef(badJson)).toThrow(/No variants in late guidance for test-med/);
+        expect(() => buildCoreDef(badJson)).toThrow(/No variants in late guidance for Test Med/);
     });
 
-    it('error message includes the med key', () => {
+    it('error message includes the displayName', () => {
         try {
-            buildCoreDef({ key: 'my-med', displayName: 'My Med', guidance: { late: {} } });
+            buildCoreDef({ displayName: 'My Med', guidance: { late: {} } });
             expect.fail('should have thrown');
         } catch (e: unknown) {
-            expect((e as Error).message).toContain('my-med');
+            expect((e as Error).message).toContain('My Med');
         }
     });
 });

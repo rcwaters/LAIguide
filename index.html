@@ -1,76 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DESC LAI Medication Standing Order Tool</title>
-    <link rel="icon" id="favicon" type="image/png" href="./media/logo-desc.png">
-    <script>
-        const img = new Image();
-        img.onload = () => {
-            const c = document.createElement('canvas');
-            c.width = c.height = 64;
-            const ctx = c.getContext('2d');
-            ctx.fillStyle = '#3c8476';
-            ctx.fillRect(0, 0, 64, 64);
-            ctx.drawImage(img, 0, 0, 64, 64);
-            document.getElementById('favicon').href = c.toDataURL('image/png');
-        };
-        img.src = './media/logo-desc.png';
-    </script>
-    <!-- during development we load the TypeScript entry directly so style changes
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>DESC LAI Medication Standing Order Tool</title>
+        <link rel="icon" id="favicon" type="image/png" href="./media/logo-desc.png" />
+        <script>
+            const img = new Image();
+            img.onload = () => {
+                const c = document.createElement('canvas');
+                c.width = c.height = 64;
+                const ctx = c.getContext('2d');
+                ctx.fillStyle = '#3c8476';
+                ctx.fillRect(0, 0, 64, 64);
+                ctx.drawImage(img, 0, 0, 64, 64);
+                document.getElementById('favicon').href = c.toDataURL('image/png');
+            };
+            img.src = './media/logo-desc.png';
+        </script>
+        <!-- during development we load the TypeScript entry directly so style changes
        are hot-reloaded; the deploy workflow will rewrite this file with hashed
        asset references before building for production -->
-    <!-- <script type="module" src="/src/main.ts"></script> -->
-    <script type="module" src="/src/main.ts"></script>
-</head>
+        <!-- <script type="module" src="/src/main.ts"></script> -->
+        <script type="module" src="/src/main.ts"></script>
+    </head>
 
-<body>
-    <div class="app-header">
-        <img src="./assets/logo-desc-DqcXQLlW.png" alt="DESC logo" class="header-logo">
-        <h1 class="app-title">💉 LAI Medication Management</h1>
-        <p class="app-subtitle">Clinical decision support for early or late/overdue long-acting injectable medications
-        </p>
+    <body>
+        <div class="app-header">
+            <img src="./assets/logo-desc-DqcXQLlW.png" alt="DESC logo" class="header-logo" />
+            <h1 class="app-title">💉 LAI Medication Management</h1>
+            <p class="app-subtitle">
+                Clinical decision support for early or late/overdue long-acting injectable
+                medications
+            </p>
+        </div>
 
-    </div>
+        <div class="app-container">
+            <div class="form-section">
+                <h3 class="section-title">📋 Select LAI Medication &amp; Guidance Type</h3>
 
-    <div class="app-container">
-
-        <div class="form-section">
-            <h3 class="section-title">📋 Select LAI Medication &amp; Guidance Type</h3>
-
-            <div class="input-group">
-                <select id="medication" onchange="handleGuidanceTypeChange()">
-                    <option value="">Select medication...</option>
-                </select>
-            </div>
-
-            <div class="input-group" id="guidance-type-group" style="display:none">
-                <label>Choose Guidance Type <span class="required">*</span></label>
-                <div class="seg-group">
-                    <button type="button" class="seg-btn" data-value="early" onclick="selectGuidanceType('early')">Early
-                        Administration</button>
-                    <button type="button" class="seg-btn" data-value="late" onclick="selectGuidanceType('late')">Late /
-                        Overdue Administration</button>
+                <div class="input-group">
+                    <select id="medication" onchange="handleGuidanceTypeChange()">
+                        <option value="">Select medication...</option>
+                    </select>
                 </div>
-                <input type="hidden" id="guidance-type" value="">
+
+                <div class="input-group" id="guidance-type-group" style="display: none">
+                    <label>Choose Guidance Type <span class="required">*</span></label>
+                    <div class="seg-group">
+                        <button
+                            type="button"
+                            class="seg-btn"
+                            data-value="early"
+                            onclick="selectGuidanceType('early')"
+                        >
+                            Early Administration
+                        </button>
+                        <button
+                            type="button"
+                            class="seg-btn"
+                            data-value="late"
+                            onclick="selectGuidanceType('late')"
+                        >
+                            Late / Overdue Administration
+                        </button>
+                    </div>
+                    <input type="hidden" id="guidance-type" value="" />
+                </div>
+
+                <!-- Medication-specific form field groups are injected here by main.ts -->
             </div>
 
-            <!-- Medication-specific form field groups are injected here by main.ts -->
-        </div>
+            <div id="start-over-bar" style="display: none; text-align: center; margin-top: -16px; margin-bottom: -12px;">
+                <button type="button" class="btn btn--compact btn--start-over" onclick="startOver()">Start Over</button>
+            </div>
 
-        <div class="disclaimer">
-            <strong>⚠️ Standing Order Disclaimer:</strong> This tool implements DESC's LAI medication standing order protocols for use by licensed RNs and MAs only. CONSULT decision points require contact with a DESC prescriber. This tool does not replace clinical judgment and should be used alongside the complete DESC LAI standing order document.
+            <div class="disclaimer">
+                <strong>⚠️ Standing Order Disclaimer:</strong> This tool implements DESC's LAI
+                medication standing order protocols for use by licensed RNs and MAs only. CONSULT
+                decision points require contact with a DESC prescriber. This tool does not replace
+                clinical judgment and should be used alongside the complete DESC LAI standing order
+                document.
+            </div>
+            <p class="protocol-link">
+                Download the protocol
+                <a
+                    href="./media/protocol.pdf"
+                    download="DESC LAI Protocol.pdf"
+                    style="text-decoration: none"
+                    >document</a
+                >
+                that this tool is based on
+            </p>
         </div>
-        <p class="protocol-link">
-            Download the protocol <a href="./media/protocol.pdf" download="DESC LAI Protocol.pdf" style="text-decoration: none;">document</a> that this
-            tool is based on
+        <p style="text-align: center; margin-top: 1rem">
+            <a href="./admin.html" style="color: #1a5c3a; text-decoration: none">Admin</a>
         </p>
-    </div>
-    <p style="text-align:center; margin-top: 1rem;">
-        <a href="./admin.html" style="color: #1a5c3a; text-decoration: none;">Admin</a>
-    </p>
-</body>
-
+    </body>
 </html>

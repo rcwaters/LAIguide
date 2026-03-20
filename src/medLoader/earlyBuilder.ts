@@ -1,6 +1,11 @@
 import type { EarlyVariantDef, CoreDef } from '../interfaces/med';
 
-type RawEarlyVariant = { key: string; minDays?: number; noGuidanceMessage?: string; sameAs?: string };
+type RawEarlyVariant = {
+    key: string;
+    minDays?: number;
+    noGuidanceMessage?: string;
+    sameAs?: string;
+};
 
 function buildEarlyVariantMap(variants: RawEarlyVariant[]): Record<string, EarlyVariantDef> {
     const map: Record<string, EarlyVariantDef> = {};
@@ -19,7 +24,11 @@ export function pluralDays(n: number): string {
         : `${n} day${n === 1 ? '' : 's'}`;
 }
 
-export function composeEarlyGuidance(daysBeforeDue: number | undefined, minDays: number | undefined, note: string | undefined): string {
+export function composeEarlyGuidance(
+    daysBeforeDue: number | undefined,
+    minDays: number | undefined,
+    note: string | undefined,
+): string {
     let core: string;
     if (daysBeforeDue != null && minDays != null) {
         core = `${pluralDays(daysBeforeDue)} before due date; no sooner than ${pluralDays(minDays)} after last injection`;
@@ -32,7 +41,10 @@ export function composeEarlyGuidance(daysBeforeDue: number | undefined, minDays:
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function buildEarlyFields(early: any, earlySpec: any): Omit<Partial<CoreDef>, 'earlyGuidance'> {
+export function buildEarlyFields(
+    early: any,
+    earlySpec: any,
+): Omit<Partial<CoreDef>, 'earlyGuidance'> {
     const daysBeforeDue = early?.daysBeforeDue as number | undefined;
     const minDays = early?.minDays as number | undefined;
     const providerNotifications = early?.providerNotifications as string[] | undefined;
@@ -42,7 +54,9 @@ export function buildEarlyFields(early: any, earlySpec: any): Omit<Partial<CoreD
     return {
         ...(daysBeforeDue != null ? { earlyDaysBeforeDue: daysBeforeDue } : {}),
         ...(minDays != null ? { earlyMinDays: minDays } : {}),
-        ...(providerNotifications?.length ? { earlyProviderNotification: providerNotifications } : {}),
+        ...(providerNotifications?.length
+            ? { earlyProviderNotification: providerNotifications }
+            : {}),
         ...(rawVariants ? { earlyVariantMap: buildEarlyVariantMap(rawVariants) } : {}),
         ...(paramField ? { earlyParamField: paramField, earlyDateField: dateField } : {}),
     };

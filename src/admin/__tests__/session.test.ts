@@ -34,7 +34,7 @@ describe('sha256', () => {
     });
 
     it('is consistent — same input always yields same hash', async () => {
-        const first  = await sha256('consistent');
+        const first = await sha256('consistent');
         const second = await sha256('consistent');
         expect(first).toBe(second);
     });

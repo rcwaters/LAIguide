@@ -34,7 +34,8 @@ describe('val', () => {
     });
 
     it('returns value of a select element', () => {
-        document.body.innerHTML = '<select id="color"><option value="red" selected>Red</option></select>';
+        document.body.innerHTML =
+            '<select id="color"><option value="red" selected>Red</option></select>';
         expect(val('color')).toBe('red');
     });
 
@@ -72,7 +73,8 @@ describe('clear', () => {
     });
 
     it('clears a select element value', () => {
-        document.body.innerHTML = '<select id="sel"><option value="">--</option><option value="x" selected>X</option></select>';
+        document.body.innerHTML =
+            '<select id="sel"><option value="">--</option><option value="x" selected>X</option></select>';
         clear('sel');
         expect((document.getElementById('sel') as HTMLSelectElement).value).toBe('');
     });
@@ -84,7 +86,7 @@ describe('clear', () => {
         `;
         clear('opt');
         const radios = document.querySelectorAll<HTMLInputElement>('input[name="opt"]');
-        radios.forEach(r => expect(r.checked).toBe(false));
+        radios.forEach((r) => expect(r.checked).toBe(false));
     });
 
     it('does nothing when no element or radio matches', () => {

@@ -2,10 +2,18 @@ import { createGitHubStore } from '../services/github/store';
 import { createLocalStore } from './localStore';
 import { getSession, setSession, clearSession, sha256 } from './session';
 import { REQUIRED_EMAIL_VALUE, ACCESS_CODE_HASH, GITHUB_OWNER, GITHUB_REPO } from './config';
-import { renderForm, collectFormData } from './form';
+import { renderForm, collectFormData, renderDefinitionsForm } from './form';
 import { validateMedJson } from './validate';
 import type { MedDataStore } from '../services/interfaces';
 import type { RawMedJson } from './types';
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function isDefinitionsData(data: Record<string, unknown>): boolean {
+    return Object.values(data).some(
+        (v) => !!v && typeof v === 'object' && !!(v as Record<string, unknown>).groupTitle,
+    );
+}
 
 // ── Store ────────────────────────────────────────────────────────────────────
 
@@ -18,28 +26,29 @@ const store: MedDataStore = GITHUB_TOKEN
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
-const loginSection  = $<HTMLDivElement>('login-section');
+const loginSection = $<HTMLDivElement>('login-section');
 const editorSection = $<HTMLDivElement>('editor-section');
-const emailInput    = $<HTMLInputElement>('email-input');
-const codeInput     = $<HTMLInputElement>('code-input');
-const loginBtn      = $<HTMLButtonElement>('login-btn');
-const loginError    = $<HTMLDivElement>('login-error');
-const deployStatus  = $<HTMLDivElement>('deploy-status');
-const userEmail     = $<HTMLSpanElement>('user-email');
-const logoutBtn     = $<HTMLButtonElement>('logout-btn');
-const medSelect     = $<HTMLSelectElement>('med-select');
-const saveBtn       = $<HTMLButtonElement>('save-btn');
-const deleteBtn     = $<HTMLButtonElement>('delete-btn');
-const jsonEditor    = $<HTMLTextAreaElement>('json-editor');
-const jsonSection   = $<HTMLDivElement>('json-section');
-const formEditorEl  = $<HTMLDivElement>('form-editor');
+const emailInput = $<HTMLInputElement>('email-input');
+const codeInput = $<HTMLInputElement>('code-input');
+const loginBtn = $<HTMLButtonElement>('login-btn');
+const loginError = $<HTMLDivElement>('login-error');
+const deployStatus = $<HTMLDivElement>('deploy-status');
+const userEmail = $<HTMLSpanElement>('user-email');
+const logoutBtn = $<HTMLButtonElement>('logout-btn');
+const medSelect = $<HTMLSelectElement>('med-select');
+const saveBtn = $<HTMLButtonElement>('save-btn');
+const deleteBtn = $<HTMLButtonElement>('delete-btn');
+const jsonEditor = $<HTMLTextAreaElement>('json-editor');
+const jsonSection = $<HTMLDivElement>('json-section');
+const formEditorEl = $<HTMLDivElement>('form-editor');
 const toggleJsonBtn = $<HTMLButtonElement>('toggle-json-btn');
-const editorStatus  = $<HTMLDivElement>('editor-status');
+const topStatus = $<HTMLSpanElement>('top-status');
 
 // ── State ────────────────────────────────────────────────────────────────────
 
 let currentMedData: Record<string, unknown> | null = null;
 let jsonMode = false;
+let existingGroups: string[] = [];
 
 // ── UI helpers ───────────────────────────────────────────────────────────────
 
@@ -49,8 +58,8 @@ function showLoginError(msg: string): void {
 }
 
 function showStatus(msg: string, ok: boolean): void {
-    editorStatus.textContent = msg;
-    editorStatus.className = ok ? 'status-ok' : 'status-err';
+    topStatus.textContent = msg;
+    topStatus.className = ok ? 'status-ok' : 'status-err';
 }
 
 // ── View transitions ─────────────────────────────────────────────────────────
@@ -67,7 +76,7 @@ function showLogin(): void {
     editorSection.style.display = 'none';
     formEditorEl.innerHTML = '';
     jsonEditor.value = '';
-    editorStatus.textContent = '';
+    topStatus.textContent = '';
 }
 
 // ── Data loading ─────────────────────────────────────────────────────────────
@@ -76,29 +85,81 @@ async function loadMedList(): Promise<void> {
     medSelect.innerHTML = '<option value="">Select a medication…</option>';
     const keys = await store.listMedKeys();
     keys.sort();
-    const meds = await Promise.all(keys.map(async k => {
-        const d = await store.getMed(k);
-        return { key: k, displayName: (d?.displayName as string) ?? k };
-    }));
+    const meds = await Promise.all(
+        keys.map(async (k) => {
+            const d = await store.getMed(k);
+            // Definitions file: use "Definitions" as group, groupTitle of first group as displayName
+            const firstDefGroup = Object.values(d ?? {}).find(
+                (v) => !!v && typeof v === 'object' && !!(v as Record<string, unknown>).groupTitle,
+            ) as Record<string, unknown> | undefined;
+            if (firstDefGroup) {
+                return {
+                    key: k,
+                    displayName: firstDefGroup.groupTitle as string,
+                    optgroupLabel: 'Definitions',
+                };
+            }
+            return {
+                key: k,
+                displayName: (d?.displayName as string) ?? k,
+                optgroupLabel: (d?.optgroupLabel as string) ?? '',
+            };
+        }),
+    );
+
+    // Collect unique medication groups for the combobox
+    existingGroups = [...new Set(meds.map((m) => m.optgroupLabel).filter(Boolean))].sort();
+
+    // Group by optgroupLabel; entries with no optgroupLabel use the key (first letter capitalised)
+    const groups = new Map<string, { key: string; displayName: string }[]>();
     for (const m of meds) {
-        const opt = document.createElement('option');
-        opt.value = m.key;
-        opt.textContent = m.displayName;
-        medSelect.appendChild(opt);
+        let groupLabel = m.optgroupLabel;
+        let displayName = m.displayName;
+        if (!groupLabel) {
+            groupLabel = m.key.charAt(0).toUpperCase() + m.key.slice(1);
+            displayName = groupLabel;
+        }
+        if (!groups.has(groupLabel)) groups.set(groupLabel, []);
+        groups.get(groupLabel)!.push({ key: m.key, displayName });
+    }
+
+    // Sort groups alphabetically
+    const sortedGroupLabels = Array.from(groups.keys()).sort((a, b) => a.localeCompare(b));
+    for (const groupLabel of sortedGroupLabels) {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = groupLabel;
+        const entries = groups.get(groupLabel)!;
+        entries.sort((a, b) => a.displayName.localeCompare(b.displayName));
+        for (const entry of entries) {
+            const opt = document.createElement('option');
+            opt.value = entry.key;
+            opt.textContent = entry.displayName;
+            optgroup.appendChild(opt);
+        }
+        medSelect.appendChild(optgroup);
     }
 }
 
 async function loadMed(key: string): Promise<void> {
     formEditorEl.innerHTML = '';
     jsonEditor.value = '';
-    editorStatus.textContent = '';
     deployStatus.textContent = '';
     currentMedData = null;
     if (!key) return;
     const data = await store.getMed(key);
     if (data) {
         currentMedData = data;
-        renderForm(formEditorEl, data as RawMedJson);
+        if (jsonMode) {
+            jsonMode = false;
+            jsonSection.style.display = 'none';
+            formEditorEl.style.display = 'block';
+            toggleJsonBtn.textContent = 'Raw JSON';
+        }
+        if (isDefinitionsData(data)) {
+            renderDefinitionsForm(formEditorEl, data);
+        } else {
+            renderForm(formEditorEl, data as RawMedJson, existingGroups);
+        }
         jsonEditor.value = JSON.stringify(data, null, 2);
     } else {
         showStatus(`"${key}" not found.`, false);
@@ -112,8 +173,14 @@ loginBtn.addEventListener('click', async () => {
     const email = emailInput.value.trim().toLowerCase();
     const code = codeInput.value;
 
-    if (!email) { showLoginError('Email is required.'); return; }
-    if (!code)  { showLoginError('Access code is required.'); return; }
+    if (!email) {
+        showLoginError('Email is required.');
+        return;
+    }
+    if (!code) {
+        showLoginError('Access code is required.');
+        return;
+    }
 
     const hash = await sha256(code);
     if (!email.includes(REQUIRED_EMAIL_VALUE) || hash !== ACCESS_CODE_HASH) {
@@ -135,7 +202,11 @@ logoutBtn.addEventListener('click', () => {
 });
 
 const existing = getSession();
-if (existing) { showEditor(existing.email); } else { showLogin(); }
+if (existing) {
+    showEditor(existing.email);
+} else {
+    showLogin();
+}
 
 // ── Editor actions ────────────────────────────────────────────────────────────
 
@@ -145,7 +216,11 @@ toggleJsonBtn.addEventListener('click', () => {
     jsonMode = !jsonMode;
     if (jsonMode) {
         if (currentMedData) {
-            jsonEditor.value = JSON.stringify(collectFormData(formEditorEl, currentMedData), null, 2);
+            jsonEditor.value = JSON.stringify(
+                collectFormData(formEditorEl, currentMedData),
+                null,
+                2,
+            );
         }
         formEditorEl.style.display = 'none';
         jsonSection.style.display = 'block';
@@ -167,7 +242,10 @@ toggleJsonBtn.addEventListener('click', () => {
 
 saveBtn.addEventListener('click', async () => {
     const key = medSelect.value;
-    if (!key) { showStatus('Select a medication first.', false); return; }
+    if (!key) {
+        showStatus('Select a medication first.', false);
+        return;
+    }
 
     let raw: unknown;
     if (jsonMode) {
@@ -192,10 +270,14 @@ saveBtn.addEventListener('click', async () => {
         currentMedData = result.data;
         if (GITHUB_TOKEN) {
             showStatus(`✓ Saved "${key}" — commit pushed. Site will redeploy shortly.`, true);
-            deployStatus.textContent = '⏳ Deploy triggered — changes will be live in ~1-2 minutes.';
+            deployStatus.textContent =
+                '⏳ Deploy triggered — changes will be live in ~1-2 minutes.';
             deployStatus.style.color = '#2980b9';
         } else {
-            showStatus(`✓ Saved "${key}" locally — no GitHub token, changes will not persist on reload.`, true);
+            showStatus(
+                `✓ Saved "${key}" locally — no GitHub token, changes will not persist on reload.`,
+                true,
+            );
         }
     } catch (err: unknown) {
         showStatus(err instanceof Error ? err.message : 'Save failed.', false);
@@ -204,7 +286,10 @@ saveBtn.addEventListener('click', async () => {
 
 deleteBtn.addEventListener('click', async () => {
     const key = medSelect.value;
-    if (!key) { showStatus('Select a medication to delete.', false); return; }
+    if (!key) {
+        showStatus('Select a medication to delete.', false);
+        return;
+    }
     if (!confirm(`Delete "${key}"? This cannot be undone.`)) return;
     try {
         await store.deleteMed(key);
@@ -216,4 +301,26 @@ deleteBtn.addEventListener('click', async () => {
     } catch (err: unknown) {
         showStatus(err instanceof Error ? err.message : 'Delete failed.', false);
     }
+});
+
+// ── Form event listeners ──────────────────────────────────────────────────────
+
+formEditorEl.addEventListener('addscenario', () => {
+    if (!currentMedData) return;
+    const collected = collectFormData(formEditorEl, currentMedData) as RawMedJson;
+    collected.guidance.late.variants.push({
+        key: 'new-scenario',
+        tiers: [{ maxDays: null, guidance: { idealSteps: [''] } }],
+    });
+    currentMedData = collected;
+    renderForm(formEditorEl, collected);
+});
+
+formEditorEl.addEventListener('removescenario', (e) => {
+    if (!currentMedData) return;
+    const { variantIdx } = (e as CustomEvent<{ variantIdx: number }>).detail;
+    const collected = collectFormData(formEditorEl, currentMedData) as RawMedJson;
+    collected.guidance.late.variants.splice(variantIdx, 1);
+    currentMedData = collected;
+    renderForm(formEditorEl, collected);
 });

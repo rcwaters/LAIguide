@@ -1,6 +1,9 @@
 import { SESSION_KEY, SESSION_TTL_HOURS } from './config';
 
-export interface AdminSession { email: string; loginAt: number }
+export interface AdminSession {
+    email: string;
+    loginAt: number;
+}
 
 export function getSession(): AdminSession | null {
     const raw = localStorage.getItem(SESSION_KEY);
@@ -28,5 +31,5 @@ export function clearSession(): void {
 
 export async function sha256(text: string): Promise<string> {
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
