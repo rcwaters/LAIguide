@@ -10,6 +10,7 @@ import {
 import { infoRow, addictionMedicineAccordion, injectGuidanceSection } from './guidanceRenderer';
 
 export function showEarlyGuidance(medication: string, variantKey?: string): void {
+    try {
     const entry = MED_REGISTRY[medication as MedicationKey];
 
     // ── Variant-aware early guidance (e.g. Brixadi monthly vs. weekly) ────────
@@ -180,4 +181,11 @@ export function showEarlyGuidance(medication: string, variantKey?: string): void
         ${entry.optgroupLabel === 'Addiction Medicine' ? addictionMedicineAccordion() : ''}`;
 
     injectGuidanceSection(rows, body);
+    } catch (err) {
+        console.error('[showEarlyGuidance] Unexpected error:', err);
+        const errorBody = `<div class="guidance-content early-not-allowed">
+            <p>⚠️ An internal error has occurred, please refer to protocol document for now.</p>
+        </div>`;
+        injectGuidanceSection('', errorBody);
+    }
 }

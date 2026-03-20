@@ -284,6 +284,12 @@ optgroup option {
     border: none;
 }
 
+.guidance-content.no-box {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+}
+
 .guidance-content {
     background: white;
     padding: 16px;

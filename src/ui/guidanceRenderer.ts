@@ -48,7 +48,7 @@ export function threePartGuidance(guidance: GuidanceResult, common?: string[], i
             <h3 class="guidance-heading">${idealTitle}</h3>
             <div class="guidance-text">${md(guidance.idealSteps)}</div>
         </div>${pragmaticBlock}
-        <div class="guidance-content">
+        <div class="guidance-content no-box">
             <h3 class="guidance-heading">When to notify provider:</h3>
             ${allNotifs.length
             ? `<ul>${allNotifs.map(n => `<li>${md(n)}</li>`).join('')}</ul>`
