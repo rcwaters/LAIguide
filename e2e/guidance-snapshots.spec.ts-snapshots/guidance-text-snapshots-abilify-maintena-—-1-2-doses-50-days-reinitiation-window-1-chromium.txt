@@ -8,7 +8,7 @@ Notify patient of the options recommended for reinitiation: either (a) receive a
 
 ---
 
-Acceptable pragmatic variations (if ideal is not possible):
+Alternative steps if ideal is not possible:
 
 If the patient is not able or likely to take oral aripiprazole or get a 2nd injection immediately, consult with provider about accelerating timing of next injection.
 

@@ -57,7 +57,7 @@ export function showEarlyGuidance(medication: string, variantKey?: string): void
 
             const body = `
             ${resultHTML}
-            <div class="guidance-content">
+            <div class="guidance-content no-box">
                 <h3 class="guidance-heading">Early administration window:</h3>
                 <div class="guidance-text">${md(entry.earlyGuidance)}</div>
             </div>
@@ -67,7 +67,7 @@ export function showEarlyGuidance(medication: string, variantKey?: string): void
                     ...(entry.commonProviderNotifications ?? []),
                 ];
                 return combined.length
-                    ? `<div class="guidance-content">
+                    ? `<div class="guidance-content notify-box">
                     <h3 class="guidance-heading">When to notify provider:</h3>
                     <ul>${combined.map((n) => `<li>${md(n)}</li>`).join('')}</ul>
                 </div>`
@@ -171,7 +171,7 @@ export function showEarlyGuidance(medication: string, variantKey?: string): void
 
         const body = `
         ${resultHTML}
-        <div class="guidance-content">
+        <div class="guidance-content no-box">
             <h3 class="guidance-heading">Early administration window:</h3>
             <div class="guidance-text">${md(entry.earlyGuidance)}</div>
         </div>
@@ -181,7 +181,7 @@ export function showEarlyGuidance(medication: string, variantKey?: string): void
                 ...(entry.commonProviderNotifications ?? []),
             ];
             return combined.length
-                ? `<div class="guidance-content">
+                ? `<div class="guidance-content no-box">
                 <h3 class="guidance-heading">When to notify provider:</h3>
                 <ul>${combined.map((n) => `<li>${md(n)}</li>`).join('')}</ul>
             </div>`
