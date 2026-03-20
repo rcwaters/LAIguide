@@ -236,7 +236,7 @@ optgroup option {
 .btn--start-over {
     background: #d4edda;
     background-color: #d4edda;
-    color: #2d6a4f;
+    color: #1a4731;
     font-size: 14px;
     font-weight: 600;
     padding: 8px 20px;
@@ -422,7 +422,7 @@ optgroup option {
 
 .fpa-box-wrapper {
     text-align: center;
-    margin-top: -8px;
+    margin-top: -24px;
 }
 
 .fpa-box {
@@ -432,12 +432,14 @@ optgroup option {
     border: none;
     box-shadow: none;
     padding-left: 16px;
+    margin-top: 4px;
+    margin-bottom: 0;
 }
 
 .fpa-hint {
     font-size: 12px;
     font-weight: 400;
-    color: #6b7280;
+    color: #1a4731;
     margin-bottom: 8px;
     text-align: center;
 }
@@ -447,6 +449,11 @@ optgroup option {
     font-weight: 500;
     margin-bottom: 8px;
     text-align: center;
+    color: #1a4731;
+}
+
+.fpa-box {
+    color: #1a4731;
 }
 
 .fpa-item {
@@ -470,7 +477,7 @@ optgroup option {
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     background: transparent;
-    color: #000;
+    color: #1a4731;
 }
 
 .fpa-summary::-webkit-details-marker {
@@ -492,7 +499,7 @@ optgroup option {
 }
 
 .fpa-summary:hover {
-    color: #000;
+    color: #1a3f38;
 }
 
 .fpa-body {
