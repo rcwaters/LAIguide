@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from 'vitest';
-import { renderForm, collectFormData } from '../form';
+import { renderForm, collectFormData } from '../forms/index';
 import { NO_PROVIDER_NOTIFICATION } from '../../constants';
 import type { RawMedJson } from '../types';
 

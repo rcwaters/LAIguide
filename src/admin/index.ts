@@ -2,7 +2,7 @@ import { createGitHubStore } from '../services/github/store';
 import { createLocalStore } from './localStore';
 import { getSession, setSession, clearSession, sha256 } from './session';
 import { REQUIRED_EMAIL_VALUE, ACCESS_CODE_HASH, GITHUB_OWNER, GITHUB_REPO } from './config';
-import { renderForm, collectFormData, renderDefinitionsForm } from './form';
+import { renderForm, collectFormData, renderDefinitionsForm } from './forms/index';
 import { validateMedJson } from './validate';
 import type { MedDataStore } from '../services/interfaces';
 import type { RawMedJson } from './types';
