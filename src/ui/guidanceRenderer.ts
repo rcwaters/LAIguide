@@ -46,7 +46,7 @@ export function threePartGuidance(
     const pragmaticBlock = hasPragmatic
         ? `
         <div class="guidance-content ideal-content">
-            <h3 class="guidance-heading">Acceptable pragmatic variations (if ideal is not possible):</h3>
+            <h3 class="guidance-heading">Alternative steps if ideal is not possible:</h3>
             <div class="guidance-text">${guidance.pragmaticVariations!.map((v) => md(v)).join('')}</div>
         </div>`
         : '';
@@ -57,7 +57,7 @@ export function threePartGuidance(
             <h3 class="guidance-heading">${idealTitle}</h3>
             <div class="guidance-text">${md(guidance.idealSteps)}</div>
         </div>${pragmaticBlock}
-        <div class="guidance-content no-box">
+        <div class="guidance-content notify-box">
             <h3 class="guidance-heading">When to notify provider:</h3>
             ${
                 allNotifs.length
@@ -77,7 +77,7 @@ export function injectGuidanceSection(infoRows: string, bodyHTML: string): void 
             <div class="medication-info-wrapper"><div class="medication-info">${infoRows}</div></div>
             ${bodyHTML}
             <div style="text-align: center; margin-top: 4px;">
-                <button type="button" class="btn btn--compact" onclick="startOver()">Start Over</button>
+                <button type="button" class="btn btn--compact btn--start-over" onclick="startOver()">Start Over</button>
             </div>
         </div>`;
 

@@ -48,6 +48,16 @@ jobs:
           VITE_GITHUB_TOKEN: ${{ secrets.ADMIN_PAT }}
         run: npm run build
 
+      # Remove stale hashed assets so they don't accumulate across deploys.
+      # The deploy step below will add the fresh build's assets/.
+      - name: Remove stale built assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -rf assets/ --ignore-unmatch
+          git diff --staged --quiet || git commit -m "chore: remove stale built assets"
+          git push
+
       # Deploy built dist/ back to main root so GitHub Pages (serving main/(root))
       # serves the compiled bundle instead of the raw TypeScript source.
       - name: Deploy to main

@@ -42,7 +42,7 @@ describe('threePartGuidance', () => {
             pragmaticVariations: ['Variation A'],
         });
         expect(html).toContain('Ideal steps:');
-        expect(html).toContain('Acceptable pragmatic variations');
+        expect(html).toContain('Alternative steps if ideal is not possible:');
         expect(html).toContain('Variation A');
     });
 

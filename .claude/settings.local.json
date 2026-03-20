@@ -8,7 +8,10 @@
       "Bash(npx tsc:*)",
       "Bash(npx eslint:*)",
       "Bash(npx prettier:*)",
-      "Bash(npx playwright:*)"
+      "Bash(npx playwright:*)",
+      "Bash(cp dist/index.html index.html)",
+      "Bash(cp dist/admin.html admin.html)",
+      "Bash(cp -r dist/assets/* assets/)"
     ]
   }
 }
