@@ -181,7 +181,7 @@ export function showEarlyGuidance(medication: string, variantKey?: string): void
                 ...(entry.commonProviderNotifications ?? []),
             ];
             return combined.length
-                ? `<div class="guidance-content no-box">
+                ? `<div class="guidance-content notify-box">
                 <h3 class="guidance-heading">When to notify provider:</h3>
                 <ul>${combined.map((n) => `<li>${md(n)}</li>`).join('')}</ul>
             </div>`

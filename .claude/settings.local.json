@@ -11,7 +11,10 @@
       "Bash(npx playwright:*)",
       "Bash(cp dist/index.html index.html)",
       "Bash(cp dist/admin.html admin.html)",
-      "Bash(cp -r dist/assets/* assets/)"
+      "Bash(cp -r dist/assets/* assets/)",
+      "Bash(grep -o assets/[^\"\"]* index.html admin.html)",
+      "Bash(ls -la *.html *.css *.js)",
+      "Bash(npm test:*)"
     ]
   }
 }

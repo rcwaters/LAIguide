@@ -83,12 +83,10 @@ body {
 
 
 .header-logo {
-    position: absolute;
-    top: 50%;
-    left: 16px;
-    transform: translateY(-50%);
-    height: 72px;
+    height: 48px;
     width: auto;
+    vertical-align: middle;
+    margin-right: 4px;
 }
 
 @media (max-width: 600px) {
@@ -101,9 +99,7 @@ body {
     }
 
     .header-logo {
-        position: static;
-        transform: none;
-        height: 56px;
+        height: 40px;
     }
 }
 
@@ -412,7 +408,7 @@ optgroup option {
 .guidance-heading {
     color: #000;
     font-size: clamp(15px, 3vw, 17px);
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 12px;
 }
 
