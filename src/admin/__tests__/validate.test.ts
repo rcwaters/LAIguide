@@ -135,7 +135,7 @@ describe('validateMedJson — late guidance variants', () => {
 
     it('rejects a variant missing a key', () => {
         const med = validMed();
-        (med.guidance.late.variants[0] as Record<string, unknown>).key = '';
+        (med.guidance.late.variants[0] as unknown as Record<string, unknown>).key = '';
         expect(validateMedJson(med)).toMatchObject({ ok: false, error: expect.stringContaining('missing a key') });
     });
 
@@ -192,7 +192,7 @@ describe('validateMedJson — tiers', () => {
 
     it('rejects a tier with missing guidance block', () => {
         const med = validMed();
-        delete (med.guidance.late.variants[0].tiers![0] as Record<string, unknown>).guidance;
+        delete (med.guidance.late.variants[0].tiers![0] as unknown as Record<string, unknown>).guidance;
         expect(validateMedJson(med)).toMatchObject({ ok: false, error: expect.stringContaining('Ideal Step') });
     });
 
