@@ -1,7 +1,9 @@
 import type { LateTier, GuidanceResult } from '../interfaces/guidance';
 import type { RawTier, VariantEntry } from '../interfaces/med';
 
-function days(n: number | null): number { return n === null ? Infinity : n; }
+function days(n: number | null): number {
+    return n === null ? Infinity : n;
+}
 
 export function buildTier(raw: RawTier): LateTier {
     const maxDays = days(raw['maxDays'] as number | null);
@@ -9,51 +11,85 @@ export function buildTier(raw: RawTier): LateTier {
         return {
             type: 'dose-variant',
             maxDays,
-            ...(raw['guidanceByDose'] != null ? { guidanceByDose: raw['guidanceByDose'] as Record<string, GuidanceResult> } : {}),
-            ...(raw['guidanceByDoseRules'] != null ? {
-                guidanceByDoseRules: raw['guidanceByDoseRules'] as { doses: string[]; guidance: GuidanceResult }[],
-                ...(raw['defaultGuidance'] != null ? { defaultGuidance: raw['defaultGuidance'] as GuidanceResult } : {}),
-            } : {}),
+            ...(raw['guidanceByDose'] != null
+                ? { guidanceByDose: raw['guidanceByDose'] as Record<string, GuidanceResult> }
+                : {}),
+            ...(raw['guidanceByDoseRules'] != null
+                ? {
+                      guidanceByDoseRules: raw['guidanceByDoseRules'] as {
+                          doses: string[];
+                          guidance: GuidanceResult;
+                      }[],
+                      ...(raw['defaultGuidance'] != null
+                          ? { defaultGuidance: raw['defaultGuidance'] as GuidanceResult }
+                          : {}),
+                  }
+                : {}),
         };
     }
     return { type: 'static', maxDays, guidance: raw['guidance'] as GuidanceResult };
 }
 
-export function buildTiers(raws: RawTier[]): LateTier[] { return raws.map(buildTier); }
+export function buildTiers(raws: RawTier[]): LateTier[] {
+    return raws.map(buildTier);
+}
 
 /** Builds a variant→tiers map; entries with `sameAs` reuse another variant's built value. */
-export function buildVariantMap<T>(variants: VariantEntry[], build: (tiers: RawTier[]) => T): Record<string, T> {
+export function buildVariantMap<T>(
+    variants: VariantEntry[],
+    build: (tiers: RawTier[]) => T,
+): Record<string, T> {
     const map: Record<string, T> = {};
-    for (const v of variants) { if (v.tiers) map[v.key] = build(v.tiers); }
-    for (const v of variants) { if (v.sameAs) map[v.key] = map[v.sameAs]; }
+    for (const v of variants) {
+        if (v.tiers) map[v.key] = build(v.tiers);
+    }
+    for (const v of variants) {
+        if (v.sameAs) map[v.key] = map[v.sameAs];
+    }
     return map;
 }
 
-export function resolveLateTier(tiers: LateTier[], daysSince: number, dose?: string): GuidanceResult {
+export function resolveLateTier(
+    tiers: LateTier[],
+    daysSince: number,
+    dose?: string,
+): GuidanceResult {
     try {
-        const tier = tiers.find(t => daysSince <= t.maxDays) ?? tiers[tiers.length - 1];
+        const tier = tiers.find((t) => daysSince <= t.maxDays) ?? tiers[tiers.length - 1];
         if (tier.type === 'dose-variant') {
             if (tier.guidanceByDoseRules) {
-                const matched = tier.guidanceByDoseRules.find(rule => dose != null && rule.doses.includes(dose));
+                const matched = tier.guidanceByDoseRules.find(
+                    (rule) => dose != null && rule.doses.includes(dose),
+                );
                 if (matched) return matched.guidance;
                 if (tier.defaultGuidance) return tier.defaultGuidance;
                 console.error(
                     '[resolveLateTier] Missing or unknown dose for rules:',
                     dose,
                     '— available:',
-                    tier.guidanceByDoseRules.flatMap(r => r.doses),
+                    tier.guidanceByDoseRules.flatMap((r) => r.doses),
                 );
-                return { idealSteps: [''] };
+                return { idealSteps: ['Guidance unavailable: dose not recognised. Please contact the prescriber.'] };
             }
             if (!tier.guidanceByDose || !dose || !(dose in tier.guidanceByDose)) {
-                console.error('[resolveLateTier] Missing or unknown dose:', dose, '— available:', Object.keys(tier.guidanceByDose ?? {}));
-                return { idealSteps: [''] };
+                console.error(
+                    '[resolveLateTier] Missing or unknown dose:',
+                    dose,
+                    '— available:',
+                    Object.keys(tier.guidanceByDose ?? {}),
+                );
+                return { idealSteps: ['Guidance unavailable: dose not recognised. Please contact the prescriber.'] };
             }
             return tier.guidanceByDose[dose!];
         }
         return tier.guidance;
     } catch (err) {
-        console.error('[resolveLateTier] Failed to resolve tier for daysSince=%d dose=%s:', daysSince, dose, err);
-        return { idealSteps: [''] };
+        console.error(
+            '[resolveLateTier] Failed to resolve tier for daysSince=%d dose=%s:',
+            daysSince,
+            dose,
+            err,
+        );
+        return { idealSteps: ['Guidance unavailable: an unexpected error occurred. Please contact the prescriber.'] };
     }
 }

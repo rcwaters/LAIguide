@@ -1,480 +1,631 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LAI Admin Portal</title>
-    <link rel="icon" id="favicon" type="image/png" href="./assets/logo-desc-DqcXQLlW.png">
-    <script>
-        const img = new Image();
-        img.onload = () => {
-            const c = document.createElement('canvas');
-            c.width = c.height = 64;
-            const ctx = c.getContext('2d');
-            ctx.fillStyle = '#3c8476';
-            ctx.fillRect(0, 0, 64, 64);
-            ctx.drawImage(img, 0, 0, 64, 64);
-            document.getElementById('favicon').href = c.toDataURL('image/png');
-        };
-        img.src = './media/logo-desc.png';
-    </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Domine:wght@400;500;600;700&display=swap');
-
-        *,
-        *::before,
-        *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Domine', Georgia, serif;
-            background: #aecfcc;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .admin-header {
-            text-align: center;
-            background: #3c8476;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px 16px;
-        }
-
-        s .admin-header h1 {
-            color: white;
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .admin-header p {
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 14px;
-        }
-
-        .admin-container {
-            background: white;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 24px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-        }
-
-        /* ─── Login ─────────────────────────────────────────── */
-
-        #login-section {
-            max-width: 360px;
-            margin: 0 auto;
-        }
-
-        #login-section h2 {
-            margin-bottom: 16px;
-            font-size: 20px;
-        }
-
-        #login-section label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 4px;
-            font-size: 14px;
-        }
-
-        #login-section input {
-            width: 100%;
-            padding: 8px 10px;
-            margin-bottom: 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        #login-btn {
-            width: 100%;
-            padding: 10px;
-            background: #3c8476;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 15px;
-            cursor: pointer;
-        }
-
-        #login-btn:hover {
-            background: #2d6a5e;
-        }
-
-        #login-error {
-            color: #c0392b;
-            font-size: 13px;
-            margin-top: 8px;
-            display: none;
-        }
-
-        /* ─── Editor ────────────────────────────────────────── */
-
-        #editor-section {
-            display: none;
-        }
-
-        .editor-toolbar {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .editor-toolbar select {
-            flex: 1;
-            min-width: 200px;
-            padding: 8px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .editor-toolbar button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        #save-btn {
-            background: #c8e8d2;
-            color: #2d6a4f;
-        }
-
-        #save-btn:hover {
-            background: #b5dfc2;
-        }
-
-        #delete-btn {
-            background: #f7c8c3;
-            color: #7b2d26;
-        }
-
-        #delete-btn:hover {
-            background: #f2b5ae;
-        }
-
-        #logout-btn {
-            background: none;
-            border: none;
-            color: #2d6a5e;
-        }
-
-        #logout-btn:hover {
-            color: #1a3f38;
-        }
-
-        #new-key-input {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            width: 180px;
-            display: none;
-        }
-
-        #add-btn {
-            background: #2980b9;
-            color: white;
-        }
-
-        #add-btn:hover {
-            background: #2471a3;
-        }
-
-        #json-editor {
-            width: 100%;
-            min-height: 500px;
-            font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 13px;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            resize: vertical;
-            tab-size: 2;
-        }
-
-        #editor-status {
-            margin-top: 8px;
-            font-size: 13px;
-            min-height: 20px;
-        }
-
-        .status-ok {
-            color: #27ae60;
-        }
-
-        .status-err {
-            color: #c0392b;
-        }
-
-        .user-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            font-size: 14px;
-            color: #555;
-        }
-
-        /* ─── Structured form ───────────────────────────────── */
-
-        .form-section {
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            margin-bottom: 12px;
-            overflow: hidden;
-        }
-
-        .form-section-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #f5f5f5;
-            padding: 10px 14px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            user-select: none;
-        }
-
-        .form-section-header:hover {
-            background: #eee;
-        }
-
-        .form-section-header .chevron {
-            transition: transform 0.15s;
-            font-size: 12px;
-        }
-
-        .form-section.collapsed .chevron {
-            transform: rotate(-90deg);
-        }
-
-        .form-section.collapsed .form-section-body {
-            display: none;
-        }
-
-        .form-section-body {
-            padding: 14px;
-        }
-
-        .form-row {
-            margin-bottom: 12px;
-        }
-
-        .form-row label {
-            display: block;
-            font-weight: 600;
-            font-size: 13px;
-            margin-bottom: 4px;
-            color: #333;
-        }
-
-        .form-row input[type="text"],
-        .form-row input[type="number"],
-        .form-row select {
-            width: 100%;
-            max-width: 400px;
-            padding: 6px 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .list-editor {
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            padding: 8px;
-            background: #fafafa;
-        }
-
-        .list-item {
-            display: flex;
-            gap: 8px;
-            align-items: flex-start;
-            margin-bottom: 6px;
-        }
-
-        .list-item textarea {
-            flex: 1;
-            min-height: 50px;
-            padding: 6px 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 13px;
-            resize: vertical;
-            font-family: inherit;
-        }
-
-        .list-item .remove-btn {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            width: 28px;
-            height: 28px;
-            cursor: pointer;
-            font-size: 16px;
-            line-height: 28px;
-            text-align: center;
-            flex-shrink: 0;
-        }
-
-        .list-item .remove-btn:hover {
-            background: #c0392b;
-        }
-
-        .add-item-btn {
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 4px 12px;
-            font-size: 13px;
-            cursor: pointer;
-            margin-top: 4px;
-        }
-
-        .add-item-btn:hover {
-            background: #2980b9;
-        }
-
-        /* Tier styling */
-
-        .tier-block {
-            border: 1px solid #d0d0d0;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            overflow: hidden;
-        }
-
-        .tier-header {
-            background: #e8f4f2;
-            padding: 8px 12px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            user-select: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .tier-header:hover {
-            background: #d5ece8;
-        }
-
-        .tier-block.collapsed .tier-body {
-            display: none;
-        }
-
-        .tier-block.collapsed .chevron {
-            transform: rotate(-90deg);
-        }
-
-        .tier-body {
-            padding: 12px;
-        }
-
-        .tier-body .form-row:last-child {
-            margin-bottom: 0;
-        }
-
-        /* Variant styling */
-
-        .variant-block {
-            border-left: 3px solid #3c8476;
-            margin-bottom: 10px;
-            padding-left: 12px;
-        }
-
-        .variant-label {
-            font-weight: 700;
-            font-size: 14px;
-            color: #3c8476;
-            margin-bottom: 8px;
-        }
-
-        .sameAs-note {
-            font-style: italic;
-            color: #888;
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
-
-        #toggle-json-btn {
-            background: #dfd0ee;
-            color: #4a2770;
-        }
-
-        #toggle-json-btn:hover {
-            background: #d0bde6;
-        }
-    </style>
-  <script type="module" crossorigin src="./assets/admin-CbJ_9cAZ.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/constants-CYz38nks.js">
-</head>
-
-<body>
-    <div class="admin-header">
-        <h1>🔧 LAI Admin Portal</h1>
-        <p>Manage medication JSON data</p>
-    </div>
-
-    <div class="admin-container">
-        <!-- Login -->
-        <div id="login-section">
-            <h2>Admin Login</h2>
-            <label for="email-input">Email</label>
-            <input type="email" id="email-input" autocomplete="email">
-            <label for="code-input">Access Code</label>
-            <input type="password" id="code-input" autocomplete="off">
-            <button id="login-btn">Sign In</button>
-            <div id="login-error"></div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>LAI Admin Portal</title>
+        <link rel="icon" id="favicon" type="image/png" href="./media/logo-desc.png" />
+        <script>
+            const img = new Image();
+            img.onload = () => {
+                const c = document.createElement('canvas');
+                c.width = c.height = 64;
+                const ctx = c.getContext('2d');
+                ctx.fillStyle = '#3c8476';
+                ctx.fillRect(0, 0, 64, 64);
+                ctx.drawImage(img, 0, 0, 64, 64);
+                document.getElementById('favicon').href = c.toDataURL('image/png');
+            };
+            img.src = './media/logo-desc.png';
+        </script>
+        <script type="module" src="/src/admin/index.ts"></script>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Domine:wght@400;500;600;700&display=swap');
+
+            *,
+            *::before,
+            *::after {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Domine', Georgia, serif;
+                background: #aecfcc;
+                min-height: 100vh;
+                padding: 20px;
+            }
+
+            .admin-header {
+                text-align: center;
+                background: #3c8476;
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 20px 16px;
+                position: relative;
+            }
+
+            .admin-header-logo {
+                position: absolute;
+                top: 50%;
+                left: 16px;
+                transform: translateY(-50%);
+                height: 72px;
+                width: auto;
+            }
+
+            s .admin-header h1 {
+                color: white;
+                font-size: 24px;
+                font-weight: 700;
+                margin-bottom: 4px;
+            }
+
+            .admin-header p {
+                color: rgba(255, 255, 255, 0.85);
+                font-size: 14px;
+            }
+
+            .admin-container {
+                background: white;
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 24px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            }
+
+            /* ─── Login ─────────────────────────────────────────── */
+
+            #login-section {
+                max-width: 360px;
+                margin: 0 auto;
+            }
+
+            #login-section h2 {
+                margin-bottom: 16px;
+                font-size: 20px;
+            }
+
+            #login-section label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 4px;
+                font-size: 14px;
+            }
+
+            #login-section input {
+                width: 100%;
+                padding: 8px 10px;
+                margin-bottom: 12px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+
+            #login-btn {
+                width: 100%;
+                padding: 10px;
+                background: #3c8476;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                font-size: 15px;
+                cursor: pointer;
+            }
+
+            #login-btn:hover {
+                background: #2d6a5e;
+            }
+
+            #login-error {
+                color: #c0392b;
+                font-size: 13px;
+                margin-top: 8px;
+                display: none;
+            }
+
+            /* ─── Editor ────────────────────────────────────────── */
+
+            #editor-section {
+                display: none;
+            }
+
+            .editor-toolbar {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 16px;
+                flex-wrap: wrap;
+            }
+
+            .editor-toolbar select {
+                flex: 1;
+                min-width: 200px;
+                padding: 8px;
+                font-size: 14px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+            .editor-toolbar button {
+                padding: 8px 16px;
+                border: none;
+                border-radius: 4px;
+                font-size: 14px;
+                cursor: pointer;
+            }
+
+            #save-btn {
+                background: #c8e8d2;
+                color: #2d6a4f;
+            }
+
+            #save-btn:hover {
+                background: #b5dfc2;
+            }
+
+            #delete-btn {
+                background: #f7c8c3;
+                color: #7b2d26;
+            }
+
+            #delete-btn:hover {
+                background: #f2b5ae;
+            }
+
+            #logout-btn {
+                background: none;
+                border: none;
+                color: #2d6a5e;
+            }
+
+            #logout-btn:hover {
+                color: #1a3f38;
+            }
+
+            #new-key-input {
+                padding: 8px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 14px;
+                width: 180px;
+                display: none;
+            }
+
+            #add-btn {
+                background: #2980b9;
+                color: white;
+            }
+
+            #add-btn:hover {
+                background: #2471a3;
+            }
+
+            #json-editor {
+                width: 100%;
+                min-height: 500px;
+                font-family: 'Consolas', 'Courier New', monospace;
+                font-size: 13px;
+                padding: 12px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                resize: vertical;
+                tab-size: 2;
+            }
+
+            .status-ok {
+                color: #27ae60;
+            }
+
+            .status-err {
+                color: #c0392b;
+            }
+
+            #top-status {
+                font-size: 13px;
+                flex: 1;
+                text-align: center;
+            }
+
+            .user-bar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 16px;
+                font-size: 14px;
+                color: #555;
+            }
+
+            /* ─── Structured form ───────────────────────────────── */
+
+            .form-section {
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                margin-bottom: 12px;
+                overflow: hidden;
+            }
+
+            .form-section-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background: #f5f5f5;
+                padding: 10px 14px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 14px;
+                user-select: none;
+            }
+
+            .form-section-header:hover {
+                background: #eee;
+            }
+
+            .form-section-header .chevron {
+                transition: transform 0.15s;
+                font-size: 12px;
+            }
+
+            .form-section.collapsed .chevron {
+                transform: rotate(-90deg);
+            }
+
+            .form-section.collapsed .form-section-body {
+                display: none;
+            }
+
+            .form-section-body {
+                padding: 14px;
+            }
+
+            .section-note {
+                font-size: 12px;
+                color: #555;
+                margin-bottom: 10px;
+            }
+
+            .form-row {
+                margin-bottom: 12px;
+            }
+
+            .form-row label {
+                display: block;
+                font-weight: 600;
+                font-size: 13px;
+                margin-bottom: 4px;
+                color: #333;
+            }
+
+            .form-row input[type='text'],
+            .form-row input[type='number'],
+            .form-row select {
+                width: 100%;
+                max-width: 400px;
+                padding: 6px 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+
+            .list-editor {
+                border: 1px solid #e0e0e0;
+                border-radius: 4px;
+                padding: 8px;
+                background: #fafafa;
+            }
+
+            .list-item {
+                display: flex;
+                gap: 8px;
+                align-items: flex-start;
+                margin-bottom: 6px;
+            }
+
+            .list-item textarea {
+                flex: 1;
+                min-height: 50px;
+                padding: 6px 8px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 13px;
+                resize: vertical;
+                font-family: inherit;
+            }
+
+            .list-item .remove-btn {
+                background: #e74c3c;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                width: 28px;
+                height: 28px;
+                cursor: pointer;
+                font-size: 16px;
+                line-height: 28px;
+                text-align: center;
+                flex-shrink: 0;
+            }
+
+            .list-item .remove-btn:hover {
+                background: #c0392b;
+            }
+
+            .add-item-btn {
+                background: #3498db;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 4px 12px;
+                font-size: 13px;
+                cursor: pointer;
+                margin-top: 4px;
+            }
+
+            .add-item-btn:hover {
+                background: #2980b9;
+            }
+
+            /* Tier styling */
+
+            .tier-block {
+                border: 1px solid #d0d0d0;
+                border-radius: 6px;
+                margin-bottom: 10px;
+                overflow: hidden;
+            }
+
+            .tier-header {
+                background: #e8f4f2;
+                padding: 8px 12px;
+                font-weight: 600;
+                font-size: 13px;
+                cursor: pointer;
+                user-select: none;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .tier-header:hover {
+                background: #d5ece8;
+            }
+
+            .tier-block.collapsed .tier-body {
+                display: none;
+            }
+
+            .tier-block.collapsed .chevron {
+                transform: rotate(-90deg);
+            }
+
+            .tier-body {
+                padding: 12px;
+            }
+
+            .tier-body .form-row:last-child {
+                margin-bottom: 0;
+            }
+
+            /* Variant styling */
+
+            .variant-block {
+                border-left: 3px solid #3c8476;
+                margin-bottom: 10px;
+                padding-left: 12px;
+            }
+
+            .variant-label {
+                font-weight: 700;
+                font-size: 14px;
+                color: #3c8476;
+                margin-bottom: 8px;
+            }
+
+            .sameAs-note {
+                font-style: italic;
+                color: #888;
+                font-size: 13px;
+                margin-bottom: 8px;
+            }
+
+            #toggle-json-btn {
+                background: #dfd0ee;
+                color: #4a2770;
+            }
+
+            #toggle-json-btn:hover {
+                background: #d0bde6;
+            }
+
+            /* ─── Drag-and-drop ─────────────────────────────────────── */
+
+            .drag-handle {
+                cursor: grab;
+                color: #aaa;
+                font-size: 16px;
+                padding: 0 4px;
+                flex-shrink: 0;
+                user-select: none;
+            }
+
+            .drag-handle:hover {
+                color: #555;
+            }
+
+            .dragging {
+                opacity: 0.4;
+            }
+
+            .tier-header .drag-handle {
+                font-size: 14px;
+                margin-right: 2px;
+            }
+
+            .drop-before {
+                border-top: 2px solid #3c8476 !important;
+            }
+
+            .drop-after {
+                border-bottom: 2px solid #3c8476 !important;
+            }
+
+            /* Variant header (editable key + remove button) */
+            .variant-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 8px;
+                flex-wrap: wrap;
+            }
+
+            .variant-header label {
+                font-weight: 600;
+                font-size: 13px;
+                color: #333;
+                white-space: nowrap;
+            }
+
+            .variant-key-input {
+                flex: 1;
+                min-width: 120px;
+                max-width: 220px;
+                padding: 4px 8px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 13px;
+            }
+
+            .remove-scenario-btn {
+                background: #f7c8c3;
+                color: #7b2d26;
+                border: none;
+                border-radius: 4px;
+                padding: 4px 10px;
+                font-size: 12px;
+                cursor: pointer;
+                white-space: nowrap;
+            }
+
+            .remove-scenario-btn:hover {
+                background: #f2b5ae;
+            }
+
+            .add-scenario-btn {
+                background: #3498db;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 6px 14px;
+                font-size: 13px;
+                cursor: pointer;
+                margin-top: 8px;
+            }
+
+            .add-scenario-btn:hover {
+                background: #2980b9;
+            }
+
+            /* Dose-rule sub-blocks */
+            .dose-rules-container {
+                margin-top: 10px;
+            }
+
+            .dose-rules-label {
+                font-weight: 600;
+                font-size: 13px;
+                color: #555;
+                margin-bottom: 6px;
+            }
+
+            .dose-rule-block {
+                border: 1px solid #b0cfe8;
+                border-radius: 5px;
+                margin-bottom: 8px;
+                overflow: hidden;
+            }
+
+            .dose-rule-header {
+                background: #deeaf5;
+                padding: 6px 10px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                user-select: none;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .dose-rule-header:hover {
+                background: #cddff0;
+            }
+
+            .dose-rule-block.collapsed .dose-rule-body {
+                display: none;
+            }
+
+            .dose-rule-block.collapsed .chevron {
+                transform: rotate(-90deg);
+            }
+
+            .dose-rule-body {
+                padding: 10px 12px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="admin-header">
+            <img src="./media/logo-desc.png" alt="DESC logo" class="admin-header-logo" />
+            <h1>🔧 LAI Admin Portal</h1>
+            <p>Manage medication JSON data</p>
         </div>
 
-        <!-- Editor (hidden until authenticated) -->
-        <div id="editor-section">
-            <div class="user-bar">
-                <span id="user-email"></span>
-                <button id="logout-btn">Sign Out</button>
+        <div class="admin-container">
+            <!-- Login -->
+            <div id="login-section">
+                <h2>Admin Login</h2>
+                <label for="email-input">Email</label>
+                <input type="email" id="email-input" autocomplete="email" />
+                <label for="code-input">Access Code</label>
+                <input type="password" id="code-input" autocomplete="off" />
+                <button id="login-btn">Sign In</button>
+                <div id="login-error"></div>
             </div>
 
-            <div class="editor-toolbar">
-                <select id="med-select">
-                    <option value="">Select a medication…</option>
-                </select>
-                <button id="save-btn">Save</button>
-                <button id="delete-btn">Delete</button>
-                <button id="toggle-json-btn" type="button">Raw JSON</button>
+            <!-- Editor (hidden until authenticated) -->
+            <div id="editor-section">
+                <div class="user-bar">
+                    <span id="user-email"></span>
+                    <span id="top-status"></span>
+                    <button id="logout-btn">Sign Out</button>
+                </div>
+
+                <div class="editor-toolbar">
+                    <select id="med-select">
+                        <option value="">Select a medication…</option>
+                    </select>
+                    <button id="save-btn">Save</button>
+                    <button id="delete-btn">Delete</button>
+                    <button id="toggle-json-btn" type="button">Raw JSON</button>
+                </div>
+
+                <!-- Structured form editor -->
+                <div id="form-editor"></div>
+
+                <!-- Raw JSON editor (hidden by default) -->
+                <div id="json-section" style="display: none">
+                    <textarea id="json-editor" spellcheck="false"></textarea>
+                </div>
+
+                <div id="deploy-status" style="margin-top: 8px; font-size: 13px; color: #555"></div>
             </div>
-
-            <!-- Structured form editor -->
-            <div id="form-editor"></div>
-
-            <!-- Raw JSON editor (hidden by default) -->
-            <div id="json-section" style="display:none;">
-                <textarea id="json-editor" spellcheck="false"></textarea>
-            </div>
-
-            <div id="editor-status"></div>
-            <div id="deploy-status" style="margin-top:8px;font-size:13px;color:#555;"></div>
         </div>
-    </div>
-    <p style="text-align:center; margin-top: 1rem;">
-        <a href="./index.html" style="color: #1a5c3a; text-decoration: none;">Back to Clinical Tool</a>
-    </p>
-</body>
-
+        <p style="text-align: center; margin-top: 1rem">
+            <a href="./index.html" style="color: #1a5c3a; text-decoration: none"
+                >Back to Clinical Tool</a
+            >
+        </p>
+    </body>
 </html>

@@ -1037,7 +1037,7 @@ test.describe('start over', () => {
 
         await expect(page.locator('.guidance-section')).toBeVisible();
 
-        await page.click('button:has-text("Start Over")');
+        await page.locator('button:has-text("Start Over")').filter({ visible: true }).click();
 
         await expect(page.locator('.guidance-section')).not.toBeVisible();
         await expect(page.locator('.form-section')).toBeVisible();
@@ -1051,7 +1051,7 @@ test.describe('start over', () => {
         await selectField(page, 'guidance-type', 'early');
         await fillDate(page, 'next-injection-date', daysFromNow(1));
         await fillDate(page, 'last-injection-date', daysAgo(25));
-        await page.click('button:has-text("Start Over")');
+        await page.locator('button:has-text("Start Over")').filter({ visible: true }).click();
 
         await selectField(page, 'medication', 'aristada');
         await selectField(page, 'guidance-type', 'early');

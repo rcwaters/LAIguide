@@ -23,11 +23,7 @@ function headers(token: string): HeadersInit {
     };
 }
 
-async function ghFetch<T>(
-    url: string,
-    token: string,
-    init?: RequestInit,
-): Promise<T> {
+async function ghFetch<T>(url: string, token: string, init?: RequestInit): Promise<T> {
     const res = await fetch(url, {
         ...init,
         headers: { ...headers(token), ...init?.headers },
@@ -70,8 +66,8 @@ export function createGitHubStore(
                 token,
             );
             return files
-                .filter(f => f.name.endsWith('.json'))
-                .map(f => f.name.replace(/\.json$/, ''));
+                .filter((f) => f.name.endsWith('.json'))
+                .map((f) => f.name.replace(/\.json$/, ''));
         },
 
         async getMed(key: string): Promise<Record<string, unknown> | null> {
@@ -87,7 +83,7 @@ export function createGitHubStore(
 
         async getAllMeds(): Promise<Record<string, unknown>[]> {
             const keys = await this.listMedKeys();
-            const results = await Promise.all(keys.map(k => this.getMed(k)));
+            const results = await Promise.all(keys.map((k) => this.getMed(k)));
             return results.filter((m): m is Record<string, unknown> => m !== null);
         },
 
@@ -96,37 +92,29 @@ export function createGitHubStore(
             const sha = await getFileSha(owner, repo, filePath, token, branch);
             const bytes = new TextEncoder().encode(JSON.stringify(data, null, 2) + '\n');
             const content = btoa(String.fromCodePoint(...bytes));
-            await ghFetch(
-                `${api}/contents/${filePath}`,
-                token,
-                {
-                    method: 'PUT',
-                    body: JSON.stringify({
-                        message: `Update ${key} via admin portal`,
-                        content,
-                        branch,
-                        ...(sha ? { sha } : {}),
-                    }),
-                },
-            );
+            await ghFetch(`${api}/contents/${filePath}`, token, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    message: `Update ${key} via admin portal`,
+                    content,
+                    branch,
+                    ...(sha ? { sha } : {}),
+                }),
+            });
         },
 
         async deleteMed(key: string): Promise<void> {
             const filePath = `${MEDS_PATH}/${key}.json`;
             const sha = await getFileSha(owner, repo, filePath, token, branch);
             if (!sha) throw new Error(`"${key}" not found in repository.`);
-            await ghFetch(
-                `${api}/contents/${filePath}`,
-                token,
-                {
-                    method: 'DELETE',
-                    body: JSON.stringify({
-                        message: `Delete ${key} via admin portal`,
-                        sha,
-                        branch,
-                    }),
-                },
-            );
+            await ghFetch(`${api}/contents/${filePath}`, token, {
+                method: 'DELETE',
+                body: JSON.stringify({
+                    message: `Delete ${key} via admin portal`,
+                    sha,
+                    branch,
+                }),
+            });
         },
     };
 }

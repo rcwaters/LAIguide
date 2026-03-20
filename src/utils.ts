@@ -5,9 +5,9 @@ import { marked } from 'marked';
 export function daysSinceDate(dateString: string): number {
     try {
         const [year, month, day] = dateString.split('-').map(Number);
-        const past  = new Date(year, month - 1, day); // local midnight
+        const past = new Date(year, month - 1, day); // local midnight
         const today = new Date();
-        today.setHours(0, 0, 0, 0);                    // local midnight
+        today.setHours(0, 0, 0, 0); // local midnight
         return Math.round((today.getTime() - past.getTime()) / (1000 * 60 * 60 * 24));
     } catch (err) {
         console.error('[daysSinceDate] Failed to parse date string:', dateString, err);
@@ -16,7 +16,7 @@ export function daysSinceDate(dateString: string): number {
 }
 
 export function formatWeeksAndDays(totalDays: number): string {
-    const weeks         = Math.floor(totalDays / 7);
+    const weeks = Math.floor(totalDays / 7);
     const remainingDays = totalDays % 7;
 
     if (weeks === 0) {
@@ -52,7 +52,7 @@ export function md(text: string | string[]): string {
         input = text.map((step, index) => `${index + 1}. ${step}`).join('\n\n');
     }
     try {
-        return marked.parse(input) as string;
+        return marked.parse(input, { async: false });
     } catch (err) {
         console.error('[md] Failed to parse markdown:', err);
         return input;

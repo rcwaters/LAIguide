@@ -27,12 +27,17 @@ describe('buildEarlyFields', () => {
     });
 
     it('sets earlyProviderNotification for a non-empty array', () => {
-        const result = buildEarlyFields({ providerNotifications: ['Alert A', 'Alert B'] }, undefined);
+        const result = buildEarlyFields(
+            { providerNotifications: ['Alert A', 'Alert B'] },
+            undefined,
+        );
         expect(result.earlyProviderNotification).toEqual(['Alert A', 'Alert B']);
     });
 
     it('omits earlyProviderNotification when array is empty', () => {
-        expect(buildEarlyFields({ providerNotifications: [] }, undefined).earlyProviderNotification).toBeUndefined();
+        expect(
+            buildEarlyFields({ providerNotifications: [] }, undefined).earlyProviderNotification,
+        ).toBeUndefined();
     });
 
     it('omits earlyProviderNotification when key is absent', () => {
@@ -40,7 +45,10 @@ describe('buildEarlyFields', () => {
     });
 
     it('sets earlyParamField and earlyDateField when earlySpec provides them', () => {
-        const result = buildEarlyFields({}, { paramField: 'brixadi-type', dateField: 'last-brixadi' });
+        const result = buildEarlyFields(
+            {},
+            { paramField: 'brixadi-type', dateField: 'last-brixadi' },
+        );
         expect(result.earlyParamField).toBe('brixadi-type');
         expect(result.earlyDateField).toBe('last-brixadi');
     });
@@ -59,14 +67,22 @@ describe('buildEarlyFields', () => {
 
     it('builds earlyVariantMap entries with minDays', () => {
         const early = { variants: [{ key: 'monthly-64', minDays: 21 }] };
-        const vm = buildEarlyFields(early, { paramField: 'brixadi-type', dateField: 'last-brixadi' }).earlyVariantMap!;
+        const vm = buildEarlyFields(early, {
+            paramField: 'brixadi-type',
+            dateField: 'last-brixadi',
+        }).earlyVariantMap!;
         expect(vm).toBeDefined();
         expect(vm['monthly-64'].minDays).toBe(21);
     });
 
     it('builds earlyVariantMap entry with noGuidanceMessage', () => {
-        const early = { variants: [{ key: 'weekly', noGuidanceMessage: 'No early guidance at this time' }] };
-        const vm = buildEarlyFields(early, { paramField: 'type', dateField: 'last' }).earlyVariantMap!;
+        const early = {
+            variants: [{ key: 'weekly', noGuidanceMessage: 'No early guidance at this time' }],
+        };
+        const vm = buildEarlyFields(early, {
+            paramField: 'type',
+            dateField: 'last',
+        }).earlyVariantMap!;
         expect(vm['weekly'].noGuidanceMessage).toBe('No early guidance at this time');
         expect(vm['weekly'].minDays).toBeUndefined();
     });
@@ -79,7 +95,10 @@ describe('buildEarlyFields', () => {
                 { key: 'monthly-128', sameAs: 'monthly-64' },
             ],
         };
-        const vm = buildEarlyFields(early, { paramField: 'type', dateField: 'last' }).earlyVariantMap!;
+        const vm = buildEarlyFields(early, {
+            paramField: 'type',
+            dateField: 'last',
+        }).earlyVariantMap!;
         expect(vm['monthly-96']).toBe(vm['monthly-64']);
         expect(vm['monthly-128']).toBe(vm['monthly-64']);
     });
@@ -91,7 +110,10 @@ describe('buildEarlyFields', () => {
                 { key: 'original', minDays: 14 },
             ],
         };
-        const vm = buildEarlyFields(early, { paramField: 'type', dateField: 'last' }).earlyVariantMap!;
+        const vm = buildEarlyFields(early, {
+            paramField: 'type',
+            dateField: 'last',
+        }).earlyVariantMap!;
         expect(vm['alias']).toBe(vm['original']);
         expect(vm['alias'].minDays).toBe(14);
     });
@@ -103,7 +125,10 @@ describe('buildEarlyFields', () => {
             providerNotifications: ['Notify provider'],
             variants: [{ key: 'a', minDays: 10 }],
         };
-        const result = buildEarlyFields(early, { paramField: 'type-field', dateField: 'last-date' });
+        const result = buildEarlyFields(early, {
+            paramField: 'type-field',
+            dateField: 'last-date',
+        });
         expect(result.earlyDaysBeforeDue).toBe(2);
         expect(result.earlyMinDays).toBe(14);
         expect(result.earlyProviderNotification).toEqual(['Notify provider']);

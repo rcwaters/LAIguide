@@ -11,47 +11,106 @@ describe('getBrixadiGuidance', () => {
     describe('monthly (64/96/128 mg) — 5 tiers', () => {
         it('≤20 days: not yet overdue', () => {
             const r = getBrixadiGuidance(20, 'monthly-64');
-            expect(r.idealSteps.some(s => s.includes('not yet overdue'))).toBe(true);
+            expect(r.idealSteps.some((s) => s.includes('not yet overdue'))).toBe(true);
             expect(r.providerNotifications).toBeUndefined();
         });
 
         it('21–35 days: administer regardless', () => {
             const r = getBrixadiGuidance(30, 'monthly-64');
-            expect(r.idealSteps.some(s => s.includes('Administer the next injection'))).toBe(true);
-            expect(r.idealSteps.some(s => s.includes('regardless of the level of unregulated opioid use'))).toBe(true);
+            expect(r.idealSteps.some((s) => s.includes('Administer the next injection'))).toBe(
+                true,
+            );
+            expect(
+                r.idealSteps.some((s) =>
+                    s.includes('regardless of the level of unregulated opioid use'),
+                ),
+            ).toBe(true);
             expect(r.providerNotifications).toBeUndefined();
         });
 
         it('36–42 days: fentanyl assessment (moderate dependence OK)', () => {
             const r = getBrixadiGuidance(38, 'monthly-64');
-            expect(r.idealSteps.some(s => s.includes('Conduct a fentanyl dependence assessment'))).toBe(true);
-            expect(r.idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(true);
-            expect(hasNotif(r.providerNotifications, 'Consult prescriber if patient does not meet')).toBe(true);
+            expect(
+                r.idealSteps.some((s) => s.includes('Conduct a fentanyl dependence assessment')),
+            ).toBe(true);
+            expect(r.idealSteps.some((s) => s.includes('moderate fentanyl dependence'))).toBe(true);
+            expect(
+                hasNotif(r.providerNotifications, 'Consult prescriber if patient does not meet'),
+            ).toBe(true);
         });
 
         it('43–56 days: fentanyl assessment (must meet criteria or 8 mg subl)', () => {
             const r = getBrixadiGuidance(50, 'monthly-64');
-            expect(r.idealSteps.some(s => s.includes('Conduct a fentanyl dependence assessment'))).toBe(true);
-            expect(r.idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(false);
-            expect(r.idealSteps.some(s => s.includes('8 mg of sublingual buprenorphine in the last 24 hours'))).toBe(true);
-            expect(hasNotif(r.providerNotifications, 'Consult prescriber if patient does not meet minimal/no fentanyl dependence')).toBe(true);
+            expect(
+                r.idealSteps.some((s) => s.includes('Conduct a fentanyl dependence assessment')),
+            ).toBe(true);
+            expect(r.idealSteps.some((s) => s.includes('moderate fentanyl dependence'))).toBe(
+                false,
+            );
+            expect(
+                r.idealSteps.some((s) =>
+                    s.includes('8 mg of sublingual buprenorphine in the last 24 hours'),
+                ),
+            ).toBe(true);
+            expect(
+                hasNotif(
+                    r.providerNotifications,
+                    'Consult prescriber if patient does not meet minimal/no fentanyl dependence',
+                ),
+            ).toBe(true);
         });
 
         it('56+ days: consult prescriber in real-time', () => {
             const r = getBrixadiGuidance(70, 'monthly-64');
-            expect(r.idealSteps.some(s => s.includes('Consult a prescriber in real-time'))).toBe(true);
-            expect(hasNotif(r.providerNotifications, 'Consult prescriber before any injection')).toBe(true);
+            expect(r.idealSteps.some((s) => s.includes('Consult a prescriber in real-time'))).toBe(
+                true,
+            );
+            expect(
+                hasNotif(r.providerNotifications, 'Consult prescriber before any injection'),
+            ).toBe(true);
         });
 
         it('exact tier boundaries: 20/21, 35/36, 42/43, 56/57', () => {
-            expect(getBrixadiGuidance(20, 'monthly-64').idealSteps.some(s => s.includes('not yet overdue'))).toBe(true);
-            expect(getBrixadiGuidance(21, 'monthly-64').idealSteps.some(s => s.includes('Administer the next injection'))).toBe(true);
-            expect(getBrixadiGuidance(35, 'monthly-64').idealSteps.some(s => s.includes('Administer the next injection'))).toBe(true);
-            expect(getBrixadiGuidance(36, 'monthly-64').idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(true);
-            expect(getBrixadiGuidance(42, 'monthly-64').idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(true);
-            expect(getBrixadiGuidance(43, 'monthly-64').idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(false);
-            expect(getBrixadiGuidance(56, 'monthly-64').idealSteps.some(s => s.includes('8 mg of sublingual buprenorphine in the last 24 hours'))).toBe(true);
-            expect(getBrixadiGuidance(57, 'monthly-64').idealSteps.some(s => s.includes('Consult a prescriber in real-time'))).toBe(true);
+            expect(
+                getBrixadiGuidance(20, 'monthly-64').idealSteps.some((s) =>
+                    s.includes('not yet overdue'),
+                ),
+            ).toBe(true);
+            expect(
+                getBrixadiGuidance(21, 'monthly-64').idealSteps.some((s) =>
+                    s.includes('Administer the next injection'),
+                ),
+            ).toBe(true);
+            expect(
+                getBrixadiGuidance(35, 'monthly-64').idealSteps.some((s) =>
+                    s.includes('Administer the next injection'),
+                ),
+            ).toBe(true);
+            expect(
+                getBrixadiGuidance(36, 'monthly-64').idealSteps.some((s) =>
+                    s.includes('moderate fentanyl dependence'),
+                ),
+            ).toBe(true);
+            expect(
+                getBrixadiGuidance(42, 'monthly-64').idealSteps.some((s) =>
+                    s.includes('moderate fentanyl dependence'),
+                ),
+            ).toBe(true);
+            expect(
+                getBrixadiGuidance(43, 'monthly-64').idealSteps.some((s) =>
+                    s.includes('moderate fentanyl dependence'),
+                ),
+            ).toBe(false);
+            expect(
+                getBrixadiGuidance(56, 'monthly-64').idealSteps.some((s) =>
+                    s.includes('8 mg of sublingual buprenorphine in the last 24 hours'),
+                ),
+            ).toBe(true);
+            expect(
+                getBrixadiGuidance(57, 'monthly-64').idealSteps.some((s) =>
+                    s.includes('Consult a prescriber in real-time'),
+                ),
+            ).toBe(true);
         });
 
         it('monthly-96 and monthly-128 use same tiers as monthly-64 (sameAs)', () => {
@@ -66,28 +125,46 @@ describe('getBrixadiGuidance', () => {
     describe('weekly (24 mg / 32 mg) — 3 tiers', () => {
         it('≤6 days: not yet due', () => {
             const r = getBrixadiGuidance(6, 'weekly');
-            expect(r.idealSteps.some(s => s.includes('not yet due'))).toBe(true);
-            expect(r.idealSteps.some(s => s.includes('early administration guidance'))).toBe(true);
+            expect(r.idealSteps.some((s) => s.includes('not yet due'))).toBe(true);
+            expect(r.idealSteps.some((s) => s.includes('early administration guidance'))).toBe(
+                true,
+            );
             expect(r.providerNotifications).toBeUndefined();
         });
 
         it('7–9 days: administer per standing order', () => {
             const r = getBrixadiGuidance(8, 'weekly');
-            expect(r.idealSteps.some(s => s.includes('Administer the weekly Brixadi injection'))).toBe(true);
-            expect(r.idealSteps.some(s => s.includes('9 days'))).toBe(true);
+            expect(
+                r.idealSteps.some((s) => s.includes('Administer the weekly Brixadi injection')),
+            ).toBe(true);
+            expect(r.idealSteps.some((s) => s.includes('9 days'))).toBe(true);
         });
 
         it('10+ days: prescriber guidance required', () => {
             const r = getBrixadiGuidance(15, 'weekly');
-            expect(r.idealSteps.some(s => s.includes('more than 9 days overdue'))).toBe(true);
+            expect(r.idealSteps.some((s) => s.includes('more than 9 days overdue'))).toBe(true);
             expect(hasNotif(r.providerNotifications, 'Contact prescriber for guidance')).toBe(true);
         });
 
         it('exact boundaries: day 6/7 and day 9/10', () => {
-            expect(getBrixadiGuidance(6, 'weekly').idealSteps.some(s => s.includes('not yet due'))).toBe(true);
-            expect(getBrixadiGuidance(7, 'weekly').idealSteps.some(s => s.includes('Administer the weekly Brixadi injection'))).toBe(true);
-            expect(getBrixadiGuidance(9, 'weekly').idealSteps.some(s => s.includes('Administer the weekly Brixadi injection'))).toBe(true);
-            expect(getBrixadiGuidance(10, 'weekly').idealSteps.some(s => s.includes('more than 9 days overdue'))).toBe(true);
+            expect(
+                getBrixadiGuidance(6, 'weekly').idealSteps.some((s) => s.includes('not yet due')),
+            ).toBe(true);
+            expect(
+                getBrixadiGuidance(7, 'weekly').idealSteps.some((s) =>
+                    s.includes('Administer the weekly Brixadi injection'),
+                ),
+            ).toBe(true);
+            expect(
+                getBrixadiGuidance(9, 'weekly').idealSteps.some((s) =>
+                    s.includes('Administer the weekly Brixadi injection'),
+                ),
+            ).toBe(true);
+            expect(
+                getBrixadiGuidance(10, 'weekly').idealSteps.some((s) =>
+                    s.includes('more than 9 days overdue'),
+                ),
+            ).toBe(true);
         });
     });
 
@@ -95,105 +172,252 @@ describe('getBrixadiGuidance', () => {
         const entry = MED_REGISTRY['brixadi'];
 
         it('monthly-64: day 20 → not due; day 21 → administer; day 36 → fentanyl assessment; day 57 → prescriber', () => {
-            const p20 = entry.buildLateParams({ 'last-brixadi': localDaysAgo(20), 'brixadi-type': 'monthly-64' });
-            const p21 = entry.buildLateParams({ 'last-brixadi': localDaysAgo(21), 'brixadi-type': 'monthly-64' });
-            const p36 = entry.buildLateParams({ 'last-brixadi': localDaysAgo(36), 'brixadi-type': 'monthly-64' });
-            const p57 = entry.buildLateParams({ 'last-brixadi': localDaysAgo(57), 'brixadi-type': 'monthly-64' });
-            expect((entry.getLateGuidance(p20) as GuidanceResult).idealSteps.some(s => s.includes('not yet overdue'))).toBe(true);
-            expect((entry.getLateGuidance(p21) as GuidanceResult).idealSteps.some(s => s.includes('Administer the next injection'))).toBe(true);
-            expect((entry.getLateGuidance(p36) as GuidanceResult).idealSteps.some(s => s.includes('Conduct a fentanyl dependence assessment'))).toBe(true);
-            expect((entry.getLateGuidance(p57) as GuidanceResult).idealSteps.some(s => s.includes('Consult a prescriber in real-time'))).toBe(true);
+            const p20 = entry.buildLateParams({
+                'last-brixadi': localDaysAgo(20),
+                'brixadi-type': 'monthly-64',
+            });
+            const p21 = entry.buildLateParams({
+                'last-brixadi': localDaysAgo(21),
+                'brixadi-type': 'monthly-64',
+            });
+            const p36 = entry.buildLateParams({
+                'last-brixadi': localDaysAgo(36),
+                'brixadi-type': 'monthly-64',
+            });
+            const p57 = entry.buildLateParams({
+                'last-brixadi': localDaysAgo(57),
+                'brixadi-type': 'monthly-64',
+            });
+            expect(
+                (entry.getLateGuidance(p20) as GuidanceResult).idealSteps.some((s) =>
+                    s.includes('not yet overdue'),
+                ),
+            ).toBe(true);
+            expect(
+                (entry.getLateGuidance(p21) as GuidanceResult).idealSteps.some((s) =>
+                    s.includes('Administer the next injection'),
+                ),
+            ).toBe(true);
+            expect(
+                (entry.getLateGuidance(p36) as GuidanceResult).idealSteps.some((s) =>
+                    s.includes('Conduct a fentanyl dependence assessment'),
+                ),
+            ).toBe(true);
+            expect(
+                (entry.getLateGuidance(p57) as GuidanceResult).idealSteps.some((s) =>
+                    s.includes('Consult a prescriber in real-time'),
+                ),
+            ).toBe(true);
         });
 
         it('weekly: day 6 → not due; day 7 → administer; day 10 → prescriber guidance', () => {
-            const p6 = entry.buildLateParams({ 'last-brixadi': localDaysAgo(6), 'brixadi-type': 'weekly' });
-            const p7 = entry.buildLateParams({ 'last-brixadi': localDaysAgo(7), 'brixadi-type': 'weekly' });
-            const p10 = entry.buildLateParams({ 'last-brixadi': localDaysAgo(10), 'brixadi-type': 'weekly' });
-            expect((entry.getLateGuidance(p6) as GuidanceResult).idealSteps.some(s => s.includes('not yet due'))).toBe(true);
-            expect((entry.getLateGuidance(p7) as GuidanceResult).idealSteps.some(s => s.includes('Administer the weekly Brixadi injection'))).toBe(true);
-            expect((entry.getLateGuidance(p10) as GuidanceResult).idealSteps.some(s => s.includes('more than 9 days overdue'))).toBe(true);
+            const p6 = entry.buildLateParams({
+                'last-brixadi': localDaysAgo(6),
+                'brixadi-type': 'weekly',
+            });
+            const p7 = entry.buildLateParams({
+                'last-brixadi': localDaysAgo(7),
+                'brixadi-type': 'weekly',
+            });
+            const p10 = entry.buildLateParams({
+                'last-brixadi': localDaysAgo(10),
+                'brixadi-type': 'weekly',
+            });
+            expect(
+                (entry.getLateGuidance(p6) as GuidanceResult).idealSteps.some((s) =>
+                    s.includes('not yet due'),
+                ),
+            ).toBe(true);
+            expect(
+                (entry.getLateGuidance(p7) as GuidanceResult).idealSteps.some((s) =>
+                    s.includes('Administer the weekly Brixadi injection'),
+                ),
+            ).toBe(true);
+            expect(
+                (entry.getLateGuidance(p10) as GuidanceResult).idealSteps.some((s) =>
+                    s.includes('more than 9 days overdue'),
+                ),
+            ).toBe(true);
         });
 
         // ── monthly-64: all 5 exact tier boundaries ──────────────────────
         it('monthly-64: exact boundary day 35 → still "administer regardless" (maxDays=35)', () => {
-            const p = entry.buildLateParams({ 'last-brixadi': localDaysAgo(35), 'brixadi-type': 'monthly-64' });
+            const p = entry.buildLateParams({
+                'last-brixadi': localDaysAgo(35),
+                'brixadi-type': 'monthly-64',
+            });
             expect(p.daysSince).toBe(35);
-            expect((entry.getLateGuidance(p) as GuidanceResult).idealSteps.some(s => s.includes('Administer the next injection'))).toBe(true);
+            expect(
+                (entry.getLateGuidance(p) as GuidanceResult).idealSteps.some((s) =>
+                    s.includes('Administer the next injection'),
+                ),
+            ).toBe(true);
         });
 
         it('monthly-64: exact boundary day 36 → fentanyl assessment with moderate OK (first day of tier 3)', () => {
-            const p = entry.buildLateParams({ 'last-brixadi': localDaysAgo(36), 'brixadi-type': 'monthly-64' });
+            const p = entry.buildLateParams({
+                'last-brixadi': localDaysAgo(36),
+                'brixadi-type': 'monthly-64',
+            });
             expect(p.daysSince).toBe(36);
-            expect((entry.getLateGuidance(p) as GuidanceResult).idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(true);
+            expect(
+                (entry.getLateGuidance(p) as GuidanceResult).idealSteps.some((s) =>
+                    s.includes('moderate fentanyl dependence'),
+                ),
+            ).toBe(true);
         });
 
         it('monthly-64: exact boundary day 42 → still fentanyl assessment with moderate OK (maxDays=42)', () => {
-            const p = entry.buildLateParams({ 'last-brixadi': localDaysAgo(42), 'brixadi-type': 'monthly-64' });
+            const p = entry.buildLateParams({
+                'last-brixadi': localDaysAgo(42),
+                'brixadi-type': 'monthly-64',
+            });
             expect(p.daysSince).toBe(42);
-            expect((entry.getLateGuidance(p) as GuidanceResult).idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(true);
+            expect(
+                (entry.getLateGuidance(p) as GuidanceResult).idealSteps.some((s) =>
+                    s.includes('moderate fentanyl dependence'),
+                ),
+            ).toBe(true);
         });
 
         it('monthly-64: exact boundary day 43 → stricter fentanyl assessment, no moderate-OK (first day of tier 4)', () => {
-            const p = entry.buildLateParams({ 'last-brixadi': localDaysAgo(43), 'brixadi-type': 'monthly-64' });
+            const p = entry.buildLateParams({
+                'last-brixadi': localDaysAgo(43),
+                'brixadi-type': 'monthly-64',
+            });
             expect(p.daysSince).toBe(43);
             const r = entry.getLateGuidance(p) as GuidanceResult;
-            expect(r.idealSteps.some(s => s.includes('8 mg of sublingual buprenorphine in the last 24 hours'))).toBe(true);
-            expect(r.idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(false);
+            expect(
+                r.idealSteps.some((s) =>
+                    s.includes('8 mg of sublingual buprenorphine in the last 24 hours'),
+                ),
+            ).toBe(true);
+            expect(r.idealSteps.some((s) => s.includes('moderate fentanyl dependence'))).toBe(
+                false,
+            );
         });
 
         it('monthly-64: exact boundary day 56 → still stricter assessment (maxDays=56)', () => {
-            const p = entry.buildLateParams({ 'last-brixadi': localDaysAgo(56), 'brixadi-type': 'monthly-64' });
+            const p = entry.buildLateParams({
+                'last-brixadi': localDaysAgo(56),
+                'brixadi-type': 'monthly-64',
+            });
             expect(p.daysSince).toBe(56);
-            expect((entry.getLateGuidance(p) as GuidanceResult).idealSteps.some(s => s.includes('8 mg of sublingual buprenorphine in the last 24 hours'))).toBe(true);
+            expect(
+                (entry.getLateGuidance(p) as GuidanceResult).idealSteps.some((s) =>
+                    s.includes('8 mg of sublingual buprenorphine in the last 24 hours'),
+                ),
+            ).toBe(true);
         });
 
         it('monthly-64: exact boundary day 57 → consult prescriber in real-time (first day of tier 5)', () => {
-            const p = entry.buildLateParams({ 'last-brixadi': localDaysAgo(57), 'brixadi-type': 'monthly-64' });
+            const p = entry.buildLateParams({
+                'last-brixadi': localDaysAgo(57),
+                'brixadi-type': 'monthly-64',
+            });
             expect(p.daysSince).toBe(57);
-            expect((entry.getLateGuidance(p) as GuidanceResult).idealSteps.some(s => s.includes('Consult a prescriber in real-time'))).toBe(true);
+            expect(
+                (entry.getLateGuidance(p) as GuidanceResult).idealSteps.some((s) =>
+                    s.includes('Consult a prescriber in real-time'),
+                ),
+            ).toBe(true);
         });
 
         // ── monthly-96 sameAs monthly-64: all 5 boundaries ───────────────
         it('monthly-96: exact boundaries 20/21, 35/36, 42/43, 56/57', () => {
-            const g = (d: number) => entry.getLateGuidance(
-                entry.buildLateParams({ 'last-brixadi': localDaysAgo(d), 'brixadi-type': 'monthly-96' }),
-            ) as GuidanceResult;
-            expect(g(20).idealSteps.some(s => s.includes('not yet overdue'))).toBe(true);
-            expect(g(21).idealSteps.some(s => s.includes('Administer the next injection'))).toBe(true);
-            expect(g(35).idealSteps.some(s => s.includes('Administer the next injection'))).toBe(true);
-            expect(g(36).idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(true);
-            expect(g(42).idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(true);
-            expect(g(43).idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(false);
-            expect(g(56).idealSteps.some(s => s.includes('8 mg of sublingual buprenorphine in the last 24 hours'))).toBe(true);
-            expect(g(57).idealSteps.some(s => s.includes('Consult a prescriber in real-time'))).toBe(true);
+            const g = (d: number) =>
+                entry.getLateGuidance(
+                    entry.buildLateParams({
+                        'last-brixadi': localDaysAgo(d),
+                        'brixadi-type': 'monthly-96',
+                    }),
+                ) as GuidanceResult;
+            expect(g(20).idealSteps.some((s) => s.includes('not yet overdue'))).toBe(true);
+            expect(g(21).idealSteps.some((s) => s.includes('Administer the next injection'))).toBe(
+                true,
+            );
+            expect(g(35).idealSteps.some((s) => s.includes('Administer the next injection'))).toBe(
+                true,
+            );
+            expect(g(36).idealSteps.some((s) => s.includes('moderate fentanyl dependence'))).toBe(
+                true,
+            );
+            expect(g(42).idealSteps.some((s) => s.includes('moderate fentanyl dependence'))).toBe(
+                true,
+            );
+            expect(g(43).idealSteps.some((s) => s.includes('moderate fentanyl dependence'))).toBe(
+                false,
+            );
+            expect(
+                g(56).idealSteps.some((s) =>
+                    s.includes('8 mg of sublingual buprenorphine in the last 24 hours'),
+                ),
+            ).toBe(true);
+            expect(
+                g(57).idealSteps.some((s) => s.includes('Consult a prescriber in real-time')),
+            ).toBe(true);
         });
 
         // ── monthly-128 sameAs monthly-64: all 5 boundaries ──────────────
         it('monthly-128: exact boundaries 20/21, 35/36, 42/43, 56/57', () => {
-            const g = (d: number) => entry.getLateGuidance(
-                entry.buildLateParams({ 'last-brixadi': localDaysAgo(d), 'brixadi-type': 'monthly-128' }),
-            ) as GuidanceResult;
-            expect(g(20).idealSteps.some(s => s.includes('not yet overdue'))).toBe(true);
-            expect(g(21).idealSteps.some(s => s.includes('Administer the next injection'))).toBe(true);
-            expect(g(35).idealSteps.some(s => s.includes('Administer the next injection'))).toBe(true);
-            expect(g(36).idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(true);
-            expect(g(42).idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(true);
-            expect(g(43).idealSteps.some(s => s.includes('moderate fentanyl dependence'))).toBe(false);
-            expect(g(56).idealSteps.some(s => s.includes('8 mg of sublingual buprenorphine in the last 24 hours'))).toBe(true);
-            expect(g(57).idealSteps.some(s => s.includes('Consult a prescriber in real-time'))).toBe(true);
+            const g = (d: number) =>
+                entry.getLateGuidance(
+                    entry.buildLateParams({
+                        'last-brixadi': localDaysAgo(d),
+                        'brixadi-type': 'monthly-128',
+                    }),
+                ) as GuidanceResult;
+            expect(g(20).idealSteps.some((s) => s.includes('not yet overdue'))).toBe(true);
+            expect(g(21).idealSteps.some((s) => s.includes('Administer the next injection'))).toBe(
+                true,
+            );
+            expect(g(35).idealSteps.some((s) => s.includes('Administer the next injection'))).toBe(
+                true,
+            );
+            expect(g(36).idealSteps.some((s) => s.includes('moderate fentanyl dependence'))).toBe(
+                true,
+            );
+            expect(g(42).idealSteps.some((s) => s.includes('moderate fentanyl dependence'))).toBe(
+                true,
+            );
+            expect(g(43).idealSteps.some((s) => s.includes('moderate fentanyl dependence'))).toBe(
+                false,
+            );
+            expect(
+                g(56).idealSteps.some((s) =>
+                    s.includes('8 mg of sublingual buprenorphine in the last 24 hours'),
+                ),
+            ).toBe(true);
+            expect(
+                g(57).idealSteps.some((s) => s.includes('Consult a prescriber in real-time')),
+            ).toBe(true);
         });
 
         // ── weekly: all 3 boundaries including day 9 ─────────────────────
         it('weekly: exact boundary day 9 → still administerable (maxDays=9)', () => {
-            const p = entry.buildLateParams({ 'last-brixadi': localDaysAgo(9), 'brixadi-type': 'weekly' });
+            const p = entry.buildLateParams({
+                'last-brixadi': localDaysAgo(9),
+                'brixadi-type': 'weekly',
+            });
             expect(p.daysSince).toBe(9);
-            expect((entry.getLateGuidance(p) as GuidanceResult).idealSteps.some(s => s.includes('Administer the weekly Brixadi injection'))).toBe(true);
+            expect(
+                (entry.getLateGuidance(p) as GuidanceResult).idealSteps.some((s) =>
+                    s.includes('Administer the weekly Brixadi injection'),
+                ),
+            ).toBe(true);
         });
 
         it('weekly: exact boundary day 10 → prescriber guidance required (first day of tier 3)', () => {
-            const p = entry.buildLateParams({ 'last-brixadi': localDaysAgo(10), 'brixadi-type': 'weekly' });
+            const p = entry.buildLateParams({
+                'last-brixadi': localDaysAgo(10),
+                'brixadi-type': 'weekly',
+            });
             expect(p.daysSince).toBe(10);
-            expect((entry.getLateGuidance(p) as GuidanceResult).idealSteps.some(s => s.includes('more than 9 days overdue'))).toBe(true);
+            expect(
+                (entry.getLateGuidance(p) as GuidanceResult).idealSteps.some((s) =>
+                    s.includes('more than 9 days overdue'),
+                ),
+            ).toBe(true);
         });
     });
 });
@@ -289,7 +513,9 @@ describe('getBrixadiGuidance — buildLateInfoRows', () => {
 
         it('38 days → "38 days (5 weeks and 3 days)"', () => {
             const rows = infoRows('2026-01-01', 'monthly-64', 38);
-            expect(findRow(rows, 'Time since last injection:')).toBe('38 days (5 weeks and 3 days)');
+            expect(findRow(rows, 'Time since last injection:')).toBe(
+                '38 days (5 weeks and 3 days)',
+            );
         });
 
         it('works identically for weekly variant', () => {

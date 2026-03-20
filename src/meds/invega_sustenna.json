@@ -1,5 +1,4 @@
 {
-    "key": "invega_sustenna",
     "displayName": "Invega Sustenna (paliperidone palmitate)",
     "guidance": {
         "shared": {
@@ -15,7 +14,9 @@
             "minDays": 21
         },
         "late": {
-            "internalNotes": ["initiationTiers = days since first 234 mg initiation dose; maintenanceTiers = days since last monthly dose"],
+            "internalNotes": [
+                "initiationTiers = days since first 234 mg initiation dose; maintenanceTiers = days since last monthly dose"
+            ],
             "variants": [
                 {
                     "key": "initiation",

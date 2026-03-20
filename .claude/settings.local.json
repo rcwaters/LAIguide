@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx vitest:*)",
+      "Bash(npm run:*)",
+      "Bash(node -e \"const jsdom = require\\(''jsdom''\\); const d = new jsdom.JSDOM\\(''''\\); console.log\\(typeof d.window.DragEvent\\);\")",
+      "Bash(node -e \":*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npx prettier:*)",
+      "Bash(npx playwright:*)"
+    ]
+  }
+}

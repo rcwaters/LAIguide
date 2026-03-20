@@ -2,10 +2,11 @@ import { describe, it, expect } from 'vitest';
 import { MED_REGISTRY, pluralDays, composeEarlyGuidance } from '../medLoader';
 import { hasNotif } from './helpers';
 
-
 describe('displayName', () => {
     it('returns full name for known medication keys', () => {
-        expect(MED_REGISTRY['invega_sustenna'].displayName).toBe('Invega Sustenna (paliperidone palmitate)');
+        expect(MED_REGISTRY['invega_sustenna'].displayName).toBe(
+            'Invega Sustenna (paliperidone palmitate)',
+        );
         expect(MED_REGISTRY['vivitrol'].displayName).toBe('Vivitrol (naltrexone)');
         expect(MED_REGISTRY['uzedy'].displayName).toBe('Uzedy (risperidone subcutaneous)');
     });
@@ -24,34 +25,78 @@ describe('earlyGuidance', () => {
 
     // ── composeEarlyGuidance ────────────────────────────────────────────────
     describe('composeEarlyGuidance', () => {
-        it('before-next, no note', () => expect(composeEarlyGuidance(7, undefined, undefined)).toBe('1 week before due date'));
-        it('before-next, with note', () => expect(composeEarlyGuidance(3, undefined, 'DESC created guidance')).toBe('3 days before due date  \n*(DESC created guidance)*'));
-        it('since-last, no note', () => expect(composeEarlyGuidance(undefined, 21, undefined)).toBe('No sooner than 3 weeks after last injection'));
-        it('since-last, with note', () => expect(composeEarlyGuidance(undefined, 21, 'This may be given earlier with provider approval')).toBe('No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*'));
-        it('since-last, non-week days', () => expect(composeEarlyGuidance(undefined, 26, undefined)).toBe('No sooner than 26 days after last injection'));
-        it('dual constraint, no note', () => expect(composeEarlyGuidance(7, 21, undefined)).toBe('1 week before due date; no sooner than 3 weeks after last injection'));
+        it('before-next, no note', () =>
+            expect(composeEarlyGuidance(7, undefined, undefined)).toBe('1 week before due date'));
+        it('before-next, with note', () =>
+            expect(composeEarlyGuidance(3, undefined, 'DESC created guidance')).toBe(
+                '3 days before due date  \n*(DESC created guidance)*',
+            ));
+        it('since-last, no note', () =>
+            expect(composeEarlyGuidance(undefined, 21, undefined)).toBe(
+                'No sooner than 3 weeks after last injection',
+            ));
+        it('since-last, with note', () =>
+            expect(
+                composeEarlyGuidance(
+                    undefined,
+                    21,
+                    'This may be given earlier with provider approval',
+                ),
+            ).toBe(
+                'No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*',
+            ));
+        it('since-last, non-week days', () =>
+            expect(composeEarlyGuidance(undefined, 26, undefined)).toBe(
+                'No sooner than 26 days after last injection',
+            ));
+        it('dual constraint, no note', () =>
+            expect(composeEarlyGuidance(7, 21, undefined)).toBe(
+                '1 week before due date; no sooner than 3 weeks after last injection',
+            ));
     });
 
     // ── Registry: earlyGuidance string ─────────────────────────────────────
     describe('registry earlyGuidance string', () => {
         it('returns early guidance content for known medications', () => {
             expect(MED_REGISTRY['invega_trinza'].earlyGuidance).toBe('1 week before due date');
-            expect(MED_REGISTRY['abilify_maintena'].earlyGuidance).toBe('No sooner than 26 days after last injection');
+            expect(MED_REGISTRY['abilify_maintena'].earlyGuidance).toBe(
+                'No sooner than 26 days after last injection',
+            );
         });
         const cases: [string, string][] = [
             ['aristada', '2 days before due date; no sooner than 3 weeks after last injection'],
-            ['invega_sustenna', '2 days before due date; no sooner than 3 weeks after last injection  \n*(Note: after completing full initiation process)*'],
+            [
+                'invega_sustenna',
+                '2 days before due date; no sooner than 3 weeks after last injection  \n*(Note: after completing full initiation process)*',
+            ],
             ['invega_hafyera', '2 weeks before due date'],
-            ['fluphenazine_decanoate', '2 days before due date; no sooner than 2 weeks after last injection  \n*(DESC created guidance)*'],
-            ['haloperidol_decanoate', '2 days before due date; no sooner than 2 weeks after last injection  \n*(DESC created guidance)*'],
-            ['uzedy', '2 days before due date; no sooner than 3 weeks after last injection  \n*(DESC created guidance)*'],
-            ['brixadi', 'No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*'],
-            ['sublocade', 'No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*'],
+            [
+                'fluphenazine_decanoate',
+                '2 days before due date; no sooner than 2 weeks after last injection  \n*(DESC created guidance)*',
+            ],
+            [
+                'haloperidol_decanoate',
+                '2 days before due date; no sooner than 2 weeks after last injection  \n*(DESC created guidance)*',
+            ],
+            [
+                'uzedy',
+                '2 days before due date; no sooner than 3 weeks after last injection  \n*(DESC created guidance)*',
+            ],
+            [
+                'brixadi',
+                'No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*',
+            ],
+            [
+                'sublocade',
+                'No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*',
+            ],
             ['vivitrol', 'No sooner than 4 weeks after last injection'],
         ];
         for (const [key, expected] of cases) {
             it(`${key} earlyGuidance`, () =>
-                expect(MED_REGISTRY[key as keyof typeof MED_REGISTRY].earlyGuidance).toBe(expected));
+                expect(MED_REGISTRY[key as keyof typeof MED_REGISTRY].earlyGuidance).toBe(
+                    expected,
+                ));
         }
     });
 
@@ -68,7 +113,9 @@ describe('earlyGuidance', () => {
         ];
         for (const [key, days] of daysBeforeDueCases) {
             it(`${key} earlyDaysBeforeDue = ${days}`, () =>
-                expect(MED_REGISTRY[key as keyof typeof MED_REGISTRY].earlyDaysBeforeDue).toBe(days));
+                expect(MED_REGISTRY[key as keyof typeof MED_REGISTRY].earlyDaysBeforeDue).toBe(
+                    days,
+                ));
         }
         const minDayCases: [string, number][] = [
             ['abilify_maintena', 26],
@@ -98,7 +145,9 @@ describe('guidance.shared.providerNotifications — loader', () => {
         // Meds with a non-empty shared array (e.g. Invega family) are excluded automatically
         expect(medsWithNoShared.length).toBeGreaterThan(0);
         for (const key of medsWithNoShared) {
-            expect(MED_REGISTRY[key as keyof typeof MED_REGISTRY].commonProviderNotifications).toBeUndefined();
+            expect(
+                MED_REGISTRY[key as keyof typeof MED_REGISTRY].commonProviderNotifications,
+            ).toBeUndefined();
         }
     });
 
@@ -106,7 +155,10 @@ describe('guidance.shared.providerNotifications — loader', () => {
         const invegaKeys = ['invega_sustenna', 'invega_trinza', 'invega_hafyera'] as const;
         for (const key of invegaKeys) {
             const notifs = MED_REGISTRY[key].commonProviderNotifications;
-            expect(notifs, `${key}: expected commonProviderNotifications to be defined`).toBeDefined();
+            expect(
+                notifs,
+                `${key}: expected commonProviderNotifications to be defined`,
+            ).toBeDefined();
             expect(hasNotif(notifs, 'eGFR is < 80 mL/min')).toBe(true);
             expect(hasNotif(notifs, 'If eGFR')).toBe(false);
         }
@@ -122,20 +174,40 @@ describe('guidance.shared.providerNotifications — loader', () => {
 
     it('all antipsychotics include the abnormal involuntary movements notification', () => {
         const antipsychotics = [
-            'invega_sustenna', 'invega_trinza', 'invega_hafyera',
-            'abilify_maintena', 'aristada', 'uzedy',
-            'haloperidol_decanoate', 'fluphenazine_decanoate',
+            'invega_sustenna',
+            'invega_trinza',
+            'invega_hafyera',
+            'abilify_maintena',
+            'aristada',
+            'uzedy',
+            'haloperidol_decanoate',
+            'fluphenazine_decanoate',
         ] as const;
         for (const key of antipsychotics) {
             const notifs = MED_REGISTRY[key].commonProviderNotifications;
-            expect(notifs, `${key}: expected commonProviderNotifications to be defined`).toBeDefined();
-            expect(hasNotif(notifs, 'New side effects from recent injection'), `${key}: missing side effects notification`).toBe(true);
-            expect(hasNotif(notifs, 'abnormal involuntary movements'), `${key}: missing AIMS notification`).toBe(true);
-            expect(hasNotif(notifs, 'excessive sedation, dizziness'), `${key}: missing sedation notification`).toBe(true);
+            expect(
+                notifs,
+                `${key}: expected commonProviderNotifications to be defined`,
+            ).toBeDefined();
+            expect(
+                hasNotif(notifs, 'New side effects from recent injection'),
+                `${key}: missing side effects notification`,
+            ).toBe(true);
+            expect(
+                hasNotif(notifs, 'abnormal involuntary movements'),
+                `${key}: missing AIMS notification`,
+            ).toBe(true);
+            expect(
+                hasNotif(notifs, 'excessive sedation, dizziness'),
+                `${key}: missing sedation notification`,
+            ).toBe(true);
             // "New side effects" must appear before "New abnormal involuntary movements"
-            const sideIdx = notifs!.findIndex(s => s.includes('New side effects'));
-            const aimsIdx = notifs!.findIndex(s => s.includes('abnormal involuntary'));
-            expect(sideIdx, `${key}: "New side effects" should come before "New abnormal involuntary movements"`).toBeLessThan(aimsIdx);
+            const sideIdx = notifs!.findIndex((s) => s.includes('New side effects'));
+            const aimsIdx = notifs!.findIndex((s) => s.includes('abnormal involuntary'));
+            expect(
+                sideIdx,
+                `${key}: "New side effects" should come before "New abnormal involuntary movements"`,
+            ).toBeLessThan(aimsIdx);
         }
     });
 });
@@ -143,7 +215,6 @@ describe('guidance.shared.providerNotifications — loader', () => {
 // ─── renderInfoRow (exercised via buildLateInfoRows) ─────────────────────────
 
 describe('renderInfoRow — all branches', () => {
-
     // ── static value row ──────────────────────────────────────────────────────
     describe('static value row', () => {
         it('returns the literal value regardless of ctx and daysSince', () => {
@@ -155,7 +226,11 @@ describe('renderInfoRow — all branches', () => {
         });
 
         it('maintenance branch has its own static label', () => {
-            const ctx = { 'invega-type': 'maintenance', 'last-maintenance': '', 'maintenance-dose': '234' };
+            const ctx = {
+                'invega-type': 'maintenance',
+                'last-maintenance': '',
+                'maintenance-dose': '234',
+            };
             const rows = MED_REGISTRY['invega_sustenna'].buildLateInfoRows(ctx, 50);
             const row = rows.find(([label]) => label === 'Injection Type:');
             expect(row).toBeDefined();
@@ -185,7 +260,11 @@ describe('renderInfoRow — all branches', () => {
     // ── field row — option-label format ──────────────────────────────────────
     describe('field row — option-label format', () => {
         it('returns the human-readable label for a known option value', () => {
-            const ctx = { 'invega-type': 'maintenance', 'last-maintenance': '', 'maintenance-dose': '39-to-156' };
+            const ctx = {
+                'invega-type': 'maintenance',
+                'last-maintenance': '',
+                'maintenance-dose': '39-to-156',
+            };
             const rows = MED_REGISTRY['invega_sustenna'].buildLateInfoRows(ctx, 50);
             const row = rows.find(([label]) => label === 'Monthly maintenance dose:');
             expect(row).toBeDefined();
@@ -193,14 +272,22 @@ describe('renderInfoRow — all branches', () => {
         });
 
         it('returns the other option label correctly', () => {
-            const ctx = { 'invega-type': 'maintenance', 'last-maintenance': '', 'maintenance-dose': '234' };
+            const ctx = {
+                'invega-type': 'maintenance',
+                'last-maintenance': '',
+                'maintenance-dose': '234',
+            };
             const rows = MED_REGISTRY['invega_sustenna'].buildLateInfoRows(ctx, 50);
             const row = rows.find(([label]) => label === 'Monthly maintenance dose:');
             expect(row![1]).toBe('234 mg');
         });
 
         it('falls back to the raw value when the option is not found', () => {
-            const ctx = { 'invega-type': 'maintenance', 'last-maintenance': '', 'maintenance-dose': 'unknown-val' };
+            const ctx = {
+                'invega-type': 'maintenance',
+                'last-maintenance': '',
+                'maintenance-dose': 'unknown-val',
+            };
             const rows = MED_REGISTRY['invega_sustenna'].buildLateInfoRows(ctx, 50);
             const row = rows.find(([label]) => label === 'Monthly maintenance dose:');
             expect(row![1]).toBe('unknown-val');
@@ -315,13 +402,13 @@ describe('buildCoreDef — base fields', () => {
     it('commonProviderNotifications is populated from guidance.shared.providerNotifications', () => {
         const notifs = MED_REGISTRY['abilify_maintena'].commonProviderNotifications;
         expect(notifs).toBeDefined();
-        expect(notifs!.some(s => s.includes('New side effects'))).toBe(true);
+        expect(notifs!.some((s) => s.includes('New side effects'))).toBe(true);
     });
 
     it('commonProviderNotifications reflects the shared section for any med (invega_hafyera eGFR)', () => {
         const notifs = MED_REGISTRY['invega_hafyera'].commonProviderNotifications;
         expect(notifs).toBeDefined();
-        expect(notifs!.some(s => s.includes('eGFR'))).toBe(true);
+        expect(notifs!.some((s) => s.includes('eGFR'))).toBe(true);
     });
 
     it('commonProviderNotifications is absent when guidance.shared.providerNotifications is empty', () => {
@@ -332,59 +419,75 @@ describe('buildCoreDef — base fields', () => {
     it('commonProviderNotifications is present when guidance.shared.providerNotifications is non-empty (vivitrol)', () => {
         const notifs = MED_REGISTRY['vivitrol'].commonProviderNotifications;
         expect(notifs).toBeDefined();
-        expect(notifs!.some(s => s.includes('minimal or no fentanyl dependence'))).toBe(true);
+        expect(notifs!.some((s) => s.includes('minimal or no fentanyl dependence'))).toBe(true);
     });
 });
 
 describe('buildCoreDef — getLateGuidance variantKey dispatch', () => {
     // 1. explicit variant → used directly regardless of dose
     it('explicit variant used directly (Abilify "1-2" at 28 days → administer)', () => {
-        const r = MED_REGISTRY['abilify_maintena'].getLateGuidance({ daysSince: 28, variant: '1-2' });
-        expect(r.idealSteps.some(s => s.includes('Administer usual Abilify Maintena monthly dose'))).toBe(true);
+        const r = MED_REGISTRY['abilify_maintena'].getLateGuidance({
+            daysSince: 28,
+            variant: '1-2',
+        });
+        expect(
+            r.idealSteps.some((s) => s.includes('Administer usual Abilify Maintena monthly dose')),
+        ).toBe(true);
     });
 
     it('explicit variant used directly (Abilify "3+" at 50 days → reinitiation)', () => {
-        const r = MED_REGISTRY['abilify_maintena'].getLateGuidance({ daysSince: 50, variant: '3+' });
-        expect(r.idealSteps.some(s => s.includes('Re-initiate'))).toBe(true);
+        const r = MED_REGISTRY['abilify_maintena'].getLateGuidance({
+            daysSince: 50,
+            variant: '3+',
+        });
+        expect(r.idealSteps.some((s) => s.includes('Re-initiate'))).toBe(true);
     });
 
     it('variant takes priority over dose — valid variant + unknown dose does not throw', () => {
         // If dose were checked first, 'unknown-dose' would fall through to 'default' (nonexistent in Abilify) → throw.
         // variant being prioritised avoids this.
         expect(() =>
-            MED_REGISTRY['abilify_maintena'].getLateGuidance({ daysSince: 28, variant: '1-2', dose: 'unknown-dose' })
+            MED_REGISTRY['abilify_maintena'].getLateGuidance({
+                daysSince: 28,
+                variant: '1-2',
+                dose: 'unknown-dose',
+            }),
         ).not.toThrow();
-        const r = MED_REGISTRY['abilify_maintena'].getLateGuidance({ daysSince: 28, variant: '1-2', dose: 'unknown-dose' });
+        const r = MED_REGISTRY['abilify_maintena'].getLateGuidance({
+            daysSince: 28,
+            variant: '1-2',
+            dose: 'unknown-dose',
+        });
         expect(r.idealSteps.length).toBeGreaterThan(0);
     });
 
     // 2. dose IS a variant key → dose used as variantKey (Aristada)
     it('dose used as variantKey when it matches a variant key (Aristada 441, 7-day tier)', () => {
         const r = MED_REGISTRY['aristada'].getLateGuidance({ daysSince: 45, dose: '441' });
-        expect(r.idealSteps.some(s => s.includes('7 days'))).toBe(true);
+        expect(r.idealSteps.some((s) => s.includes('7 days'))).toBe(true);
     });
 
     it('dose used as variantKey when it matches a variant key (Aristada 662, 7-day tier)', () => {
         const r = MED_REGISTRY['aristada'].getLateGuidance({ daysSince: 70, dose: '662' });
-        expect(r.idealSteps.some(s => s.includes('7 days'))).toBe(true);
+        expect(r.idealSteps.some((s) => s.includes('7 days'))).toBe(true);
     });
 
     it('dose used as variantKey for Aristada 1064 (no-supp tier at 60 days)', () => {
         const r = MED_REGISTRY['aristada'].getLateGuidance({ daysSince: 60, dose: '1064' });
-        expect(r.idealSteps.some(s => s.includes('No supplementation required'))).toBe(true);
+        expect(r.idealSteps.some((s) => s.includes('No supplementation required'))).toBe(true);
     });
 
     // 3. dose does NOT match a variant key → falls back to 'default' (Uzedy)
     it('falls back to "default" when dose does not match any variant key (Uzedy "150-or-less")', () => {
         // Uzedy only has a "default" variant; "150-or-less" is a guidanceByDoseRules value, not a variant key
         const r = MED_REGISTRY['uzedy'].getLateGuidance({ daysSince: 200, dose: '150-or-less' });
-        expect(r.idealSteps.some(s => s.includes('150 mg or less'))).toBe(true);
+        expect(r.idealSteps.some((s) => s.includes('150 mg or less'))).toBe(true);
     });
 
     it('falls back to "default" for Uzedy "200-or-more" (not a variant key)', () => {
         const r = MED_REGISTRY['uzedy'].getLateGuidance({ daysSince: 200, dose: '200-or-more' });
         // tier 3 is static — 200-or-more falls back to "default" and gets the same content as 150-or-less
-        expect(r.idealSteps.some(s => s.includes('150 mg or less'))).toBe(true);
+        expect(r.idealSteps.some((s) => s.includes('150 mg or less'))).toBe(true);
     });
 
     // 4. neither variant nor dose → 'default' used (single-variant med)
@@ -396,7 +499,10 @@ describe('buildCoreDef — getLateGuidance variantKey dispatch', () => {
     // 5. unknown variant key → throws with descriptive message
     it('throws a descriptive error for an unknown explicit variant', () => {
         expect(() =>
-            MED_REGISTRY['abilify_maintena'].getLateGuidance({ daysSince: 30, variant: 'bad-group' })
+            MED_REGISTRY['abilify_maintena'].getLateGuidance({
+                daysSince: 30,
+                variant: 'bad-group',
+            }),
         ).toThrow(/Unknown variant key.*bad-group/);
     });
 
@@ -404,13 +510,16 @@ describe('buildCoreDef — getLateGuidance variantKey dispatch', () => {
         // Aristada has no "default" variant (only "441", "662", "882", "1064")
         // Unrecognised dose → variantKey resolves to "default" → not found → throws
         expect(() =>
-            MED_REGISTRY['aristada'].getLateGuidance({ daysSince: 30, dose: 'bad-dose' })
+            MED_REGISTRY['aristada'].getLateGuidance({ daysSince: 30, dose: 'bad-dose' }),
         ).toThrow(/Unknown variant key.*default/);
     });
 
     it('throw message lists all available variant keys', () => {
         try {
-            MED_REGISTRY['abilify_maintena'].getLateGuidance({ daysSince: 30, variant: 'bad-group' });
+            MED_REGISTRY['abilify_maintena'].getLateGuidance({
+                daysSince: 30,
+                variant: 'bad-group',
+            });
             expect.fail('should have thrown');
         } catch (e: unknown) {
             const msg = (e as Error).message;
@@ -467,7 +576,9 @@ describe('buildCoreDef — earlyVariantMap (Brixadi)', () => {
     it('earlyVariantMap is populated for all four Brixadi variants', () => {
         const vm = MED_REGISTRY['brixadi'].earlyVariantMap!;
         expect(vm).toBeDefined();
-        expect(Object.keys(vm)).toEqual(expect.arrayContaining(['monthly-64', 'monthly-96', 'monthly-128', 'weekly']));
+        expect(Object.keys(vm)).toEqual(
+            expect.arrayContaining(['monthly-64', 'monthly-96', 'monthly-128', 'weekly']),
+        );
     });
 
     it('monthly-64 variant has minDays 21', () => {

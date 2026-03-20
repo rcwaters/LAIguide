@@ -1,6 +1,6 @@
 /** Returns true if any element of the providerNotifications array contains the substring. */
 export function hasNotif(arr: string[] | undefined, sub: string): boolean {
-    return !!arr?.some(s => s.includes(sub));
+    return !!arr?.some((s) => s.includes(sub));
 }
 
 export function localDaysAgo(n: number): string {

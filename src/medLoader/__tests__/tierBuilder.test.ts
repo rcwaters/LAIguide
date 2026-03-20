@@ -20,8 +20,8 @@ describe('buildTier', () => {
         const raw = {
             maxDays: 60,
             guidanceByDose: {
-                'low': { idealSteps: ['low guidance'] },
-                'high': { idealSteps: ['high guidance'] },
+                low: { idealSteps: ['low guidance'] },
+                high: { idealSteps: ['high guidance'] },
             },
         };
         const tier = buildTier(raw);
@@ -62,7 +62,7 @@ describe('buildTier', () => {
     it('when both guidanceByDose and guidanceByDoseRules are present, type is dose-variant and both fields are kept', () => {
         const raw = {
             maxDays: 60,
-            guidanceByDose: { 'a': { idealSteps: ['dose-map'] } },
+            guidanceByDose: { a: { idealSteps: ['dose-map'] } },
             guidanceByDoseRules: [{ doses: ['a'], guidance: { idealSteps: ['rules'] } }],
         };
         const tier = buildTier(raw);
@@ -170,8 +170,8 @@ describe('resolveLateTier — dose-variant via guidanceByDose', () => {
         {
             maxDays: null,
             guidanceByDose: {
-                'low': { idealSteps: ['low guidance'] },
-                'high': { idealSteps: ['high guidance'] },
+                low: { idealSteps: ['low guidance'] },
+                high: { idealSteps: ['high guidance'] },
             },
         },
     ]);
@@ -181,16 +181,20 @@ describe('resolveLateTier — dose-variant via guidanceByDose', () => {
         expect(resolveLateTier(tiers, 50, 'high').idealSteps).toEqual(['high guidance']);
     });
 
-    it('returns empty fallback and logs error for unknown dose', () => {
-        const spy = vi.spyOn(console, 'error').mockImplementation(() => { });
-        expect(resolveLateTier(tiers, 50, 'unknown').idealSteps).toEqual(['']);
+    it('returns error fallback and logs error for unknown dose', () => {
+        const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        expect(resolveLateTier(tiers, 50, 'unknown').idealSteps).toEqual([
+            'Guidance unavailable: dose not recognised. Please contact the prescriber.',
+        ]);
         expect(spy).toHaveBeenCalled();
         spy.mockRestore();
     });
 
-    it('returns empty fallback and logs error when no dose provided', () => {
-        const spy = vi.spyOn(console, 'error').mockImplementation(() => { });
-        expect(resolveLateTier(tiers, 50).idealSteps).toEqual(['']);
+    it('returns error fallback and logs error when no dose provided', () => {
+        const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        expect(resolveLateTier(tiers, 50).idealSteps).toEqual([
+            'Guidance unavailable: dose not recognised. Please contact the prescriber.',
+        ]);
         expect(spy).toHaveBeenCalled();
         spy.mockRestore();
     });
@@ -218,20 +222,26 @@ describe('resolveLateTier — dose-variant via guidanceByDoseRules', () => {
     });
 
     it('returns defaultGuidance when dose matches no rule', () => {
-        expect(resolveLateTier(tiersWithDefault, 50, 'unknown').idealSteps).toEqual(['default guidance']);
+        expect(resolveLateTier(tiersWithDefault, 50, 'unknown').idealSteps).toEqual([
+            'default guidance',
+        ]);
     });
 
     it('returns defaultGuidance when no dose is provided', () => {
         expect(resolveLateTier(tiersWithDefault, 50).idealSteps).toEqual(['default guidance']);
     });
 
-    it('returns empty fallback and logs error when no match and no defaultGuidance', () => {
-        const noDefaultTiers = buildTiers([{
-            maxDays: null,
-            guidanceByDoseRules: [{ doses: ['300'], guidance: { idealSteps: ['300mg'] } }],
-        }]);
-        const spy = vi.spyOn(console, 'error').mockImplementation(() => { });
-        expect(resolveLateTier(noDefaultTiers, 50, 'unknown').idealSteps).toEqual(['']);
+    it('returns error fallback and logs error when no match and no defaultGuidance', () => {
+        const noDefaultTiers = buildTiers([
+            {
+                maxDays: null,
+                guidanceByDoseRules: [{ doses: ['300'], guidance: { idealSteps: ['300mg'] } }],
+            },
+        ]);
+        const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        expect(resolveLateTier(noDefaultTiers, 50, 'unknown').idealSteps).toEqual([
+            'Guidance unavailable: dose not recognised. Please contact the prescriber.',
+        ]);
         expect(spy).toHaveBeenCalled();
         spy.mockRestore();
     });

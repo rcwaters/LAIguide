@@ -5,10 +5,17 @@ export interface RawTierGuidance {
     providerNotifications?: string[];
 }
 
+/** A dose-specific guidance rule within a tier (used when guidance varies by maintenance dose). */
+export interface RawDoseRule {
+    doses: string[];
+    guidance: RawTierGuidance;
+}
+
 /** A time-window tier within a variant (e.g. ≤ 27 days overdue). */
 export interface RawTier {
     maxDays: number | null;
-    guidance: RawTierGuidance;
+    guidance?: RawTierGuidance;
+    guidanceByDoseRules?: RawDoseRule[];
 }
 
 /** A late-guidance variant (e.g. "initiation" vs "maintenance"). */
@@ -28,10 +35,18 @@ export interface RawSharedGuidance {
     providerNotifications?: string[];
 }
 
+export interface RawEarlyVariant {
+    key: string;
+    minDays?: number;
+    sameAs?: string;
+    noGuidanceMessage?: string;
+}
+
 export interface RawEarlyGuidance {
     minDays?: number;
     daysBeforeDue?: number;
     guidanceNote?: string;
+    variants?: RawEarlyVariant[];
 }
 
 export interface RawGuidance {
@@ -45,7 +60,6 @@ export interface RawGuidance {
  * Fields beyond these are preserved on save but not surfaced in the form editor.
  */
 export interface RawMedJson {
-    key: string;
     displayName: string;
     optgroupLabel: string;
     guidance: RawGuidance;

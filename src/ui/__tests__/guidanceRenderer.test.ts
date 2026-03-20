@@ -1,6 +1,11 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { infoRow, threePartGuidance, injectGuidanceSection, addictionMedicineAccordion } from '../guidanceRenderer';
+import {
+    infoRow,
+    threePartGuidance,
+    injectGuidanceSection,
+    addictionMedicineAccordion,
+} from '../guidanceRenderer';
 
 vi.stubGlobal('scrollTo', vi.fn());
 

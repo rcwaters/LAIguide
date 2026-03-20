@@ -1,0 +1,173 @@
+import { enableDrag, refreshDragHandles } from './dragDrop';
+
+export function createEl<K extends keyof HTMLElementTagNameMap>(
+    tag: K,
+    attrs?: Record<string, string>,
+    children?: (Node | string)[],
+): HTMLElementTagNameMap[K] {
+    const e = document.createElement(tag);
+    if (attrs)
+        for (const [k, v] of Object.entries(attrs)) {
+            if (k === 'textContent') {
+                e.textContent = v;
+                continue;
+            }
+            e.setAttribute(k, v);
+        }
+    if (children) for (const c of children) e.append(c);
+    return e;
+}
+
+export function makeSection(
+    title: string,
+    collapsed = false,
+): { section: HTMLDivElement; body: HTMLDivElement } {
+    const section = createEl('div', { class: `form-section${collapsed ? ' collapsed' : ''}` });
+    const header = createEl('div', { class: 'form-section-header' }, [
+        createEl('span', { class: 'chevron', textContent: '▼' }),
+        document.createTextNode(title),
+    ]);
+    header.addEventListener('click', () => section.classList.toggle('collapsed'));
+    const body = createEl('div', { class: 'form-section-body' });
+    section.append(header, body);
+    return { section, body };
+}
+
+export function makeTextInput(label: string, value: string, dataPath: string): HTMLDivElement {
+    const row = createEl('div', { class: 'form-row' });
+    row.append(createEl('label', { textContent: label }));
+    row.append(createEl('input', { type: 'text', value, 'data-path': dataPath }));
+    return row;
+}
+
+export function makeComboInput(
+    label: string,
+    value: string,
+    dataPath: string,
+    options: string[],
+    listId: string,
+): HTMLDivElement {
+    const row = createEl('div', { class: 'form-row' });
+    row.append(createEl('label', { textContent: label }));
+    const input = createEl('input', {
+        type: 'text',
+        value,
+        'data-path': dataPath,
+        list: listId,
+        autocomplete: 'off',
+    });
+    const datalist = createEl('datalist', { id: listId });
+    for (const opt of options) {
+        datalist.append(createEl('option', { value: opt }));
+    }
+    row.append(datalist, input);
+    return row;
+}
+
+export function makeNumberInput(
+    label: string,
+    value: number | null,
+    dataPath: string,
+): HTMLDivElement {
+    const row = createEl('div', { class: 'form-row' });
+    row.append(createEl('label', { textContent: label }));
+    row.append(
+        createEl('input', {
+            type: 'number',
+            value: value != null ? String(value) : '',
+            'data-path': dataPath,
+        }),
+    );
+    return row;
+}
+
+export function makeListEditor(label: string, items: string[], dataPath: string): HTMLDivElement {
+    const row = createEl('div', { class: 'form-row' });
+    row.append(createEl('label', { textContent: label }));
+    const container = createEl('div', { class: 'list-editor', 'data-path': dataPath });
+
+    function addItem(text: string) {
+        const item = createEl('div', { class: 'list-item' });
+        const handle = createEl('span', {
+            class: 'drag-handle',
+            title: 'Drag to reorder',
+            textContent: '⠿',
+        });
+        const ta = createEl('textarea');
+        ta.value = text;
+        const removeBtn = createEl('button', {
+            class: 'remove-btn',
+            type: 'button',
+            textContent: '×',
+        });
+        removeBtn.addEventListener('click', () => {
+            item.remove();
+            refreshDragHandles(container, '.list-item');
+        });
+        item.append(handle, ta, removeBtn);
+        container.insertBefore(item, addBtnEl);
+        refreshDragHandles(container, '.list-item');
+    }
+
+    const addBtnEl = createEl('button', {
+        class: 'add-item-btn',
+        type: 'button',
+        textContent: '+ Add',
+    });
+    addBtnEl.addEventListener('click', () => addItem(''));
+    container.append(addBtnEl);
+
+    for (const t of items) addItem(t);
+    enableDrag(container, '.list-item');
+    row.append(container);
+    return row;
+}
+
+function setNested(obj: Record<string, unknown>, path: string, value: unknown): void {
+    const parts = path.split('.');
+    let target: Record<string, unknown> = obj;
+    for (let i = 0; i < parts.length - 1; i++) {
+        const key = parts[i];
+        if (/^\d+$/.test(parts[i + 1] ?? '')) {
+            const idx = Number(parts[i + 1]);
+            if (!Array.isArray(target[key])) target[key] = [];
+            const arr = target[key] as Record<string, unknown>[];
+            if (arr[idx] == null) arr[idx] = {};
+            target = arr[idx];
+            i++;
+        } else {
+            if (!target[key] || typeof target[key] !== 'object') {
+                target[key] = {};
+            }
+            target = target[key] as Record<string, unknown>;
+        }
+    }
+    target[parts[parts.length - 1]] = value;
+}
+
+export function collectFormData(
+    formEditor: HTMLDivElement,
+    currentMedData: Record<string, unknown>,
+): Record<string, unknown> {
+    const data = JSON.parse(JSON.stringify(currentMedData)) as Record<string, unknown>;
+
+    formEditor.querySelectorAll<HTMLInputElement>('input[data-path]').forEach((input) => {
+        const val =
+            input.type === 'number'
+                ? input.value === ''
+                    ? null
+                    : Number(input.value)
+                : input.value;
+        setNested(data, input.dataset.path!, val);
+    });
+
+    formEditor.querySelectorAll<HTMLDivElement>('.list-editor[data-path]').forEach((container) => {
+        const items: string[] = [];
+        container.querySelectorAll<HTMLTextAreaElement>('.list-item textarea').forEach((ta) => {
+            if (ta.value.trim()) items.push(ta.value);
+        });
+        setNested(data, container.dataset.path!, items);
+    });
+
+    return data;
+}
