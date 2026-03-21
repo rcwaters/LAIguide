@@ -37,7 +37,9 @@ async function snapshotGuidance(page: Page): Promise<void> {
 // ─── Snapshot tests ───────────────────────────────────────────────────────────
 
 test.describe('guidance text snapshots', () => {
-    test.beforeEach(async ({ page }) => { await page.goto('/'); });
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/');
+    });
 
     test('invega_sustenna — initiation, 35 days', async ({ page }) => {
         await selectField(page, 'medication', 'invega_sustenna');
@@ -219,7 +221,9 @@ test.describe('guidance text snapshots', () => {
         await snapshotGuidance(page);
     });
 
-    test('sublocade — 300mg-more-than-2-doses, 45 days (administer regardless)', async ({ page }) => {
+    test('sublocade — 300mg-more-than-2-doses, 45 days (administer regardless)', async ({
+        page,
+    }) => {
         await selectField(page, 'medication', 'sublocade');
         await selectField(page, 'guidance-type', 'late');
         await fillDate(page, 'last-sublocade', daysAgo(45));

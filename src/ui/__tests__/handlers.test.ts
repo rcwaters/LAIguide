@@ -162,10 +162,12 @@ describe('startOver', () => {
     beforeEach(setupBaseDOM);
 
     it('removes the guidance section from the DOM', () => {
-        document.querySelector('.disclaimer')!.insertAdjacentHTML(
-            'beforebegin',
-            '<div class="guidance-section"><p>Some guidance</p></div>',
-        );
+        document
+            .querySelector('.disclaimer')!
+            .insertAdjacentHTML(
+                'beforebegin',
+                '<div class="guidance-section"><p>Some guidance</p></div>',
+            );
         expect(document.querySelector('.guidance-section')).not.toBeNull();
         startOver();
         expect(document.querySelector('.guidance-section')).toBeNull();
@@ -239,7 +241,9 @@ describe('handleSubmit', () => {
         setVal('last-abilify', localDaysAgo(35));
         setVal('abilify-prior-dose-group', '3+');
         handleSubmit();
-        expect(document.querySelector('.guidance-section')!.innerHTML).toContain('Abilify Maintena');
+        expect(document.querySelector('.guidance-section')!.innerHTML).toContain(
+            'Abilify Maintena',
+        );
     });
 
     it('injects guidance for early window-only med (invega_trinza)', () => {
@@ -330,10 +334,12 @@ describe('checkAutoSubmit', () => {
     });
 
     it('does not re-submit when guidance section already exists', () => {
-        document.querySelector('.disclaimer')!.insertAdjacentHTML(
-            'beforebegin',
-            '<div class="guidance-section"><p>Existing</p></div>',
-        );
+        document
+            .querySelector('.disclaimer')!
+            .insertAdjacentHTML(
+                'beforebegin',
+                '<div class="guidance-section"><p>Existing</p></div>',
+            );
         expect(() => checkAutoSubmit()).not.toThrow();
         expect(document.querySelectorAll('.guidance-section').length).toBe(1);
     });

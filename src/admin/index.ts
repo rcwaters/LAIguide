@@ -91,7 +91,8 @@ async function loadMedList(): Promise<void> {
                 const d = await store.getMed(k);
                 // Definitions file: use "Definitions" as group, groupTitle of first group as displayName
                 const firstDefGroup = Object.values(d ?? {}).find(
-                    (v) => !!v && typeof v === 'object' && !!(v as Record<string, unknown>).groupTitle,
+                    (v) =>
+                        !!v && typeof v === 'object' && !!(v as Record<string, unknown>).groupTitle,
                 ) as Record<string, unknown> | undefined;
                 if (firstDefGroup) {
                     return {

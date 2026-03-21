@@ -2,8 +2,18 @@ import type { MedicationKey } from '../interfaces/med';
 import { MED_REGISTRY } from '../medLoader';
 import { md, daysSinceDate, formatDate, pluralize } from '../utils';
 import { val } from './domHelpers';
-import { NEXT_INJECTION_DATE_ID, LAST_INJECTION_DATE_ID, EARLY_GUIDANCE_LABEL, ADDICTION_MEDICINE_LABEL } from './domIds';
-import { infoRow, addictionMedicineAccordion, injectGuidanceSection, buildNotifyBlock } from './guidanceRenderer';
+import {
+    NEXT_INJECTION_DATE_ID,
+    LAST_INJECTION_DATE_ID,
+    EARLY_GUIDANCE_LABEL,
+    ADDICTION_MEDICINE_LABEL,
+} from './domIds';
+import {
+    infoRow,
+    addictionMedicineAccordion,
+    injectGuidanceSection,
+    buildNotifyBlock,
+} from './guidanceRenderer';
 
 function earlyResultBox(allowed: boolean, strong: string, detail?: string): string {
     const cls = allowed ? 'early-allowed' : 'early-not-allowed';

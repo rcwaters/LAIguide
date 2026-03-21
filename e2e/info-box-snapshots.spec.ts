@@ -41,11 +41,13 @@ async function submit(page: Page): Promise<void> {
 /** Snapshots each .info-row as "Label: Value" lines (no normalisation needed). */
 async function snapshotInfoBox(page: Page): Promise<void> {
     const rows = await page.locator('.medication-info .info-row').all();
-    const lines = await Promise.all(rows.map(async row => {
-        const label = (await row.locator('.info-label').innerText()).trim();
-        const value = (await row.locator('.info-value').innerText()).trim();
-        return `${label} ${value}`;
-    }));
+    const lines = await Promise.all(
+        rows.map(async (row) => {
+            const label = (await row.locator('.info-label').innerText()).trim();
+            const value = (await row.locator('.info-value').innerText()).trim();
+            return `${label} ${value}`;
+        }),
+    );
     expect(lines.join('\n')).toMatchSnapshot();
 }
 
@@ -65,7 +67,7 @@ test.describe('info-box snapshots', () => {
     test('invega_trinza — early guidance info box', async ({ page }) => {
         await selectField(page, 'medication', 'invega_trinza');
         await selectField(page, 'guidance-type', 'early');
-        await fillDate(page, 'next-injection-date', daysAgo(-10));  // 10 days from now
+        await fillDate(page, 'next-injection-date', daysAgo(-10)); // 10 days from now
         await submit(page);
         await snapshotInfoBox(page);
     });
@@ -73,7 +75,7 @@ test.describe('info-box snapshots', () => {
     test('abilify_maintena — early guidance info box', async ({ page }) => {
         await selectField(page, 'medication', 'abilify_maintena');
         await selectField(page, 'guidance-type', 'early');
-        await fillDate(page, 'last-injection-date', daysAgo(27));  // 27 days — allowed (>= 26-day minimum)
+        await fillDate(page, 'last-injection-date', daysAgo(27)); // 27 days — allowed (>= 26-day minimum)
         await submit(page);
         await snapshotInfoBox(page);
     });

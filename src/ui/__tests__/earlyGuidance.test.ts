@@ -213,12 +213,11 @@ describe('showEarlyGuidance — variant path (brixadi)', () => {
 
 // ── error recovery ────────────────────────────────────────────────────────────
 
-describe('showEarlyGuidance — error recovery', () => {
+describe('showEarlyGuidance — error recovery and robustness', () => {
     beforeEach(setupDOM);
 
     it('renders an error UI when called with an unknown medication key', () => {
         showEarlyGuidance('totally_unknown_medication_xyz');
-        // Should inject an error state rather than throw
         expect(guidance()).not.toBeNull();
         expect(guidance()!.innerHTML).toContain('error');
     });

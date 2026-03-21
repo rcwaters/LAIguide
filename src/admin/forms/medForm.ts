@@ -1,4 +1,11 @@
-import type { RawMedJson, RawVariant, RawTier, RawTierGuidance, RawDoseRule, RawEarlyVariant } from '../types';
+import type {
+    RawMedJson,
+    RawVariant,
+    RawTier,
+    RawTierGuidance,
+    RawDoseRule,
+    RawEarlyVariant,
+} from '../types';
 import { NO_PROVIDER_NOTIFICATION } from '../../constants';
 import {
     createEl,

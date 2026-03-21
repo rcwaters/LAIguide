@@ -2,7 +2,12 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { handleGuidanceTypeChange, handleSubGroupSelectorChange, handleSubmit, startOver } from '../ui/handlers';
+import {
+    handleGuidanceTypeChange,
+    handleSubGroupSelectorChange,
+    handleSubmit,
+    startOver,
+} from '../ui/handlers';
 import { initForm } from '../ui/formInit';
 import { MED_REGISTRY } from '../medLoader';
 

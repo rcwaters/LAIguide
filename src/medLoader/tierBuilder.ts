@@ -16,14 +16,14 @@ export function buildTier(raw: RawTier): LateTier {
                 : {}),
             ...(raw['guidanceByDoseRules'] != null
                 ? {
-                    guidanceByDoseRules: raw['guidanceByDoseRules'] as {
-                        doses: string[];
-                        guidance: GuidanceResult;
-                    }[],
-                    ...(raw['defaultGuidance'] != null
-                        ? { defaultGuidance: raw['defaultGuidance'] as GuidanceResult }
-                        : {}),
-                }
+                      guidanceByDoseRules: raw['guidanceByDoseRules'] as {
+                          doses: string[];
+                          guidance: GuidanceResult;
+                      }[],
+                      ...(raw['defaultGuidance'] != null
+                          ? { defaultGuidance: raw['defaultGuidance'] as GuidanceResult }
+                          : {}),
+                  }
                 : {}),
         };
     }
@@ -56,8 +56,16 @@ export function resolveLateTier(
 ): GuidanceResult {
     try {
         if (!tiers.length) {
-            console.error('[resolveLateTier] Empty tiers array for daysSince=%d dose=%s', daysSince, dose);
-            return { idealSteps: ['Guidance unavailable: no tiers configured. Please contact the prescriber.'] };
+            console.error(
+                '[resolveLateTier] Empty tiers array for daysSince=%d dose=%s',
+                daysSince,
+                dose,
+            );
+            return {
+                idealSteps: [
+                    'Guidance unavailable: no tiers configured. Please contact the prescriber.',
+                ],
+            };
         }
         const tier = tiers.find((t) => daysSince <= t.maxDays) ?? tiers[tiers.length - 1];
         if (tier.type === 'dose-variant') {
@@ -73,7 +81,11 @@ export function resolveLateTier(
                     '— available:',
                     tier.guidanceByDoseRules.flatMap((r) => r.doses),
                 );
-                return { idealSteps: ['Guidance unavailable: dose not recognised. Please contact the prescriber.'] };
+                return {
+                    idealSteps: [
+                        'Guidance unavailable: dose not recognised. Please contact the prescriber.',
+                    ],
+                };
             }
             if (!tier.guidanceByDose || !dose || !(dose in tier.guidanceByDose)) {
                 console.error(
@@ -82,7 +94,11 @@ export function resolveLateTier(
                     '— available:',
                     Object.keys(tier.guidanceByDose ?? {}),
                 );
-                return { idealSteps: ['Guidance unavailable: dose not recognised. Please contact the prescriber.'] };
+                return {
+                    idealSteps: [
+                        'Guidance unavailable: dose not recognised. Please contact the prescriber.',
+                    ],
+                };
             }
             return tier.guidanceByDose[dose!];
         }
@@ -94,6 +110,10 @@ export function resolveLateTier(
             dose,
             err,
         );
-        return { idealSteps: ['Guidance unavailable: an unexpected error occurred. Please contact the prescriber.'] };
+        return {
+            idealSteps: [
+                'Guidance unavailable: an unexpected error occurred. Please contact the prescriber.',
+            ],
+        };
     }
 }

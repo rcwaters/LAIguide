@@ -25,7 +25,11 @@
       "Bash(for f:*)",
       "Bash(do)",
       "Bash(echo \"=== $f ===\")",
-      "Bash(__NEW_LINE_14555a187702ac67__ node:*)"
+      "Bash(__NEW_LINE_14555a187702ac67__ node:*)",
+      "Bash(grep -rn '\"\"onchange\"\"' src/meds/)",
+      "Bash(grep -v \"^Running\\\\|^$\\\\|node_modules\")",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(ls .prettierrc* prettier.config*)"
     ]
   }
 }

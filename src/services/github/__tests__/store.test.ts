@@ -43,7 +43,12 @@ describe('listMedKeys', () => {
         mockFetch.mockResolvedValueOnce(
             makeJsonResponse([
                 { name: 'abilify.json', path: 'src/meds/abilify.json', sha: 'a', download_url: '' },
-                { name: 'vivitrol.json', path: 'src/meds/vivitrol.json', sha: 'b', download_url: '' },
+                {
+                    name: 'vivitrol.json',
+                    path: 'src/meds/vivitrol.json',
+                    sha: 'b',
+                    download_url: '',
+                },
             ]),
         );
         const store = createGitHubStore(OWNER, REPO, TOKEN);
@@ -183,7 +188,11 @@ describe('saveMed', () => {
         const existingData = { displayName: 'Existing' };
         // getFileSha: success
         mockFetch.mockResolvedValueOnce(
-            makeJsonResponse({ sha: 'existing-sha', content: b64(existingData), encoding: 'base64' }),
+            makeJsonResponse({
+                sha: 'existing-sha',
+                content: b64(existingData),
+                encoding: 'base64',
+            }),
         );
         // PUT request
         mockFetch.mockResolvedValueOnce(makeJsonResponse({ commit: {} }));

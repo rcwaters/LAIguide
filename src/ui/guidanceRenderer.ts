@@ -39,10 +39,11 @@ export function addictionMedicineAccordion(): string {
 export function buildNotifyBlock(notifications: string[]): string {
     return `<div class="guidance-content notify-box">
             <h3 class="guidance-heading">When to notify provider:</h3>
-            ${notifications.length
-            ? `<ul>${notifications.map((n) => `<li>${md(n)}</li>`).join('')}</ul>`
-            : `<div class="guidance-text">${md(NO_PROVIDER_NOTIFICATION)}</div>`
-        }
+            ${
+                notifications.length
+                    ? `<ul>${notifications.map((n) => `<li>${md(n)}</li>`).join('')}</ul>`
+                    : `<div class="guidance-text">${md(NO_PROVIDER_NOTIFICATION)}</div>`
+            }
         </div>`;
 }
 
