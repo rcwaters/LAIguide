@@ -41,47 +41,21 @@
                 max-width: 900px;
                 margin: 0 auto;
                 padding: 20px 16px;
-                position: relative;
                 text-align: center;
             }
 
-            .admin-header-logo {
-                position: absolute;
-                top: 50%;
-                left: 16px;
-                transform: translateY(-50%);
-                height: 72px;
-                width: auto;
-            }
-
             .admin-header h1 {
-                color: #e8f5f2;
-                font-size: clamp(20px, 4vw, 28px);
+                color: #000;
+                font-size: clamp(24px, 5vw, 34px);
                 font-weight: 700;
                 letter-spacing: 0.02em;
             }
 
-            @media (max-width: 600px) {
-                .admin-header {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 8px;
-                    padding: 16px;
-                }
-
-                .admin-header-logo {
-                    position: static;
-                    transform: none;
-                    height: 56px;
-                }
-            }
-
-            .admin-header h1 {
-                color: white;
-                font-size: 24px;
-                font-weight: 700;
-                margin-bottom: 4px;
+            .admin-header-logo {
+                height: 48px;
+                width: auto;
+                vertical-align: middle;
+                margin-right: 4px;
             }
 
             .admin-container {
@@ -601,14 +575,13 @@
 
     <body>
         <div class="admin-header">
-            <img src="./assets/logo-desc-DqcXQLlW-DqcXQLlW.png" alt="DESC logo" class="admin-header-logo" />
-            <h1>LAI Admin Portal 🔧</h1>
+            <h1><img src="./assets/logo-desc-DqcXQLlW-DqcXQLlW.png" alt="DESC logo" class="admin-header-logo" />LAI Admin Portal 🔧</h1>
         </div>
 
         <div class="admin-container">
             <!-- Login -->
             <div id="login-section">
-                <h2>Admin Login</h2>
+
                 <label for="email-input">Email</label>
                 <input type="email" id="email-input" autocomplete="email" />
                 <label for="code-input">Access Code</label>

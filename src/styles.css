@@ -110,10 +110,6 @@ body {
     margin-bottom: 8px;
 }
 
-.emoji-yellow {
-    filter: sepia(1) saturate(8) hue-rotate(5deg) brightness(1.1);
-}
-
 .app-subtitle {
     color: rgba(255, 255, 255, 0.85);
     font-size: clamp(14px, 3vw, 16px);
