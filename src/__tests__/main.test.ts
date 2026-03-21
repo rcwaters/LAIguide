@@ -1162,10 +1162,10 @@ describe('provider notification aggregation', () => {
             handleSubmit();
         }
 
-        test('neither: "When to notify provider" section is not rendered', () => {
+        test('neither: "When to notify provider" section renders with fallback text', () => {
             delete (MED_REGISTRY['invega_sustenna'] as any).commonProviderNotifications;
             submitEarlyAllowed();
-            expect(getNotifSectionText()).toBeNull();
+            expect(getNotifSectionText()).toContain('No provider notification needed');
         });
 
         test('shared-only: shared notification appears', () => {

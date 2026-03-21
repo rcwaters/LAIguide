@@ -37,12 +37,12 @@
             }
 
             .admin-header {
-                text-align: center;
                 background: #3c8476;
                 max-width: 900px;
                 margin: 0 auto;
                 padding: 20px 16px;
                 position: relative;
+                text-align: center;
             }
 
             .admin-header-logo {
@@ -52,6 +52,13 @@
                 transform: translateY(-50%);
                 height: 72px;
                 width: auto;
+            }
+
+            .admin-header h1 {
+                color: #e8f5f2;
+                font-size: clamp(20px, 4vw, 28px);
+                font-weight: 700;
+                letter-spacing: 0.02em;
             }
 
             @media (max-width: 600px) {
@@ -70,17 +77,13 @@
                 }
             }
 
-            s .admin-header h1 {
+            .admin-header h1 {
                 color: white;
                 font-size: 24px;
                 font-weight: 700;
                 margin-bottom: 4px;
             }
 
-            .admin-header p {
-                color: rgba(255, 255, 255, 0.85);
-                font-size: 14px;
-            }
 
             .admin-container {
                 background: white;
@@ -599,8 +602,7 @@
     <body>
         <div class="admin-header">
             <img src="./assets/logo-desc-DqcXQLlW.png" alt="DESC logo" class="admin-header-logo" />
-            <h1>🔧 LAI Admin Portal</h1>
-            <p>Manage medication JSON data</p>
+            <h1>LAI Admin Portal 🔧</h1>
         </div>
 
         <div class="admin-container">

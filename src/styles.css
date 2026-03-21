@@ -105,9 +105,13 @@ body {
 
 .app-title {
     color: black;
-    font-size: clamp(20px, 5vw, 28px);
+    font-size: clamp(28px, 7vw, 42px);
     font-weight: 700;
     margin-bottom: 8px;
+}
+
+.emoji-yellow {
+    filter: sepia(1) saturate(8) hue-rotate(5deg) brightness(1.1);
 }
 
 .app-subtitle {
@@ -119,7 +123,7 @@ body {
 /* ─── Form section ────────────────────────────────────────────────────────── */
 
 .form-section {
-    margin-bottom: 24px;
+    margin-bottom: 8px;
     padding: 12px 16px 16px;
     border-radius: 0;
 }
@@ -188,7 +192,11 @@ optgroup option {
 }
 
 .date-input {
-    max-width: 100%;
+    max-width: 220px;
+}
+
+.date-input::placeholder {
+    color: #9ca3af;
 }
 
 @media (min-width: 480px) {
@@ -270,7 +278,7 @@ optgroup option {
     border-right: none;
     padding: 14px 16px;
     border-radius: 0;
-    margin-top: 20px;
+    margin-top: 8px;
     margin-left: -16px;
     margin-right: -16px;
     font-size: 13px;
@@ -311,10 +319,9 @@ optgroup option {
     display: block;
     text-align: left;
     background: transparent;
-    padding: 12px 0 8px;
-    margin: 0 0 4px;
+    padding: 12px 0 4px;
+    margin: 0 0 2px;
     border: none;
-    border-bottom: 1px solid #e5e7eb;
     font-size: 0.88em;
 }
 
@@ -347,6 +354,10 @@ optgroup option {
     background: transparent;
     box-shadow: none;
     border: none;
+    padding-top: 6px;
+    padding-bottom: 2px;
+    margin-top: 4px;
+    margin-bottom: 0;
 }
 
 .guidance-content.notify-box {

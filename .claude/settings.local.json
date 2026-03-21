@@ -14,7 +14,13 @@
       "Bash(cp -r dist/assets/* assets/)",
       "Bash(grep -o assets/[^\"\"]* index.html admin.html)",
       "Bash(ls -la *.html *.css *.js)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(grep -oE '.{0,30}notify-box.{0,30}')",
+      "Bash(tr ';' '\\\\n')",
+      "Bash(npx tsx -e \":*)",
+      "Bash(done)",
+      "Bash(grep -r NO_PROVIDER_NOTIFICATION src/ --include=*.ts)",
+      "Bash(npm install:*)"
     ]
   }
 }

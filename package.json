@@ -25,6 +25,7 @@
         "vitest": "^1.6.0"
     },
     "dependencies": {
+        "flatpickr": "^4.6.13",
         "marked": "^17.0.4"
     }
 }

@@ -1,4 +1,6 @@
 ﻿import './styles.css';
+import 'flatpickr/dist/flatpickr.min.css';
+import flatpickr from 'flatpickr';
 import { initForm } from './ui/formInit';
 import {
     handleGuidanceTypeChange,
@@ -20,6 +22,16 @@ export {
 };
 
 initForm();
+
+document.querySelectorAll<HTMLInputElement>('input.date-input').forEach((input) => {
+    flatpickr(input, {
+        dateFormat: 'Y-m-d',
+        disableMobile: true,
+        allowInput: true,
+        ...(input.getAttribute('min') ? { minDate: input.getAttribute('min')! } : {}),
+        ...(input.getAttribute('max') ? { maxDate: input.getAttribute('max')! } : {}),
+    });
+});
 
 declare global {
     interface Window {

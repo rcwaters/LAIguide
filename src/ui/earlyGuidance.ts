@@ -4,6 +4,7 @@ import { md, daysSinceDate, formatDate } from '../utils';
 import { val } from './domHelpers';
 import { NEXT_INJECTION_DATE_ID, LAST_INJECTION_DATE_ID, EARLY_GUIDANCE_LABEL } from './domIds';
 import { infoRow, addictionMedicineAccordion, injectGuidanceSection } from './guidanceRenderer';
+import { NO_PROVIDER_NOTIFICATION } from '../constants';
 
 export function showEarlyGuidance(medication: string, variantKey?: string): void {
     try {
@@ -66,12 +67,10 @@ export function showEarlyGuidance(medication: string, variantKey?: string): void
                     ...(entry.earlyProviderNotification ?? []),
                     ...(entry.commonProviderNotifications ?? []),
                 ];
-                return combined.length
-                    ? `<div class="guidance-content notify-box">
+                return `<div class="guidance-content notify-box">
                     <h3 class="guidance-heading">When to notify provider:</h3>
-                    <ul>${combined.map((n) => `<li>${md(n)}</li>`).join('')}</ul>
-                </div>`
-                    : '';
+                    ${combined.length ? `<ul>${combined.map((n) => `<li>${md(n)}</li>`).join('')}</ul>` : `<div class="guidance-text">${md(NO_PROVIDER_NOTIFICATION)}</div>`}
+                </div>`;
             })()}
             ${entry.optgroupLabel === 'Addiction Medicine' ? addictionMedicineAccordion() : ''}`;
 
@@ -180,12 +179,10 @@ export function showEarlyGuidance(medication: string, variantKey?: string): void
                 ...(entry.earlyProviderNotification ?? []),
                 ...(entry.commonProviderNotifications ?? []),
             ];
-            return combined.length
-                ? `<div class="guidance-content notify-box">
+            return `<div class="guidance-content notify-box">
                 <h3 class="guidance-heading">When to notify provider:</h3>
-                <ul>${combined.map((n) => `<li>${md(n)}</li>`).join('')}</ul>
-            </div>`
-                : '';
+                ${combined.length ? `<ul>${combined.map((n) => `<li>${md(n)}</li>`).join('')}</ul>` : `<div class="guidance-text">${md(NO_PROVIDER_NOTIFICATION)}</div>`}
+            </div>`;
         })()}
         ${entry.optgroupLabel === 'Addiction Medicine' ? addictionMedicineAccordion() : ''}`;
 
