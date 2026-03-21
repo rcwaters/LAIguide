@@ -12,7 +12,7 @@ import {
 function renderField(f: FieldSpec, today: string): string {
     const label = `<label for="${f.id}">${f.label} <span class="required">*</span></label>`;
     if (f.type === 'date') {
-        return `${label}\n<input type="date" id="${f.id}" class="date-input" max="${today}" onchange="checkAutoSubmit()">`;
+        return `${label}\n<input type="date" id="${f.id}" class="date-input" max="${today}" placeholder="Pick or type a date" onchange="checkAutoSubmit()">`;
     }
     const onchange = f.onchange ? ` onchange="${f.onchange}"` : ' onchange="checkAutoSubmit()"';
     const opts = f.options.map((o) => `<option value="${o.value}">${o.label}</option>`).join('\n');
@@ -65,7 +65,7 @@ export function initForm(): void {
             'beforeend',
             `<div class="input-group" id="${EARLY_DATE_GROUP_ID}" style="display: none;">
 <label for="${NEXT_INJECTION_DATE_ID}">Next injection scheduled <span class="required">*</span></label>
-<input type="date" id="${NEXT_INJECTION_DATE_ID}" class="date-input" min="${today}" onchange="checkAutoSubmit()">
+<input type="date" id="${NEXT_INJECTION_DATE_ID}" class="date-input" min="${today}" placeholder="Pick or type a date" onchange="checkAutoSubmit()">
 </div>`,
         );
 
@@ -73,7 +73,7 @@ export function initForm(): void {
             'beforeend',
             `<div class="input-group" id="${EARLY_LAST_DATE_GROUP_ID}" style="display: none;">
 <label for="${LAST_INJECTION_DATE_ID}">Date of last injection <span class="required">*</span></label>
-<input type="date" id="${LAST_INJECTION_DATE_ID}" class="date-input" max="${today}" onchange="checkAutoSubmit()">
+<input type="date" id="${LAST_INJECTION_DATE_ID}" class="date-input" max="${today}" placeholder="Pick or type a date" onchange="checkAutoSubmit()">
 </div>`,
         );
     } catch (err) {
