@@ -30,7 +30,6 @@ export function showEarlyGuidance(medication: string, variantKey?: string): void
     try {
         const entry = MED_REGISTRY[medication as MedicationKey];
 
-        // ── Variant-aware early guidance (e.g. Brixadi monthly vs. weekly) ────────
         if (variantKey != null && entry.earlyVariantMap) {
             const varDef = entry.earlyVariantMap[variantKey];
 
@@ -78,7 +77,6 @@ export function showEarlyGuidance(medication: string, variantKey?: string): void
             return;
         }
 
-        // ── Standard (non-variant) early guidance ─────────────────────────────────
         const hasDaysBeforeDue = !!entry.earlyDaysBeforeDue;
         const hasMinDays = !!entry.earlyMinDays;
 

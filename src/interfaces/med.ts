@@ -2,19 +2,8 @@ import type { GuidanceResult, SubmitContext } from './guidance';
 
 // ─── Registry key ─────────────────────────────────────────────────────────────
 
-/** Unique string key for each medication entry in the registry. */
-export type MedicationKey =
-    | 'invega_sustenna'
-    | 'invega_trinza'
-    | 'invega_hafyera'
-    | 'abilify_maintena'
-    | 'aristada'
-    | 'uzedy'
-    | 'haloperidol_decanoate'
-    | 'fluphenazine_decanoate'
-    | 'vivitrol'
-    | 'sublocade'
-    | 'brixadi';
+/** Unique string key for each medication entry in the registry (derived from JSON filename). */
+export type MedicationKey = string;
 
 // ─── Guidance params / output ─────────────────────────────────────────────────
 

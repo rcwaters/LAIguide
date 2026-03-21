@@ -10,7 +10,7 @@ function daysAgo(n: number): string {
 
 async function selectField(page: Page, id: string, value: string): Promise<void> {
     if (id === 'guidance-type') {
-        await page.evaluate((v) => (window as any).selectGuidanceType(v), value);
+        await page.locator(`.seg-btn[data-value="${value}"]`).click();
     } else {
         await page.selectOption(`#${id}`, value);
     }

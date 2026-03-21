@@ -118,8 +118,8 @@ describe('invega-trinza — buildLateInfoRows', () => {
             expect(timeRow(90)).toBe('90 days (approximately 3 months)');
         });
 
-        it('30 days → "30 days (approximately 1 months)"', () => {
-            expect(timeRow(30)).toBe('30 days (approximately 1 months)');
+        it('30 days → "30 days (approximately 1 month)"', () => {
+            expect(timeRow(30)).toBe('30 days (approximately 1 month)');
         });
 
         it('negative days are clamped to 0', () => {

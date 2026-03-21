@@ -81,7 +81,7 @@ export function handleGuidanceTypeChange(): void {
     checkAutoSubmit();
 }
 
-export function handleInvegaTypeChange(): void {
+export function handleSubGroupSelectorChange(): void {
     const entry = MED_REGISTRY[val(MEDICATION_ID) as MedicationKey];
     if (!entry?.subGroupSelectorId) return;
     entry.handleSubGroupChange?.(val(entry.subGroupSelectorId), show, hide, clear);
@@ -124,6 +124,67 @@ export function checkAutoSubmit(): void {
     handleSubmit();
 }
 
+function showEarlyGuidanceValidated(medication: string): void {
+    const entry = MED_REGISTRY[medication as MedicationKey];
+    if (entry?.earlyParamField) {
+        const paramVal = val(entry.earlyParamField);
+        if (!paramVal) {
+            alert('Please select the formulation and dose.');
+            return;
+        }
+        const varDef = entry.earlyVariantMap?.[paramVal];
+        if (!varDef?.noGuidanceMessage && entry.earlyDateField && !val(entry.earlyDateField)) {
+            alert('Please enter the date of the last injection.');
+            return;
+        }
+        showEarlyGuidance(medication, paramVal);
+        return;
+    }
+    if (entry?.earlyDaysBeforeDue && !val(NEXT_INJECTION_DATE_ID)) {
+        alert('Please enter the next scheduled injection date.');
+        return;
+    }
+    if (entry?.earlyMinDays && !val(LAST_INJECTION_DATE_ID)) {
+        alert('Please enter the date of the last injection.');
+        return;
+    }
+    showEarlyGuidance(medication);
+}
+
+function showLateGuidance(medication: string, ctx: SubmitContext): void {
+    const entry = MED_REGISTRY[medication as MedicationKey];
+    if (!entry) {
+        alert('Late/overdue guidance for this medication does not exist.');
+        return;
+    }
+
+    const validationErr = entry.validateLate(ctx);
+    if (validationErr) {
+        alert(validationErr);
+        return;
+    }
+
+    const params = entry.buildLateParams(ctx);
+    const guidance = entry.getLateGuidance(params);
+    const daysSince = params.daysSince!;
+
+    const rows =
+        infoRow('Medication:', entry.displayName) +
+        infoRow('Guidance Type:', LATE_GUIDANCE_LABEL) +
+        entry
+            .buildLateInfoRows(ctx, daysSince)
+            .map(([label, value]) => infoRow(label, value))
+            .join('');
+
+    const body = threePartGuidance(
+        guidance as GuidanceResult,
+        entry.commonProviderNotifications,
+        entry.optgroupLabel === ADDICTION_MEDICINE_LABEL,
+    );
+
+    injectGuidanceSection(rows, body);
+}
+
 export function handleSubmit(): void {
     try {
         const medication = val(MEDICATION_ID);
@@ -138,75 +199,18 @@ export function handleSubmit(): void {
             return;
         }
 
-        const ctx: SubmitContext = Object.fromEntries(
-            Object.values(MED_REGISTRY)
-                .flatMap((e) => e.formFieldIds)
-                .map((id) => [id, val(id)]),
-        );
-
         if (guidanceType === 'early') {
-            const entry = MED_REGISTRY[medication as MedicationKey];
-            if (entry?.earlyParamField) {
-                const paramVal = val(entry.earlyParamField);
-                if (!paramVal) {
-                    alert('Please select the formulation and dose.');
-                    return;
-                }
-                const varDef = entry.earlyVariantMap?.[paramVal];
-                if (
-                    !varDef?.noGuidanceMessage &&
-                    entry.earlyDateField &&
-                    !val(entry.earlyDateField)
-                ) {
-                    alert('Please enter the date of the last injection.');
-                    return;
-                }
-                showEarlyGuidance(medication, paramVal);
-                return;
-            }
-            if (entry?.earlyDaysBeforeDue && !val(NEXT_INJECTION_DATE_ID)) {
-                alert('Please enter the next scheduled injection date.');
-                return;
-            }
-            if (entry?.earlyMinDays && !val(LAST_INJECTION_DATE_ID)) {
-                alert('Please enter the date of the last injection.');
-                return;
-            }
-            showEarlyGuidance(medication);
-            return;
+            showEarlyGuidanceValidated(medication);
+        } else {
+            showLateGuidance(
+                medication,
+                Object.fromEntries(
+                    Object.values(MED_REGISTRY)
+                        .flatMap((e) => e.formFieldIds)
+                        .map((id) => [id, val(id)]),
+                ),
+            );
         }
-
-        const entry = MED_REGISTRY[medication as MedicationKey];
-        if (!entry) {
-            alert('Late/overdue guidance for this medication does not exist.');
-            return;
-        }
-
-        const validationErr = entry.validateLate(ctx);
-        if (validationErr) {
-            alert(validationErr);
-            return;
-        }
-
-        const params = entry.buildLateParams(ctx);
-        const guidance = entry.getLateGuidance(params);
-        const daysSince = params.daysSince!;
-
-        const rows =
-            infoRow('Medication:', entry.displayName) +
-            infoRow('Guidance Type:', LATE_GUIDANCE_LABEL) +
-            entry
-                .buildLateInfoRows(ctx, daysSince)
-                .map(([label, value]) => infoRow(label, value))
-                .join('');
-
-        const body = threePartGuidance(
-            guidance as GuidanceResult,
-            entry.commonProviderNotifications,
-            entry.optgroupLabel === ADDICTION_MEDICINE_LABEL,
-        );
-
-        injectGuidanceSection(rows, body);
     } catch (err) {
         console.error('[handleSubmit] Unexpected error:', err);
         const errorBody = `<div class="guidance-content early-not-allowed">
@@ -258,7 +262,8 @@ export function startOver(): void {
         if (gtGroup) gtGroup.style.display = 'none';
 
         document.querySelector(GUIDANCE_SECTION_SEL)?.remove();
-        document.querySelector<HTMLElement>('.form-section')!.style.display = 'block';
+        const formEl = document.querySelector<HTMLElement>('.form-section');
+        if (formEl) formEl.style.display = 'block';
         window.scrollTo(0, 0);
     } catch (err) {
         console.error('[startOver] Unexpected error:', err);

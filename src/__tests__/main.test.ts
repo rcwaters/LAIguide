@@ -2,7 +2,7 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { handleGuidanceTypeChange, handleInvegaTypeChange, handleSubmit, startOver } from '../ui/handlers';
+import { handleGuidanceTypeChange, handleSubGroupSelectorChange, handleSubmit, startOver } from '../ui/handlers';
 import { initForm } from '../ui/formInit';
 import { MED_REGISTRY } from '../medLoader';
 
@@ -89,19 +89,20 @@ describe('handleGuidanceTypeChange', () => {
         expect(isVisible('uzedy-fields')).toBe(true);
     });
 
-    test('medications without late guidance (e.g. vivitrol) show no conditional fields', () => {
+    test('vivitrol + late shows vivitrol-fields and hides all other med-specific field groups', () => {
         setField('medication', 'vivitrol');
         setField('guidance-type', 'late');
         handleGuidanceTypeChange();
+        expect(isVisible('vivitrol-fields')).toBe(true);
         medFields.forEach(([, fieldId]) => {
             expect(isVisible(fieldId)).toBe(false);
         });
     });
 });
 
-// ─── handleInvegaTypeChange ───────────────────────────────────────────────────
+// ─── handleSubGroupSelectorChange ────────────────────────────────────────────
 
-describe('handleInvegaTypeChange', () => {
+describe('handleSubGroupSelectorChange', () => {
     beforeEach(() => {
         setupDOM();
         setField('medication', 'invega_sustenna');
@@ -109,36 +110,36 @@ describe('handleInvegaTypeChange', () => {
 
     test('initiation → shows first-injection-date, hides maintenance-fields', () => {
         setField('invega-type', 'initiation');
-        handleInvegaTypeChange();
+        handleSubGroupSelectorChange();
         expect(isVisible('first-injection-date')).toBe(true);
         expect(isVisible('maintenance-fields')).toBe(false);
     });
 
     test('maintenance → shows maintenance-fields, hides first-injection-date', () => {
         setField('invega-type', 'maintenance');
-        handleInvegaTypeChange();
+        handleSubGroupSelectorChange();
         expect(isVisible('maintenance-fields')).toBe(true);
         expect(isVisible('first-injection-date')).toBe(false);
     });
 
     test('switching from initiation to maintenance clears first-injection field', () => {
         setField('invega-type', 'initiation');
-        handleInvegaTypeChange();
+        handleSubGroupSelectorChange();
         setField('first-injection', daysAgo(10));
 
         setField('invega-type', 'maintenance');
-        handleInvegaTypeChange();
+        handleSubGroupSelectorChange();
         expect((document.getElementById('first-injection') as HTMLInputElement).value).toBe('');
     });
 
     test('switching from maintenance to initiation clears last-maintenance and dose fields', () => {
         setField('invega-type', 'maintenance');
-        handleInvegaTypeChange();
+        handleSubGroupSelectorChange();
         setField('last-maintenance', daysAgo(35));
         setField('maintenance-dose', '234');
 
         setField('invega-type', 'initiation');
-        handleInvegaTypeChange();
+        handleSubGroupSelectorChange();
         expect((document.getElementById('last-maintenance') as HTMLInputElement).value).toBe('');
         expect((document.getElementById('maintenance-dose') as HTMLSelectElement).value).toBe('');
     });

@@ -10,7 +10,8 @@ import {
 } from '../handlers';
 
 vi.stubGlobal('scrollTo', vi.fn());
-vi.stubGlobal('alert', vi.fn());
+const alertMock = vi.fn();
+vi.stubGlobal('alert', alertMock);
 
 function localDaysAgo(n: number): string {
     const d = new Date();
@@ -33,7 +34,6 @@ function setupBaseDOM(): void {
         <select id="medication"></select>
         <input type="hidden" id="guidance-type" value="" />
         <div id="guidance-type-group" style="display:none"></div>
-        <div id="start-over-bar" style="display:none"></div>
         <div class="form-section" style="display:block;"></div>
         <div class="disclaimer"></div>
         <button class="seg-btn" data-value="early">Early</button>
@@ -146,6 +146,14 @@ describe('handleGuidanceTypeChange', () => {
         handleGuidanceTypeChange();
         expect(document.getElementById('abilify-fields')!.style.display).toBe('none');
     });
+
+    it('does not throw when early date group elements are absent', () => {
+        document.getElementById('early-date-group')?.remove();
+        document.getElementById('early-last-date-group')?.remove();
+        setVal('medication', 'abilify_maintena');
+        setVal('guidance-type', 'early');
+        expect(() => handleGuidanceTypeChange()).not.toThrow();
+    });
 });
 
 // ── startOver ─────────────────────────────────────────────────────────────────
@@ -186,8 +194,7 @@ describe('startOver', () => {
             .querySelectorAll<HTMLButtonElement>('.seg-btn')
             .forEach((b) => b.classList.add('seg-btn--active'));
         startOver();
-        const active = document.querySelectorAll('.seg-btn--active');
-        expect(active.length).toBe(0);
+        expect(document.querySelectorAll('.seg-btn--active').length).toBe(0);
     });
 
     it('does not throw when no guidance section exists', () => {
@@ -242,6 +249,65 @@ describe('handleSubmit', () => {
         handleSubmit();
         expect(document.querySelector('.guidance-section')).not.toBeNull();
     });
+
+    it('alerts when no medication is selected', () => {
+        alertMock.mockClear();
+        setVal('medication', '');
+        setVal('guidance-type', 'early');
+        handleSubmit();
+        expect(alertMock).toHaveBeenCalledWith('Please select a medication.');
+        expect(document.querySelector('.guidance-section')).toBeNull();
+    });
+
+    it('alerts when no guidance type is selected', () => {
+        alertMock.mockClear();
+        setVal('medication', 'abilify_maintena');
+        setVal('guidance-type', '');
+        handleSubmit();
+        expect(alertMock).toHaveBeenCalledWith('Please select a guidance type.');
+        expect(document.querySelector('.guidance-section')).toBeNull();
+    });
+
+    it('alerts early param-field med when no param selected (brixadi)', () => {
+        alertMock.mockClear();
+        setVal('medication', 'brixadi');
+        setVal('guidance-type', 'early');
+        setVal('brixadi-type', '');
+        handleSubmit();
+        expect(alertMock).toHaveBeenCalledWith('Please select the formulation and dose.');
+        expect(document.querySelector('.guidance-section')).toBeNull();
+    });
+
+    it('alerts early param-field med when param set but date missing (brixadi monthly-64)', () => {
+        alertMock.mockClear();
+        setVal('medication', 'brixadi');
+        setVal('guidance-type', 'early');
+        setVal('brixadi-type', 'monthly-64');
+        setVal('last-brixadi', '');
+        handleSubmit();
+        expect(alertMock).toHaveBeenCalledWith('Please enter the date of the last injection.');
+        expect(document.querySelector('.guidance-section')).toBeNull();
+    });
+
+    it('injects guidance for early param-field med with all fields filled (brixadi monthly-64)', () => {
+        setVal('medication', 'brixadi');
+        setVal('guidance-type', 'early');
+        setVal('brixadi-type', 'monthly-64');
+        setVal('last-brixadi', localDaysAgo(25));
+        handleSubmit();
+        expect(document.querySelector('.guidance-section')).not.toBeNull();
+    });
+
+    it('alerts late guidance when validation fails (abilify_maintena missing date)', () => {
+        alertMock.mockClear();
+        setVal('medication', 'abilify_maintena');
+        setVal('guidance-type', 'late');
+        setVal('last-abilify', '');
+        setVal('abilify-prior-dose-group', '3+');
+        handleSubmit();
+        expect(alertMock).toHaveBeenCalled();
+        expect(document.querySelector('.guidance-section')).toBeNull();
+    });
 });
 
 // ── checkAutoSubmit ───────────────────────────────────────────────────────────
@@ -268,9 +334,7 @@ describe('checkAutoSubmit', () => {
             'beforebegin',
             '<div class="guidance-section"><p>Existing</p></div>',
         );
-        // Should return early without error
         expect(() => checkAutoSubmit()).not.toThrow();
-        // Still only one guidance section
         expect(document.querySelectorAll('.guidance-section').length).toBe(1);
     });
 

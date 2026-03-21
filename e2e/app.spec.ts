@@ -4,8 +4,12 @@ import { test, expect, Page } from '@playwright/test';
 
 function daysAgo(n: number): string {
     const d = new Date();
+    d.setHours(0, 0, 0, 0);
     d.setDate(d.getDate() - n);
-    return d.toISOString().split('T')[0];
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
 }
 
 /** Returns YYYY-MM-DD for N days from today. */

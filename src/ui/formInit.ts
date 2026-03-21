@@ -15,7 +15,7 @@ function renderField(f: FieldSpec, today: string): string {
     if (f.type === 'date') {
         return `${label}\n<input type="date" id="${f.id}" class="date-input" max="${today}" placeholder="Pick or type a date">`;
     }
-    const handlerAttr = f.onchange ? ' data-handler="invega"' : '';
+    const handlerAttr = f.onchange ? ' data-handler="subgroup"' : '';
     const opts = f.options.map((o) => `<option value="${o.value}">${o.label}</option>`).join('\n');
     return `${label}\n<select id="${f.id}"${handlerAttr}>\n<option value="">${f.placeholder ?? 'Select...'}</option>\n${opts}\n</select>`;
 }
@@ -35,7 +35,7 @@ export function initForm(): void {
     try {
         const medSelect = document.getElementById(MEDICATION_ID) as HTMLSelectElement | null;
         if (!medSelect) return;
-        if (document.getElementById('uzedy-fields')) return;
+        if (document.getElementById(EARLY_LAST_DATE_GROUP_ID)) return;
 
         const groups = new Map<string, string[]>();
         for (const [key, entry] of Object.entries(MED_REGISTRY)) {
@@ -56,7 +56,8 @@ export function initForm(): void {
         medSelect.innerHTML = optHtml;
 
         const today = new Date().toISOString().split('T')[0];
-        const formSection = document.querySelector<HTMLElement>(FORM_SECTION_SEL)!;
+        const formSection = document.querySelector<HTMLElement>(FORM_SECTION_SEL);
+        if (!formSection) return;
         const groupsHtml = Object.values(MED_REGISTRY)
             .flatMap((e) => e.formGroupsSpec)
             .map((spec) => renderFieldGroup(spec, today))

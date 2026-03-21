@@ -39,11 +39,10 @@ export function addictionMedicineAccordion(): string {
 export function buildNotifyBlock(notifications: string[]): string {
     return `<div class="guidance-content notify-box">
             <h3 class="guidance-heading">When to notify provider:</h3>
-            ${
-                notifications.length
-                    ? `<ul>${notifications.map((n) => `<li>${md(n)}</li>`).join('')}</ul>`
-                    : `<div class="guidance-text">${md(NO_PROVIDER_NOTIFICATION)}</div>`
-            }
+            ${notifications.length
+            ? `<ul>${notifications.map((n) => `<li>${md(n)}</li>`).join('')}</ul>`
+            : `<div class="guidance-text">${md(NO_PROVIDER_NOTIFICATION)}</div>`
+        }
         </div>`;
 }
 
@@ -72,7 +71,8 @@ export function threePartGuidance(
 }
 
 export function injectGuidanceSection(infoRows: string, bodyHTML: string): void {
-    document.querySelector<HTMLElement>(FORM_SECTION_SEL)!.style.display = 'none';
+    const formSection = document.querySelector<HTMLElement>(FORM_SECTION_SEL);
+    if (formSection) formSection.style.display = 'none';
 
     const html = `
         <div class="guidance-section">
@@ -83,6 +83,9 @@ export function injectGuidanceSection(infoRows: string, bodyHTML: string): void 
             </div>
         </div>`;
 
-    document.querySelector(DISCLAIMER_SEL)!.insertAdjacentHTML('beforebegin', html);
+    const disclaimer = document.querySelector(DISCLAIMER_SEL);
+    if (disclaimer) {
+        disclaimer.insertAdjacentHTML('beforebegin', html);
+    }
     window.scrollTo(0, 0);
 }

@@ -3,10 +3,12 @@ export function el<T extends HTMLElement>(id: string): T {
 }
 
 export function show(id: string): void {
-    el(id).style.display = 'block';
+    const e = document.getElementById(id);
+    if (e) e.style.display = 'block';
 }
 export function hide(id: string): void {
-    el(id).style.display = 'none';
+    const e = document.getElementById(id);
+    if (e) e.style.display = 'none';
 }
 
 export function val(id: string): string {

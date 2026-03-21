@@ -5,7 +5,15 @@ import { marked } from 'marked';
 export function daysSinceDate(dateString: string): number {
     try {
         const [year, month, day] = dateString.split('-').map(Number);
+        if (isNaN(year) || isNaN(month) || isNaN(day)) {
+            console.error('[daysSinceDate] Invalid date components:', dateString);
+            return 0;
+        }
         const past = new Date(year, month - 1, day); // local midnight
+        if (isNaN(past.getTime())) {
+            console.error('[daysSinceDate] Constructed invalid Date from:', dateString);
+            return 0;
+        }
         const today = new Date();
         today.setHours(0, 0, 0, 0); // local midnight
         return Math.round((today.getTime() - past.getTime()) / (1000 * 60 * 60 * 24));
