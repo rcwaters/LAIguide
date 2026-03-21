@@ -12,7 +12,7 @@ import {
     NEXT_INJECTION_DATE_ID,
     LAST_INJECTION_DATE_ID,
     LATE_GUIDANCE_LABEL,
-    START_OVER_BAR_ID,
+    ADDICTION_MEDICINE_LABEL,
 } from './domIds';
 import { infoRow, threePartGuidance, injectGuidanceSection } from './guidanceRenderer';
 import { showEarlyGuidance } from './earlyGuidance';
@@ -23,8 +23,6 @@ export function handleGuidanceTypeChange(): void {
 
     const gtGroup = document.getElementById(GUIDANCE_TYPE_GROUP_ID) as HTMLElement | null;
     if (gtGroup) gtGroup.style.display = medication ? 'block' : 'none';
-    const startOverBar = document.getElementById(START_OVER_BAR_ID) as HTMLElement | null;
-    if (startOverBar) startOverBar.style.display = medication ? 'block' : 'none';
     if (!medication) {
         clear(GUIDANCE_TYPE_ID);
     }
@@ -118,7 +116,7 @@ export function checkAutoSubmit(): void {
         if (group.id === GUIDANCE_TYPE_GROUP_ID) continue;
         if (group.style.display === 'none') continue;
         for (const input of group.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
-            'input[type="date"], select',
+            'input.date-input, select',
         )) {
             if (!input.value) return;
         }
@@ -205,7 +203,7 @@ export function handleSubmit(): void {
         const body = threePartGuidance(
             guidance as GuidanceResult,
             entry.commonProviderNotifications,
-            entry.optgroupLabel === 'Addiction Medicine',
+            entry.optgroupLabel === ADDICTION_MEDICINE_LABEL,
         );
 
         injectGuidanceSection(rows, body);
@@ -261,8 +259,6 @@ export function startOver(): void {
 
         document.querySelector(GUIDANCE_SECTION_SEL)?.remove();
         document.querySelector<HTMLElement>('.form-section')!.style.display = 'block';
-        const startOverBar = document.getElementById(START_OVER_BAR_ID) as HTMLElement | null;
-        if (startOverBar) startOverBar.style.display = 'none';
         window.scrollTo(0, 0);
     } catch (err) {
         console.error('[startOver] Unexpected error:', err);

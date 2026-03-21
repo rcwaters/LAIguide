@@ -15,17 +15,17 @@ export function daysSinceDate(dateString: string): number {
     }
 }
 
+export function pluralize(count: number, word: string): string {
+    return `${count} ${word}${count === 1 ? '' : 's'}`;
+}
+
 export function formatWeeksAndDays(totalDays: number): string {
     const weeks = Math.floor(totalDays / 7);
     const remainingDays = totalDays % 7;
 
-    if (weeks === 0) {
-        return `${remainingDays} day${remainingDays !== 1 ? 's' : ''}`;
-    } else if (remainingDays === 0) {
-        return `${weeks} week${weeks !== 1 ? 's' : ''}`;
-    } else {
-        return `${weeks} week${weeks !== 1 ? 's' : ''} and ${remainingDays} day${remainingDays !== 1 ? 's' : ''}`;
-    }
+    if (weeks === 0) return pluralize(remainingDays, 'day');
+    if (remainingDays === 0) return pluralize(weeks, 'week');
+    return `${pluralize(weeks, 'week')} and ${pluralize(remainingDays, 'day')}`;
 }
 
 export function formatDate(dateString: string): string {

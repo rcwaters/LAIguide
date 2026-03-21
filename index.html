@@ -62,7 +62,7 @@
         <div class="form-section">
 
             <div class="input-group">
-                <select id="medication" onchange="handleGuidanceTypeChange()">
+                <select id="medication">
                     <option value="">Select medication...</option>
                 </select>
             </div>
@@ -70,10 +70,10 @@
             <div class="input-group" id="guidance-type-group" style="display: none">
                 <label>Choose Guidance Type <span class="required">*</span></label>
                 <div class="seg-group">
-                    <button type="button" class="seg-btn" data-value="early" onclick="selectGuidanceType('early')">
+                    <button type="button" class="seg-btn" data-value="early">
                         Early Administration
                     </button>
-                    <button type="button" class="seg-btn" data-value="late" onclick="selectGuidanceType('late')">
+                    <button type="button" class="seg-btn" data-value="late">
                         Late / Overdue Administration
                     </button>
                 </div>
@@ -81,10 +81,6 @@
             </div>
 
             <!-- Medication-specific form field groups are injected here by main.ts -->
-        </div>
-
-        <div id="start-over-bar" style="display: none; text-align: center; margin-top: -16px; padding-bottom: 16px;">
-            <button type="button" class="btn btn--compact btn--start-over" onclick="startOver()">Start Over</button>
         </div>
 
         <div class="disclaimer">

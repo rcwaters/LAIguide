@@ -2,7 +2,7 @@ import type { GuidanceResult } from '../interfaces/guidance';
 import { md } from '../utils';
 import { NO_PROVIDER_NOTIFICATION } from '../constants';
 import DEFINITIONS from '../meds/definitions.json';
-import { FORM_SECTION_SEL } from './domIds';
+import { FORM_SECTION_SEL, DISCLAIMER_SEL } from './domIds';
 
 export function infoRow(label: string, value: string): string {
     return `
@@ -36,6 +36,17 @@ export function addictionMedicineAccordion(): string {
         </div></div>`;
 }
 
+export function buildNotifyBlock(notifications: string[]): string {
+    return `<div class="guidance-content notify-box">
+            <h3 class="guidance-heading">When to notify provider:</h3>
+            ${
+                notifications.length
+                    ? `<ul>${notifications.map((n) => `<li>${md(n)}</li>`).join('')}</ul>`
+                    : `<div class="guidance-text">${md(NO_PROVIDER_NOTIFICATION)}</div>`
+            }
+        </div>`;
+}
+
 export function threePartGuidance(
     guidance: GuidanceResult,
     common?: string[],
@@ -57,30 +68,21 @@ export function threePartGuidance(
             <h3 class="guidance-heading">${idealTitle}</h3>
             <div class="guidance-text">${md(guidance.idealSteps)}</div>
         </div>${pragmaticBlock}
-        <div class="guidance-content notify-box">
-            <h3 class="guidance-heading">When to notify provider:</h3>
-            ${
-                allNotifs.length
-                    ? `<ul>${allNotifs.map((n) => `<li>${md(n)}</li>`).join('')}</ul>`
-                    : `<div class="guidance-text">${md(NO_PROVIDER_NOTIFICATION)}</div>`
-            }
-        </div>${phasesBlock}`;
+        ${buildNotifyBlock(allNotifs)}${phasesBlock}`;
 }
 
 export function injectGuidanceSection(infoRows: string, bodyHTML: string): void {
     document.querySelector<HTMLElement>(FORM_SECTION_SEL)!.style.display = 'none';
-    const startOverBar = document.getElementById('start-over-bar') as HTMLElement | null;
-    if (startOverBar) startOverBar.style.display = 'none';
 
     const html = `
         <div class="guidance-section">
             <div class="medication-info-wrapper"><div class="medication-info">${infoRows}</div></div>
             ${bodyHTML}
             <div style="text-align: center; margin-top: 4px;">
-                <button type="button" class="btn btn--compact btn--start-over" onclick="startOver()">Start Over</button>
+                <button type="button" class="btn btn--compact btn--start-over">Start Over</button>
             </div>
         </div>`;
 
-    document.querySelector('.disclaimer')!.insertAdjacentHTML('beforebegin', html);
+    document.querySelector(DISCLAIMER_SEL)!.insertAdjacentHTML('beforebegin', html);
     window.scrollTo(0, 0);
 }

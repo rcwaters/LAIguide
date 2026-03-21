@@ -13,7 +13,7 @@ function daysFromNow(n: number): string { return daysAgo(-n); }
 
 async function selectField(page: Page, id: string, value: string): Promise<void> {
     if (id === 'guidance-type') {
-        await page.evaluate((v) => (window as any).selectGuidanceType(v), value);
+        await page.locator(`.seg-btn[data-value="${value}"]`).click();
     } else {
         await page.selectOption(`#${id}`, value);
     }
@@ -22,6 +22,14 @@ async function selectField(page: Page, id: string, value: string): Promise<void>
 async function fillDate(page: Page, id: string, value: string): Promise<void> {
     await page.fill(`#${id}`, value);
     await page.dispatchEvent(`#${id}`, 'change');
+}
+
+/** Close any open flatpickr calendars so they don't intercept clicks on other elements. */
+async function closeFlatpickr(page: Page): Promise<void> {
+    await page.evaluate(() => {
+        (document.querySelectorAll('input.date-input') as NodeListOf<HTMLInputElement & { _flatpickr?: { close(): void } }>)
+            .forEach(input => input._flatpickr?.close());
+    });
 }
 
 // ─── CSS loading ─────────────────────────────────────────────────────────────
@@ -1188,5 +1196,227 @@ test.describe('late guidance — Invega Sustenna maintenance tiers', () => {
     test('200 days, 39-to-156: tier 4 — consult provider, reinitiation needed', async ({ page }) => {
         await submitMaintenance(page, 200, '39-to-156');
         await expect(page.locator('.guidance-section')).toContainText('reinitiation');
+    });
+});
+
+// ─── Footer links ─────────────────────────────────────────────────────────────
+
+test.describe('footer links', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/');
+    });
+
+    test('DESC link is visible and points to desc.org', async ({ page }) => {
+        const link = page.locator('a', { hasText: 'DESC' }).first();
+        await expect(link).toBeVisible();
+        await expect(link).toHaveAttribute('href', 'https://www.desc.org/');
+    });
+
+    test('ORCA Center link is visible and points to correct URL', async ({ page }) => {
+        const link = page.locator('a', { hasText: 'ORCA Center' });
+        await expect(link).toBeVisible();
+        await expect(link).toHaveAttribute('href', 'https://www.desc.org/orca-center/');
+    });
+
+    test('Admin link is visible and points to admin.html', async ({ page }) => {
+        const link = page.locator('a', { hasText: 'Admin' });
+        await expect(link).toBeVisible();
+        await expect(link).toHaveAttribute('href', './admin.html');
+    });
+
+    test('footer links appear in order: DESC, ORCA Center, Admin', async ({ page }) => {
+        const links = page.locator('p a[href]');
+        const texts = await links.allTextContents();
+        const footerLinks = texts.filter((t) => ['DESC', 'ORCA Center', 'Admin'].includes(t.trim()));
+        expect(footerLinks).toEqual(['DESC', 'ORCA Center', 'Admin']);
+    });
+});
+
+// ─── Start Over ───────────────────────────────────────────────────────────────
+
+test.describe('start over', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/');
+    });
+
+    test('Start Over button returns to the form after late guidance', async ({ page }) => {
+        await selectField(page, 'medication', 'abilify_maintena');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-abilify', daysAgo(35));
+        await page.selectOption('#abilify-prior-dose-group', '3+');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+
+        await closeFlatpickr(page);
+        await page.locator('button:has-text("Start Over")').filter({ visible: true }).click();
+
+        await expect(page.locator('.form-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).not.toBeVisible();
+    });
+
+    test('Start Over button returns to the form after early guidance', async ({ page }) => {
+        await selectField(page, 'medication', 'abilify_maintena');
+        await selectField(page, 'guidance-type', 'early');
+        await fillDate(page, 'last-injection-date', daysAgo(30));
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+
+        await closeFlatpickr(page);
+        await page.locator('button:has-text("Start Over")').filter({ visible: true }).click();
+
+        await expect(page.locator('.form-section')).toBeVisible();
+        await expect(page.locator('.guidance-section')).not.toBeVisible();
+    });
+
+    test('medication select is cleared after Start Over', async ({ page }) => {
+        await selectField(page, 'medication', 'abilify_maintena');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-abilify', daysAgo(35));
+        await page.selectOption('#abilify-prior-dose-group', '3+');
+
+        await expect(page.locator('.guidance-section')).toBeVisible();
+        await closeFlatpickr(page);
+        await page.locator('button:has-text("Start Over")').filter({ visible: true }).click();
+
+        const medValue = await page.inputValue('#medication');
+        expect(medValue).toBe('');
+    });
+});
+
+// ─── Guidance section structure ───────────────────────────────────────────────
+
+test.describe('guidance section structure — late guidance', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/');
+        await selectField(page, 'medication', 'abilify_maintena');
+        await selectField(page, 'guidance-type', 'late');
+        await fillDate(page, 'last-abilify', daysAgo(35));
+        await page.selectOption('#abilify-prior-dose-group', '3+');
+        await expect(page.locator('.guidance-section')).toBeVisible();
+    });
+
+    test('shows "Next steps:" or "Ideal steps:" heading', async ({ page }) => {
+        const headings = page.locator('.guidance-section h3');
+        const texts = await headings.allTextContents();
+        const hasSteps = texts.some((t) => t.includes('Next steps:') || t.includes('Ideal steps:'));
+        expect(hasSteps).toBe(true);
+    });
+
+    test('shows "When to notify provider:" heading with pink background', async ({ page }) => {
+        await expect(page.locator('.guidance-section .notify-box')).toBeVisible();
+        await expect(page.locator('.guidance-section .notify-box')).toContainText(
+            'When to notify provider:',
+        );
+        const bg = await page.locator('.guidance-section .notify-box').evaluate(
+            (el) => getComputedStyle(el).backgroundColor,
+        );
+        // #fef2f2 = rgb(254, 242, 242)
+        expect(bg).toBe('rgb(254, 242, 242)');
+    });
+
+    test('includes medication info rows (med name, guidance type)', async ({ page }) => {
+        await expect(page.locator('.medication-info')).toContainText('Abilify Maintena');
+        await expect(page.locator('.medication-info')).toContainText('Late/Overdue Administration');
+    });
+});
+
+test.describe('guidance section structure — early guidance', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/');
+        await selectField(page, 'medication', 'abilify_maintena');
+        await selectField(page, 'guidance-type', 'early');
+        await fillDate(page, 'last-injection-date', daysAgo(30));
+        await expect(page.locator('.guidance-section')).toBeVisible();
+    });
+
+    test('shows "When to notify provider:" with pink background in early guidance', async ({ page }) => {
+        await expect(page.locator('.guidance-section .notify-box')).toBeVisible();
+        await expect(page.locator('.guidance-section .notify-box')).toContainText(
+            'When to notify provider:',
+        );
+        const bg = await page.locator('.guidance-section .notify-box').evaluate(
+            (el) => getComputedStyle(el).backgroundColor,
+        );
+        expect(bg).toBe('rgb(254, 242, 242)');
+    });
+
+    test('shows "Early administration window:" heading', async ({ page }) => {
+        await expect(page.locator('.guidance-section')).toContainText('Early administration window:');
+    });
+
+    test('shows "Early Administration" guidance type in info rows', async ({ page }) => {
+        await expect(page.locator('.medication-info')).toContainText('Early Administration');
+    });
+});
+
+// ── checkAutoSubmit does not fire prematurely (flatpickr regression) ───────────
+//
+// flatpickr wraps date inputs and may change their type attribute from "date"
+// to "text". checkAutoSubmit must use class-based selection so it correctly
+// detects empty date fields and does not auto-submit before the user fills them.
+
+test.describe('checkAutoSubmit — no premature submission before date is entered', () => {
+    test('Invega Hafyera late: selecting guidance type does not auto-submit (no alert)', async ({ page }) => {
+        const alerts: string[] = [];
+        page.on('dialog', async (dialog) => {
+            alerts.push(dialog.message());
+            await dialog.dismiss();
+        });
+
+        await page.goto('/');
+        await selectField(page, 'medication', 'invega_hafyera');
+        await selectField(page, 'guidance-type', 'late');
+
+        // Wait a tick for any spurious auto-submit to fire
+        await page.waitForTimeout(200);
+
+        expect(alerts).toHaveLength(0);
+        await expect(page.locator('.guidance-section')).not.toBeVisible();
+    });
+
+    test('Invega Hafyera late: guidance renders only after date is entered', async ({ page }) => {
+        await page.goto('/');
+        await selectField(page, 'medication', 'invega_hafyera');
+        await selectField(page, 'guidance-type', 'late');
+
+        // No guidance yet
+        await expect(page.locator('.guidance-section')).not.toBeVisible();
+
+        // Fill the date — guidance should now appear
+        await fillDate(page, 'last-hafyera', daysAgo(200));
+        await expect(page.locator('.guidance-section')).toBeVisible();
+    });
+
+    test('Abilify Maintena late: no premature submission when only medication selected', async ({ page }) => {
+        const alerts: string[] = [];
+        page.on('dialog', async (dialog) => {
+            alerts.push(dialog.message());
+            await dialog.dismiss();
+        });
+
+        await page.goto('/');
+        await selectField(page, 'medication', 'abilify_maintena');
+        await selectField(page, 'guidance-type', 'late');
+
+        await page.waitForTimeout(200);
+
+        expect(alerts).toHaveLength(0);
+        await expect(page.locator('.guidance-section')).not.toBeVisible();
+    });
+
+    test('Abilify Maintena late: guidance renders only after all fields are filled', async ({ page }) => {
+        await page.goto('/');
+        await selectField(page, 'medication', 'abilify_maintena');
+        await selectField(page, 'guidance-type', 'late');
+
+        // No guidance yet
+        await expect(page.locator('.guidance-section')).not.toBeVisible();
+
+        await fillDate(page, 'last-abilify', daysAgo(35));
+        // Still need the prior-dose select
+        await expect(page.locator('.guidance-section')).not.toBeVisible();
+
+        await page.selectOption('#abilify-prior-dose-group', '3+');
+        await expect(page.locator('.guidance-section')).toBeVisible();
     });
 });

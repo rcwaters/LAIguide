@@ -82,61 +82,66 @@ function showLogin(): void {
 // ── Data loading ─────────────────────────────────────────────────────────────
 
 async function loadMedList(): Promise<void> {
-    medSelect.innerHTML = '<option value="">Select a medication…</option>';
-    const keys = await store.listMedKeys();
-    keys.sort();
-    const meds = await Promise.all(
-        keys.map(async (k) => {
-            const d = await store.getMed(k);
-            // Definitions file: use "Definitions" as group, groupTitle of first group as displayName
-            const firstDefGroup = Object.values(d ?? {}).find(
-                (v) => !!v && typeof v === 'object' && !!(v as Record<string, unknown>).groupTitle,
-            ) as Record<string, unknown> | undefined;
-            if (firstDefGroup) {
+    try {
+        medSelect.innerHTML = '<option value="">Select a medication…</option>';
+        const keys = await store.listMedKeys();
+        keys.sort();
+        const meds = await Promise.all(
+            keys.map(async (k) => {
+                const d = await store.getMed(k);
+                // Definitions file: use "Definitions" as group, groupTitle of first group as displayName
+                const firstDefGroup = Object.values(d ?? {}).find(
+                    (v) => !!v && typeof v === 'object' && !!(v as Record<string, unknown>).groupTitle,
+                ) as Record<string, unknown> | undefined;
+                if (firstDefGroup) {
+                    return {
+                        key: k,
+                        displayName: firstDefGroup.groupTitle as string,
+                        optgroupLabel: 'Definitions',
+                    };
+                }
                 return {
                     key: k,
-                    displayName: firstDefGroup.groupTitle as string,
-                    optgroupLabel: 'Definitions',
+                    displayName: (d?.displayName as string) ?? k,
+                    optgroupLabel: (d?.optgroupLabel as string) ?? '',
                 };
+            }),
+        );
+
+        // Collect unique medication groups for the combobox
+        existingGroups = [...new Set(meds.map((m) => m.optgroupLabel).filter(Boolean))].sort();
+
+        // Group by optgroupLabel; entries with no optgroupLabel use the key (first letter capitalised)
+        const groups = new Map<string, { key: string; displayName: string }[]>();
+        for (const m of meds) {
+            let groupLabel = m.optgroupLabel;
+            let displayName = m.displayName;
+            if (!groupLabel) {
+                groupLabel = m.key.charAt(0).toUpperCase() + m.key.slice(1);
+                displayName = groupLabel;
             }
-            return {
-                key: k,
-                displayName: (d?.displayName as string) ?? k,
-                optgroupLabel: (d?.optgroupLabel as string) ?? '',
-            };
-        }),
-    );
-
-    // Collect unique medication groups for the combobox
-    existingGroups = [...new Set(meds.map((m) => m.optgroupLabel).filter(Boolean))].sort();
-
-    // Group by optgroupLabel; entries with no optgroupLabel use the key (first letter capitalised)
-    const groups = new Map<string, { key: string; displayName: string }[]>();
-    for (const m of meds) {
-        let groupLabel = m.optgroupLabel;
-        let displayName = m.displayName;
-        if (!groupLabel) {
-            groupLabel = m.key.charAt(0).toUpperCase() + m.key.slice(1);
-            displayName = groupLabel;
+            if (!groups.has(groupLabel)) groups.set(groupLabel, []);
+            groups.get(groupLabel)!.push({ key: m.key, displayName });
         }
-        if (!groups.has(groupLabel)) groups.set(groupLabel, []);
-        groups.get(groupLabel)!.push({ key: m.key, displayName });
-    }
 
-    // Sort groups alphabetically
-    const sortedGroupLabels = Array.from(groups.keys()).sort((a, b) => a.localeCompare(b));
-    for (const groupLabel of sortedGroupLabels) {
-        const optgroup = document.createElement('optgroup');
-        optgroup.label = groupLabel;
-        const entries = groups.get(groupLabel)!;
-        entries.sort((a, b) => a.displayName.localeCompare(b.displayName));
-        for (const entry of entries) {
-            const opt = document.createElement('option');
-            opt.value = entry.key;
-            opt.textContent = entry.displayName;
-            optgroup.appendChild(opt);
+        // Sort groups alphabetically
+        const sortedGroupLabels = Array.from(groups.keys()).sort((a, b) => a.localeCompare(b));
+        for (const groupLabel of sortedGroupLabels) {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = groupLabel;
+            const entries = groups.get(groupLabel)!;
+            entries.sort((a, b) => a.displayName.localeCompare(b.displayName));
+            for (const entry of entries) {
+                const opt = document.createElement('option');
+                opt.value = entry.key;
+                opt.textContent = entry.displayName;
+                optgroup.appendChild(opt);
+            }
+            medSelect.appendChild(optgroup);
         }
-        medSelect.appendChild(optgroup);
+    } catch (err: unknown) {
+        console.error('[loadMedList] Failed to load medication list:', err);
+        showStatus('Failed to load medication list. Check your connection or token.', false);
     }
 }
 
@@ -146,23 +151,28 @@ async function loadMed(key: string): Promise<void> {
     deployStatus.textContent = '';
     currentMedData = null;
     if (!key) return;
-    const data = await store.getMed(key);
-    if (data) {
-        currentMedData = data;
-        if (jsonMode) {
-            jsonMode = false;
-            jsonSection.style.display = 'none';
-            formEditorEl.style.display = 'block';
-            toggleJsonBtn.textContent = 'Raw JSON';
-        }
-        if (isDefinitionsData(data)) {
-            renderDefinitionsForm(formEditorEl, data);
+    try {
+        const data = await store.getMed(key);
+        if (data) {
+            currentMedData = data;
+            if (jsonMode) {
+                jsonMode = false;
+                jsonSection.style.display = 'none';
+                formEditorEl.style.display = 'block';
+                toggleJsonBtn.textContent = 'Raw JSON';
+            }
+            if (isDefinitionsData(data)) {
+                renderDefinitionsForm(formEditorEl, data);
+            } else {
+                renderForm(formEditorEl, data as RawMedJson, existingGroups);
+            }
+            jsonEditor.value = JSON.stringify(data, null, 2);
         } else {
-            renderForm(formEditorEl, data as RawMedJson, existingGroups);
+            showStatus(`"${key}" not found.`, false);
         }
-        jsonEditor.value = JSON.stringify(data, null, 2);
-    } else {
-        showStatus(`"${key}" not found.`, false);
+    } catch (err: unknown) {
+        console.error(`[loadMed] Failed to load "${key}":`, err);
+        showStatus(err instanceof Error ? err.message : `Failed to load "${key}".`, false);
     }
 }
 
@@ -182,14 +192,18 @@ loginBtn.addEventListener('click', async () => {
         return;
     }
 
-    const hash = await sha256(code);
-    if (!email.includes(REQUIRED_EMAIL_VALUE) || hash !== ACCESS_CODE_HASH) {
-        showLoginError('Email and/or access code is invalid.');
-        return;
+    try {
+        const hash = await sha256(code);
+        if (!email.includes(REQUIRED_EMAIL_VALUE) || hash !== ACCESS_CODE_HASH) {
+            showLoginError('Email and/or access code is invalid.');
+            return;
+        }
+        setSession(email);
+        showEditor(email);
+    } catch (err: unknown) {
+        console.error('[loginBtn] Login error:', err);
+        showLoginError('An unexpected error occurred. Please try again.');
     }
-
-    setSession(email);
-    showEditor(email);
 });
 
 codeInput.addEventListener('keydown', (e) => {
@@ -210,7 +224,12 @@ if (existing) {
 
 // ── Editor actions ────────────────────────────────────────────────────────────
 
-medSelect.addEventListener('change', () => void loadMed(medSelect.value));
+medSelect.addEventListener('change', () => {
+    loadMed(medSelect.value).catch((err: unknown) => {
+        console.error('[medSelect] Failed to load medication:', err);
+        showStatus('Failed to load medication.', false);
+    });
+});
 
 toggleJsonBtn.addEventListener('click', () => {
     jsonMode = !jsonMode;
@@ -306,21 +325,29 @@ deleteBtn.addEventListener('click', async () => {
 // ── Form event listeners ──────────────────────────────────────────────────────
 
 formEditorEl.addEventListener('addscenario', () => {
-    if (!currentMedData) return;
-    const collected = collectFormData(formEditorEl, currentMedData) as RawMedJson;
-    collected.guidance.late.variants.push({
-        key: 'new-scenario',
-        tiers: [{ maxDays: null, guidance: { idealSteps: [''] } }],
-    });
-    currentMedData = collected;
-    renderForm(formEditorEl, collected);
+    try {
+        if (!currentMedData) return;
+        const collected = collectFormData(formEditorEl, currentMedData) as RawMedJson;
+        collected.guidance.late.variants.push({
+            key: 'new-scenario',
+            tiers: [{ maxDays: null, guidance: { idealSteps: [''] } }],
+        });
+        currentMedData = collected;
+        renderForm(formEditorEl, collected);
+    } catch (err: unknown) {
+        console.error('[addscenario] Failed to add scenario:', err);
+    }
 });
 
 formEditorEl.addEventListener('removescenario', (e) => {
-    if (!currentMedData) return;
-    const { variantIdx } = (e as CustomEvent<{ variantIdx: number }>).detail;
-    const collected = collectFormData(formEditorEl, currentMedData) as RawMedJson;
-    collected.guidance.late.variants.splice(variantIdx, 1);
-    currentMedData = collected;
-    renderForm(formEditorEl, collected);
+    try {
+        if (!currentMedData) return;
+        const { variantIdx } = (e as CustomEvent<{ variantIdx: number }>).detail;
+        const collected = collectFormData(formEditorEl, currentMedData) as RawMedJson;
+        collected.guidance.late.variants.splice(variantIdx, 1);
+        currentMedData = collected;
+        renderForm(formEditorEl, collected);
+    } catch (err: unknown) {
+        console.error('[removescenario] Failed to remove scenario:', err);
+    }
 });

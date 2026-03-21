@@ -20,7 +20,12 @@
       "Bash(npx tsx -e \":*)",
       "Bash(done)",
       "Bash(grep -r NO_PROVIDER_NOTIFICATION src/ --include=*.ts)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(xargs -I {} find {} -type f)",
+      "Bash(for f:*)",
+      "Bash(do)",
+      "Bash(echo \"=== $f ===\")",
+      "Bash(__NEW_LINE_14555a187702ac67__ node:*)"
     ]
   }
 }

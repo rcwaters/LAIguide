@@ -2,13 +2,8 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import {
-    handleGuidanceTypeChange,
-    handleInvegaTypeChange,
-    handleSubmit,
-    startOver,
-    initForm,
-} from '../main';
+import { handleGuidanceTypeChange, handleInvegaTypeChange, handleSubmit, startOver } from '../ui/handlers';
+import { initForm } from '../ui/formInit';
 import { MED_REGISTRY } from '../medLoader';
 
 // vitest 1.6+ provides a typed helper for mocking DOM globals
