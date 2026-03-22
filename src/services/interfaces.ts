@@ -1,3 +1,5 @@
+import type { ChangelogEntry } from '../admin/types';
+
 /** Provider-agnostic interface for med-data persistence.
  *  Swap the concrete implementation (GitHub, local files, etc.)
  *  without touching any consumer code. */
@@ -13,4 +15,8 @@ export interface MedDataStore {
     saveMed(key: string, data: Record<string, unknown>): Promise<void>;
     /** Delete a med JSON by key. */
     deleteMed(key: string): Promise<void>;
+    /** Fetch the full changelog (newest first). */
+    getChangelog(): Promise<ChangelogEntry[]>;
+    /** Prepend a new entry to the changelog. */
+    appendChangelog(entry: ChangelogEntry): Promise<void>;
 }

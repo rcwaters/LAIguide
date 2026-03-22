@@ -1,4 +1,5 @@
 import type { MedDataStore } from '../services/interfaces';
+import type { ChangelogEntry } from './types';
 
 // Path is relative to this file's location (src/admin/ → src/meds/)
 const localJsonModules = import.meta.glob<Record<string, unknown>>('../meds/*.json', {
@@ -9,6 +10,7 @@ const localJsonModules = import.meta.glob<Record<string, unknown>>('../meds/*.js
 /** In-memory store used when no GitHub token is configured. Changes are lost on reload. */
 export function createLocalStore(): MedDataStore {
     const meds: Record<string, Record<string, unknown>> = {};
+    const changelog: ChangelogEntry[] = [];
     for (const [path, data] of Object.entries(localJsonModules)) {
         const key = path
             .split('/')
@@ -32,6 +34,12 @@ export function createLocalStore(): MedDataStore {
         async deleteMed(key) {
             if (!(key in meds)) throw new Error(`"${key}" not found.`);
             delete meds[key];
+        },
+        async getChangelog() {
+            return [...changelog];
+        },
+        async appendChangelog(entry) {
+            changelog.unshift(entry);
         },
     };
 }

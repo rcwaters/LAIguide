@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>LAI Admin — Change Log</title>
+        <link rel="icon" id="favicon" type="image/png" href="./assets/logo-desc-DqcXQLlW-DqcXQLlW-DqcXQLlW-DqcXQLlW.png" />
+        <script>
+            const img = new Image();
+            img.onload = () => {
+                const c = document.createElement('canvas');
+                c.width = c.height = 64;
+                const ctx = c.getContext('2d');
+                ctx.fillStyle = '#3c8476';
+                ctx.fillRect(0, 0, 64, 64);
+                ctx.drawImage(img, 0, 0, 64, 64);
+                document.getElementById('favicon').href = c.toDataURL('image/png');
+            };
+            img.src = './media/logo-desc.png';
+        </script>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Domine:wght@400;500;600;700&display=swap');
+
+            *,
+            *::before,
+            *::after {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Domine', Georgia, serif;
+                background: #aecfcc;
+                min-height: 100vh;
+                padding: 20px;
+            }
+
+            .admin-header {
+                background: #3c8476;
+                max-width: 960px;
+                margin: 0 auto;
+                padding: 20px 16px;
+                text-align: center;
+            }
+
+            .admin-header h1 {
+                color: #000;
+                font-size: clamp(24px, 5vw, 34px);
+                font-weight: 700;
+                letter-spacing: 0.02em;
+            }
+
+            .admin-header-logo {
+                height: 36px;
+                width: auto;
+                vertical-align: middle;
+                margin-right: 4px;
+            }
+
+            .admin-container {
+                background: white;
+                max-width: 960px;
+                margin: 0 auto;
+                padding: 24px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            }
+
+            #changelog-status {
+                font-size: 14px;
+                color: #555;
+                margin-bottom: 12px;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 14px;
+            }
+
+            thead th {
+                background: #3c8476;
+                color: white;
+                padding: 10px 12px;
+                text-align: left;
+                font-weight: 600;
+            }
+
+            tbody tr {
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            tbody tr:hover {
+                background: #f5faf9;
+            }
+
+            tbody td {
+                padding: 9px 12px;
+                vertical-align: top;
+            }
+
+            .row-delete {
+                background: #fff5f5;
+            }
+
+            .row-delete:hover {
+                background: #ffecec;
+            }
+
+            .action-badge {
+                display: inline-block;
+                padding: 2px 8px;
+                border-radius: 10px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .action-update {
+                background: #d4edda;
+                color: #2d6a4f;
+            }
+
+            .action-delete {
+                background: #f8d7da;
+                color: #842029;
+            }
+
+            .med-key {
+                font-family: 'Consolas', 'Courier New', monospace;
+                font-size: 12px;
+                color: #555;
+            }
+        </style>
+        <script type="module" src="./src/admin/changelog.ts"></script>
+    </head>
+
+    <body>
+        <div class="admin-header">
+            <h1><img src="./assets/logo-desc-DqcXQLlW-DqcXQLlW-DqcXQLlW-DqcXQLlW.png" alt="DESC logo" class="admin-header-logo" />LAI Admin — Change Log</h1>
+        </div>
+
+        <div class="admin-container">
+            <div id="changelog-status">Loading…</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date / Time</th>
+                        <th>Email</th>
+                        <th>Action</th>
+                        <th>Medication</th>
+                        <th>Key</th>
+                    </tr>
+                </thead>
+                <tbody id="changelog-tbody"></tbody>
+            </table>
+        </div>
+
+        <p style="text-align: center; margin-top: 1rem">
+            <a href="./admin.html" style="color: #1a5c3a; text-decoration: none">Back to Admin Portal</a>
+        </p>
+    </body>
+</html>

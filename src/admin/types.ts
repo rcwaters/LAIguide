@@ -1,3 +1,11 @@
+export interface ChangelogEntry {
+    timestamp: string;
+    email: string;
+    action: 'update' | 'delete';
+    medKey: string;
+    displayName: string;
+}
+
 /** Guidance text and bullet points for a single tier window. */
 export interface RawTierGuidance {
     idealSteps: string[];
