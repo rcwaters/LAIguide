@@ -15,7 +15,8 @@ export function getSession(): AdminSession | null {
             return null;
         }
         return s;
-    } catch {
+    } catch (err) {
+        console.error('[getSession] Failed to parse session data:', err);
         localStorage.removeItem(SESSION_KEY);
         return null;
     }

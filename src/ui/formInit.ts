@@ -7,16 +7,17 @@ import {
     EARLY_LAST_DATE_GROUP_ID,
     NEXT_INJECTION_DATE_ID,
     LAST_INJECTION_DATE_ID,
+    ADDICTION_MEDICINE_LABEL,
 } from './domIds';
 
 function renderField(f: FieldSpec, today: string): string {
     const label = `<label for="${f.id}">${f.label} <span class="required">*</span></label>`;
     if (f.type === 'date') {
-        return `${label}\n<input type="date" id="${f.id}" class="date-input" max="${today}" placeholder="Pick or type a date" onchange="checkAutoSubmit()">`;
+        return `${label}\n<input type="date" id="${f.id}" class="date-input" max="${today}" placeholder="Pick or type a date">`;
     }
-    const onchange = f.onchange ? ` onchange="${f.onchange}"` : ' onchange="checkAutoSubmit()"';
+    const handlerAttr = f.onchange ? ' data-handler="subgroup"' : '';
     const opts = f.options.map((o) => `<option value="${o.value}">${o.label}</option>`).join('\n');
-    return `${label}\n<select id="${f.id}"${onchange}>\n<option value="">${f.placeholder ?? 'Select...'}</option>\n${opts}\n</select>`;
+    return `${label}\n<select id="${f.id}"${handlerAttr}>\n<option value="">${f.placeholder ?? 'Select...'}</option>\n${opts}\n</select>`;
 }
 
 function renderFieldGroup(spec: FormGroupSpec, today: string): string {
@@ -34,7 +35,7 @@ export function initForm(): void {
     try {
         const medSelect = document.getElementById(MEDICATION_ID) as HTMLSelectElement | null;
         if (!medSelect) return;
-        if (document.getElementById('uzedy-fields')) return;
+        if (document.getElementById(EARLY_LAST_DATE_GROUP_ID)) return;
 
         const groups = new Map<string, string[]>();
         for (const [key, entry] of Object.entries(MED_REGISTRY)) {
@@ -44,8 +45,8 @@ export function initForm(): void {
                 .push(`<option value="${key}">${entry.displayName}</option>`);
         }
         const sortedGroups = Array.from(groups.entries()).sort(([a], [b]) => {
-            if (a === 'Addiction Medicine') return -1;
-            if (b === 'Addiction Medicine') return 1;
+            if (a === ADDICTION_MEDICINE_LABEL) return -1;
+            if (b === ADDICTION_MEDICINE_LABEL) return 1;
             return a.localeCompare(b);
         });
         let optHtml = '<option value="">Select medication...</option>';
@@ -55,7 +56,8 @@ export function initForm(): void {
         medSelect.innerHTML = optHtml;
 
         const today = new Date().toISOString().split('T')[0];
-        const formSection = document.querySelector<HTMLElement>(FORM_SECTION_SEL)!;
+        const formSection = document.querySelector<HTMLElement>(FORM_SECTION_SEL);
+        if (!formSection) return;
         const groupsHtml = Object.values(MED_REGISTRY)
             .flatMap((e) => e.formGroupsSpec)
             .map((spec) => renderFieldGroup(spec, today))
@@ -65,7 +67,7 @@ export function initForm(): void {
             'beforeend',
             `<div class="input-group" id="${EARLY_DATE_GROUP_ID}" style="display: none;">
 <label for="${NEXT_INJECTION_DATE_ID}">Next injection scheduled <span class="required">*</span></label>
-<input type="date" id="${NEXT_INJECTION_DATE_ID}" class="date-input" min="${today}" placeholder="Pick or type a date" onchange="checkAutoSubmit()">
+<input type="date" id="${NEXT_INJECTION_DATE_ID}" class="date-input" min="${today}" placeholder="Pick or type a date">
 </div>`,
         );
 
@@ -73,7 +75,7 @@ export function initForm(): void {
             'beforeend',
             `<div class="input-group" id="${EARLY_LAST_DATE_GROUP_ID}" style="display: none;">
 <label for="${LAST_INJECTION_DATE_ID}">Date of last injection <span class="required">*</span></label>
-<input type="date" id="${LAST_INJECTION_DATE_ID}" class="date-input" max="${today}" placeholder="Pick or type a date" onchange="checkAutoSubmit()">
+<input type="date" id="${LAST_INJECTION_DATE_ID}" class="date-input" max="${today}" placeholder="Pick or type a date">
 </div>`,
         );
     } catch (err) {

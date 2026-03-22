@@ -10,7 +10,7 @@ import type {
     VariantEntry,
 } from '../interfaces/med';
 import { DAYS_PER_MONTH } from '../interfaces/med';
-import { daysSinceDate, formatDate, formatWeeksAndDays } from '../utils';
+import { daysSinceDate, formatDate, formatWeeksAndDays, pluralize } from '../utils';
 import { buildTiers, buildVariantMap, resolveLateTier } from './tierBuilder';
 import { composeEarlyGuidance, buildEarlyFields } from './earlyBuilder';
 
@@ -31,6 +31,7 @@ function buildLateGuidanceFn(
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function buildCoreDef(json: any) {
+    if (!json.guidance?.late) throw new Error(`Missing late guidance for ${json.displayName}`);
     const lg = json.guidance.late as Record<string, unknown>;
     const commonNotifs = json.guidance.shared?.providerNotifications as string[] | undefined;
 
@@ -53,6 +54,11 @@ export function buildCoreDef(json: any) {
 
 /** Derives lateFieldsGroup, subFieldGroups, formFieldIds, and subGroupSelectorId from a FormGroupSpec array. */
 function withGroups(spec: FormGroupSpec[]) {
+    if (!spec.length || !spec[0].fields.length) {
+        throw new Error(
+            '[withGroups] formGroupsSpec must have at least one group with at least one field',
+        );
+    }
     const firstField = spec[0].fields[0];
     const subGroupSelectorId =
         firstField.type === 'select' && firstField.onchange ? firstField.id : undefined;
@@ -100,7 +106,7 @@ export function buildStandardDef(json: any) {
         const weeksBreak = displayDays > 0 ? formatWeeksAndDays(displayDays) : null;
         const t =
             row.format === 'days-months'
-                ? `${bareLabel}${approxMonths > 0 ? ` (approximately ${approxMonths} months)` : ''}`
+                ? `${bareLabel}${approxMonths > 0 ? ` (approximately ${pluralize(approxMonths, 'month')})` : ''}`
                 : row.format === 'days-weeks-months'
                   ? `${bareLabel}${weeksBreak && weeksBreak !== bareLabel ? ` (${weeksBreak})` : ''}`
                   : `${bareLabel}${weeksBreak && weeksBreak !== bareLabel ? ` (${weeksBreak})` : ''}`;

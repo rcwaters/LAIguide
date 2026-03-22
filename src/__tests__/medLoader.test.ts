@@ -307,7 +307,7 @@ describe('renderInfoRow — all branches', () => {
         });
 
         it('30 days → approximately 1 month', () => {
-            expect(timeRow(30)).toBe('30 days (approximately 1 months)');
+            expect(timeRow(30)).toBe('30 days (approximately 1 month)');
         });
 
         it('0 days → "0 days" with no parenthetical (today = injection day)', () => {
