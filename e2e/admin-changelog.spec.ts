@@ -81,8 +81,15 @@ test.describe('changelog page — authenticated', () => {
 });
 
 // ─── Save → changelog persistence ─────────────────────────────────────────
+// These tests exercise the localStorage-backed local store and only apply
+// when running against the Vite dev server (no deployed GitHub token).
 
 test.describe('changelog persistence — save in admin then view changelog', () => {
+    test.skip(
+        !!process.env.PLAYWRIGHT_BASE_URL,
+        'localStorage persistence only applies to local dev (no GitHub token)',
+    );
+
     test.beforeEach(async ({ page }) => {
         await page.goto('/admin.html');
         await page.evaluate(() => localStorage.clear());
