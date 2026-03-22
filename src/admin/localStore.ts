@@ -1,4 +1,5 @@
 import type { MedDataStore } from '../services/interfaces';
+import type { ChangelogEntry } from './types';
 
 // Path is relative to this file's location (src/admin/ → src/meds/)
 const localJsonModules = import.meta.glob<Record<string, unknown>>('../meds/*.json', {
@@ -6,7 +7,21 @@ const localJsonModules = import.meta.glob<Record<string, unknown>>('../meds/*.js
     import: 'default',
 });
 
-/** In-memory store used when no GitHub token is configured. Changes are lost on reload. */
+const LOCAL_CHANGELOG_KEY = 'lai_local_changelog';
+
+function readChangelogFromStorage(): ChangelogEntry[] {
+    try {
+        return JSON.parse(localStorage.getItem(LOCAL_CHANGELOG_KEY) ?? '[]');
+    } catch {
+        return [];
+    }
+}
+
+function writeChangelogToStorage(entries: ChangelogEntry[]): void {
+    localStorage.setItem(LOCAL_CHANGELOG_KEY, JSON.stringify(entries));
+}
+
+/** In-memory store used when no GitHub token is configured. Changelog persisted to localStorage. */
 export function createLocalStore(): MedDataStore {
     const meds: Record<string, Record<string, unknown>> = {};
     for (const [path, data] of Object.entries(localJsonModules)) {
@@ -32,6 +47,14 @@ export function createLocalStore(): MedDataStore {
         async deleteMed(key) {
             if (!(key in meds)) throw new Error(`"${key}" not found.`);
             delete meds[key];
+        },
+        async getChangelog() {
+            return readChangelogFromStorage();
+        },
+        async appendChangelog(entry) {
+            const entries = readChangelogFromStorage();
+            entries.unshift(entry);
+            writeChangelogToStorage(entries);
         },
     };
 }

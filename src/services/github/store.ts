@@ -1,6 +1,8 @@
 import type { MedDataStore } from '../interfaces';
+import type { ChangelogEntry } from '../../admin/types';
 
 const MEDS_PATH = 'src/meds';
+const CHANGELOG_PATH = 'src/data/changelog.json';
 
 interface GitHubFile {
     name: string;
@@ -113,6 +115,41 @@ export function createGitHubStore(
                     message: `Delete ${key} via admin portal`,
                     sha,
                     branch,
+                }),
+            });
+        },
+
+        async getChangelog(): Promise<ChangelogEntry[]> {
+            const url = `${api}/contents/${CHANGELOG_PATH}?ref=${branch}`;
+            const res = await fetch(url, { headers: headers(token) });
+            if (res.status === 404) return [];
+            if (!res.ok) throw new Error(`GitHub API ${res.status}: ${await res.text()}`);
+            const data = (await res.json()) as GitHubContentResponse;
+            return JSON.parse(atob(data.content)) as ChangelogEntry[];
+        },
+
+        async appendChangelog(entry: ChangelogEntry): Promise<void> {
+            const url = `${api}/contents/${CHANGELOG_PATH}?ref=${branch}`;
+            const res = await fetch(url, { headers: headers(token) });
+            let entries: ChangelogEntry[] = [];
+            let sha: string | undefined;
+            if (res.ok) {
+                const data = (await res.json()) as GitHubContentResponse;
+                sha = data.sha;
+                entries = JSON.parse(atob(data.content)) as ChangelogEntry[];
+            } else if (res.status !== 404) {
+                throw new Error(`GitHub API ${res.status}: ${await res.text()}`);
+            }
+            entries.unshift(entry);
+            const bytes = new TextEncoder().encode(JSON.stringify(entries, null, 2) + '\n');
+            const content = btoa(String.fromCodePoint(...bytes));
+            await ghFetch(`${api}/contents/${CHANGELOG_PATH}`, token, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    message: `Log: ${entry.action} ${entry.medKey} via admin portal`,
+                    content,
+                    branch,
+                    ...(sha ? { sha } : {}),
                 }),
             });
         },

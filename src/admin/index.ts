@@ -288,6 +288,16 @@ saveBtn.addEventListener('click', async () => {
     try {
         await store.saveMed(key, result.data);
         currentMedData = result.data;
+        const session = getSession();
+        if (session) {
+            void store.appendChangelog({
+                timestamp: new Date().toISOString(),
+                email: session.email,
+                action: 'update',
+                medKey: key,
+                displayName: (result.data.displayName as string) ?? key,
+            });
+        }
         if (GITHUB_TOKEN) {
             showStatus(`✓ Saved "${key}" — commit pushed. Site will redeploy shortly.`, true);
             deployStatus.textContent =
@@ -311,8 +321,19 @@ deleteBtn.addEventListener('click', async () => {
         return;
     }
     if (!confirm(`Delete "${key}"? This cannot be undone.`)) return;
+    const displayNameBeforeDelete = (currentMedData?.displayName as string) ?? key;
     try {
         await store.deleteMed(key);
+        const session = getSession();
+        if (session) {
+            void store.appendChangelog({
+                timestamp: new Date().toISOString(),
+                email: session.email,
+                action: 'delete',
+                medKey: key,
+                displayName: displayNameBeforeDelete,
+            });
+        }
         showStatus(`Deleted "${key}" — commit pushed. Site will redeploy shortly.`, true);
         deployStatus.textContent = '⏳ Deploy triggered — changes will be live in ~1-2 minutes.';
         deployStatus.style.color = '#2980b9';
