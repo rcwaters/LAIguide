@@ -1,6 +1,21 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createLocalStore } from '../localStore';
 import type { ChangelogEntry } from '../types';
+
+// localStore uses localStorage which is not available in the node test environment.
+// Provide a simple in-memory shim so tests remain fast and self-contained.
+function makeLocalStorageMock() {
+    let store: Record<string, string> = {};
+    return {
+        getItem: (key: string) => store[key] ?? null,
+        setItem: (key: string, value: string) => { store[key] = value; },
+        removeItem: (key: string) => { delete store[key]; },
+        clear: () => { store = {}; },
+    };
+}
+
+const localStorageMock = makeLocalStorageMock();
+vi.stubGlobal('localStorage', localStorageMock);
 
 function makeEntry(overrides: Partial<ChangelogEntry> = {}): ChangelogEntry {
     return {
@@ -14,6 +29,10 @@ function makeEntry(overrides: Partial<ChangelogEntry> = {}): ChangelogEntry {
 }
 
 describe('localStore — changelog', () => {
+    beforeEach(() => {
+        localStorageMock.clear();
+    });
+
     it('getChangelog returns an empty array initially', async () => {
         const store = createLocalStore();
         expect(await store.getChangelog()).toEqual([]);
@@ -47,11 +66,14 @@ describe('localStore — changelog', () => {
         expect(await store.getChangelog()).toHaveLength(1);
     });
 
-    it('stores from separate createLocalStore calls have independent changelogs', async () => {
+    it('changelog persists across separate createLocalStore instances', async () => {
         const storeA = createLocalStore();
+        await storeA.appendChangelog(makeEntry({ displayName: 'From A' }));
+
         const storeB = createLocalStore();
-        await storeA.appendChangelog(makeEntry());
-        expect(await storeB.getChangelog()).toHaveLength(0);
+        const entries = await storeB.getChangelog();
+        expect(entries).toHaveLength(1);
+        expect(entries[0].displayName).toBe('From A');
     });
 
     it('preserves all entry fields exactly', async () => {
@@ -69,5 +91,11 @@ describe('localStore — changelog', () => {
         expect(entries).toHaveLength(2);
         expect(entries.map((e) => e.action)).toContain('update');
         expect(entries.map((e) => e.action)).toContain('delete');
+    });
+
+    it('handles corrupted localStorage data gracefully', async () => {
+        localStorageMock.setItem('lai_local_changelog', 'not valid json{{{');
+        const store = createLocalStore();
+        expect(await store.getChangelog()).toEqual([]);
     });
 });

@@ -1,7 +1,24 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createLocalStore } from '../localStore';
 
+function makeLocalStorageMock() {
+    let store: Record<string, string> = {};
+    return {
+        getItem: (key: string) => store[key] ?? null,
+        setItem: (key: string, value: string) => { store[key] = value; },
+        removeItem: (key: string) => { delete store[key]; },
+        clear: () => { store = {}; },
+    };
+}
+
+const localStorageMock = makeLocalStorageMock();
+vi.stubGlobal('localStorage', localStorageMock);
+
 describe('createLocalStore', () => {
+    beforeEach(() => {
+        localStorageMock.clear();
+    });
+
     it('listMedKeys returns an array of strings', async () => {
         const store = createLocalStore();
         const keys = await store.listMedKeys();
