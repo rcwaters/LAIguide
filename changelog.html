@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>LAI Admin — Change Log</title>
+        <title>Change Log</title>
         <link rel="icon" id="favicon" type="image/png" href="./assets/logo-desc-DqcXQLlW-DqcXQLlW-DqcXQLlW-DqcXQLlW-DqcXQLlW-DqcXQLlW.png" />
         <script>
             const img = new Image();
@@ -131,28 +131,119 @@
                 color: #555;
             }
         </style>
-      <link rel="modulepreload" crossorigin href="data:text/javascript;base64,KGZ1bmN0aW9uKCl7Y29uc3QgdD1kb2N1bWVudC5jcmVhdGVFbGVtZW50KCJsaW5rIikucmVsTGlzdDtpZih0JiZ0LnN1cHBvcnRzJiZ0LnN1cHBvcnRzKCJtb2R1bGVwcmVsb2FkIikpcmV0dXJuO2Zvcihjb25zdCBlIG9mIGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoJ2xpbmtbcmVsPSJtb2R1bGVwcmVsb2FkIl0nKSlpKGUpO25ldyBNdXRhdGlvbk9ic2VydmVyKGU9Pntmb3IoY29uc3QgciBvZiBlKWlmKHIudHlwZT09PSJjaGlsZExpc3QiKWZvcihjb25zdCBvIG9mIHIuYWRkZWROb2RlcylvLnRhZ05hbWU9PT0iTElOSyImJm8ucmVsPT09Im1vZHVsZXByZWxvYWQiJiZpKG8pfSkub2JzZXJ2ZShkb2N1bWVudCx7Y2hpbGRMaXN0OiEwLHN1YnRyZWU6ITB9KTtmdW5jdGlvbiBzKGUpe2NvbnN0IHI9e307cmV0dXJuIGUuaW50ZWdyaXR5JiYoci5pbnRlZ3JpdHk9ZS5pbnRlZ3JpdHkpLGUucmVmZXJyZXJQb2xpY3kmJihyLnJlZmVycmVyUG9saWN5PWUucmVmZXJyZXJQb2xpY3kpLGUuY3Jvc3NPcmlnaW49PT0idXNlLWNyZWRlbnRpYWxzIj9yLmNyZWRlbnRpYWxzPSJpbmNsdWRlIjplLmNyb3NzT3JpZ2luPT09ImFub255bW91cyI/ci5jcmVkZW50aWFscz0ib21pdCI6ci5jcmVkZW50aWFscz0ic2FtZS1vcmlnaW4iLHJ9ZnVuY3Rpb24gaShlKXtpZihlLmVwKXJldHVybjtlLmVwPSEwO2NvbnN0IHI9cyhlKTtmZXRjaChlLmhyZWYscil9fSkoKTsK">
-      <link rel="modulepreload" crossorigin href="./assets/session-DFjKK1iG-BdANln-y.js">
-      <script type="module" crossorigin src="./assets/changelog-f4rfNEaU.js"></script>
-      <link rel="modulepreload" crossorigin href="./assets/vivitrol-D6l63jk2.js">
-      <link rel="modulepreload" crossorigin href="./assets/session-C8YxJrFP.js">
+        <style>
+            .action-badge.action-update[data-expandable] {
+                cursor: pointer;
+                text-decoration: underline dotted;
+            }
+            .changelog-details {
+                display: none;
+                background: #f0f7f4;
+            }
+            .changelog-details.open {
+                display: table-row;
+            }
+            .changelog-details td {
+                padding: 6px 16px 10px;
+                font-size: 12px;
+                color: #2d6a4f;
+            }
+            .changelog-details ul {
+                margin: 4px 0 0 16px;
+                padding: 0;
+            }
+            .changelog-details li {
+                font-family: 'Consolas', 'Courier New', monospace;
+                font-size: 11px;
+                color: #444;
+                margin-bottom: 3px;
+            }
+            .change-path {
+                font-weight: 600;
+                color: #2d6a4f;
+            }
+            .change-from {
+                color: #842029;
+                text-decoration: line-through;
+            }
+            .change-to {
+                color: #2d6a4f;
+                font-weight: 600;
+            }
+            .action-restore {
+                background: #dbeafe;
+                color: #1e40af;
+            }
+            .th-hint {
+                font-weight: normal;
+                color: #fff;
+                font-size: 10px;
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 2px;
+                text-align: center;
+            }
+            th:has(.th-hint) {
+                text-align: center;
+                position: relative;
+            }
+            .restore-bar {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px 0 14px;
+                flex-wrap: wrap;
+            }
+            .restore-label {
+                font-size: 13px;
+                color: #444;
+            }
+            .restore-select {
+                padding: 4px 8px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 13px;
+                min-width: 280px;
+            }
+            .restore-btn {
+                padding: 5px 14px;
+                background: #1e40af;
+                color: #fff;
+                border: none;
+                border-radius: 4px;
+                font-size: 13px;
+                cursor: pointer;
+            }
+            .restore-btn:disabled {
+                opacity: 0.6;
+                cursor: default;
+            }
+        </style>
+        <script type="module" src="./src/admin/changelog.ts"></script>
     </head>
 
     <body>
         <div class="admin-header">
-            <h1><img src="./assets/logo-desc-DqcXQLlW-DqcXQLlW-DqcXQLlW-DqcXQLlW-DqcXQLlW-DqcXQLlW.png" alt="DESC logo" class="admin-header-logo" />LAI Admin — Change Log</h1>
+            <h1><img src="./assets/logo-desc-DqcXQLlW-DqcXQLlW-DqcXQLlW-DqcXQLlW-DqcXQLlW-DqcXQLlW.png" alt="DESC logo" class="admin-header-logo" />Change Log</h1>
         </div>
 
         <div class="admin-container">
+            <div id="restore-bar" style="display:none;" class="restore-bar">
+                <span class="restore-label">Restore all meds to a point in time:</span>
+                <select id="restore-time" class="restore-select">
+                    <option value="">Select a save point…</option>
+                </select>
+                <button id="restore-btn" class="restore-btn">Restore</button>
+            </div>
             <div id="changelog-status">Loading…</div>
             <table>
                 <thead>
                     <tr>
                         <th>Date / Time</th>
                         <th>Email</th>
-                        <th>Action</th>
+                        <th>Action<small class="th-hint">(click to expand)</small></th>
                         <th>Medication</th>
-                        <th>Key</th>
                     </tr>
                 </thead>
                 <tbody id="changelog-tbody"></tbody>

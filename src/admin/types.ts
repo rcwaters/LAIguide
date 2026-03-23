@@ -1,9 +1,20 @@
+export interface ChangelogChange {
+    path: string;
+    from: string;
+    to: string;
+}
+
 export interface ChangelogEntry {
     timestamp: string;
     email: string;
-    action: 'update' | 'delete';
+    action: 'update' | 'delete' | 'restore';
     medKey: string;
     displayName: string;
+    changes?: ChangelogChange[];
+    /** Full med JSON at save time — used for point-in-time restoration. */
+    snapshot?: Record<string, unknown>;
+    /** ISO timestamp of the point restored to; set when action === 'restore'. */
+    restoreTarget?: string;
 }
 
 /** Guidance text and bullet points for a single tier window. */

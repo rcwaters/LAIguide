@@ -98,4 +98,65 @@ describe('localStore — changelog', () => {
         const store = createLocalStore();
         expect(await store.getChangelog()).toEqual([]);
     });
+
+    it('preserves changes array on update entries', async () => {
+        const store = createLocalStore();
+        const entry = makeEntry({
+            action: 'update',
+            changes: [
+                { path: 'displayName', from: 'Old Name', to: 'New Name' },
+                { path: 'guidance.late.variants', from: '["initiation"]', to: '["maintenance"]' },
+            ],
+        });
+        await store.appendChangelog(entry);
+        const [saved] = await store.getChangelog();
+        expect(saved.changes).toHaveLength(2);
+        expect(saved.changes![0]).toEqual({ path: 'displayName', from: 'Old Name', to: 'New Name' });
+    });
+
+    it('preserves snapshot on update entries', async () => {
+        const store = createLocalStore();
+        const snapshot = { displayName: 'Test Med', optgroupLabel: 'Antipsychotics', guidance: {} };
+        const entry = makeEntry({ snapshot });
+        await store.appendChangelog(entry);
+        const [saved] = await store.getChangelog();
+        expect(saved.snapshot).toEqual(snapshot);
+    });
+
+    it('stores and retrieves restore action entries', async () => {
+        const store = createLocalStore();
+        const entry = makeEntry({
+            action: 'restore',
+            medKey: '*',
+            displayName: 'All medications (3 restored)',
+            restoreTarget: '2026-01-10T08:00:00.000Z',
+        });
+        await store.appendChangelog(entry);
+        const [saved] = await store.getChangelog();
+        expect(saved.action).toBe('restore');
+        expect(saved.restoreTarget).toBe('2026-01-10T08:00:00.000Z');
+        expect(saved.displayName).toBe('All medications (3 restored)');
+    });
+
+    it('stores restore entry with __default__ restoreTarget', async () => {
+        const store = createLocalStore();
+        const entry = makeEntry({
+            action: 'restore',
+            medKey: '*',
+            displayName: 'All medications (5 restored)',
+            restoreTarget: '__default__',
+        });
+        await store.appendChangelog(entry);
+        const [saved] = await store.getChangelog();
+        expect(saved.restoreTarget).toBe('__default__');
+    });
+
+    it('restore entry appears before earlier update entry (newest-first)', async () => {
+        const store = createLocalStore();
+        await store.appendChangelog(makeEntry({ action: 'update', displayName: 'First Save' }));
+        await store.appendChangelog(makeEntry({ action: 'restore', medKey: '*', displayName: 'Restore Op' }));
+        const entries = await store.getChangelog();
+        expect(entries[0].action).toBe('restore');
+        expect(entries[1].action).toBe('update');
+    });
 });
