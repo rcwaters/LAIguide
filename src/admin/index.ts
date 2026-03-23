@@ -4,6 +4,7 @@ import { getSession, setSession, clearSession, sha256 } from './session';
 import { REQUIRED_EMAIL_VALUE, ACCESS_CODE_HASH, GITHUB_OWNER, GITHUB_REPO } from './config';
 import { renderForm, collectFormData, renderDefinitionsForm } from './forms/index';
 import { validateMedJson } from './validate';
+import { diffMed } from './diffMed';
 import type { MedDataStore } from '../services/interfaces';
 import type { RawMedJson } from './types';
 
@@ -286,16 +287,23 @@ saveBtn.addEventListener('click', async () => {
     }
 
     try {
+        const previousData = currentMedData ? { ...currentMedData } : {};
         await store.saveMed(key, result.data);
         currentMedData = result.data;
         const session = getSession();
         if (session) {
+            const changes = diffMed(
+                previousData as Record<string, unknown>,
+                result.data as Record<string, unknown>,
+            );
             void store.appendChangelog({
                 timestamp: new Date().toISOString(),
                 email: session.email,
                 action: 'update',
                 medKey: key,
                 displayName: (result.data.displayName as string) ?? key,
+                changes,
+                snapshot: result.data,
             });
         }
         if (GITHUB_TOKEN) {

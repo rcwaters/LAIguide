@@ -51,7 +51,7 @@ test.describe('changelog page — authenticated', () => {
     });
 
     test('has correct title', async ({ page }) => {
-        await expect(page).toHaveTitle('LAI Admin — Change Log');
+        await expect(page).toHaveTitle('Change Log');
     });
 
     test('shows the changelog table headers', async ({ page }) => {
@@ -59,7 +59,12 @@ test.describe('changelog page — authenticated', () => {
         await expect(page.locator('thead')).toContainText('Email');
         await expect(page.locator('thead')).toContainText('Action');
         await expect(page.locator('thead')).toContainText('Medication');
-        await expect(page.locator('thead')).toContainText('Key');
+        await expect(page.locator('thead')).not.toContainText('Key');
+    });
+
+    test('action header shows "(click to expand)" hint', async ({ page }) => {
+        const actionTh = page.locator('thead th', { hasText: 'Action' });
+        await expect(actionTh.locator('.th-hint')).toHaveText('(click to expand)');
     });
 
     test('shows empty state message when no changes recorded', async ({ page }) => {
@@ -159,5 +164,86 @@ test.describe('changelog persistence — save in admin then view changelog', () 
         await page.goto('/changelog.html');
 
         await expect(page.locator('#changelog-tbody tr')).toHaveCount(2);
+    });
+
+    test('saved medication shows expandable "Updated N items" badge', async ({ page }) => {
+        await login(page);
+
+        const medSelect = page.locator('#med-select');
+        await medSelect.selectOption({ index: 1 });
+        await expect(page.locator('#form-editor')).not.toBeEmpty();
+        await page.click('#save-btn');
+        await expect(page.locator('#top-status')).toContainText('Saved');
+
+        await page.goto('/changelog.html');
+
+        const badge = page.locator('.action-badge').first();
+        await expect(badge).toContainText('Updated');
+        // The badge text should indicate a count of items changed
+        await expect(badge).toHaveAttribute('data-expandable', 'true');
+    });
+
+    test('clicking expandable badge reveals change detail row', async ({ page }) => {
+        await login(page);
+
+        const medSelect = page.locator('#med-select');
+        await medSelect.selectOption({ index: 1 });
+        await expect(page.locator('#form-editor')).not.toBeEmpty();
+        await page.click('#save-btn');
+        await expect(page.locator('#top-status')).toContainText('Saved');
+
+        await page.goto('/changelog.html');
+
+        const badge = page.locator('.action-badge[data-expandable]').first();
+        // Detail row should be hidden before click
+        const detailRow = page.locator('.changelog-details').first();
+        await expect(detailRow).not.toHaveClass(/open/);
+
+        await badge.click();
+        await expect(detailRow).toHaveClass(/open/);
+
+        // Clicking again collapses it
+        await badge.click();
+        await expect(detailRow).not.toHaveClass(/open/);
+    });
+
+    test('restore bar is visible on changelog page', async ({ page }) => {
+        await login(page);
+        await page.goto('/changelog.html');
+        await expect(page.locator('#restore-bar')).toBeVisible();
+        await expect(page.locator('#restore-time')).toBeVisible();
+        await expect(page.locator('#restore-btn')).toBeVisible();
+    });
+
+    test('restore dropdown includes "Default data" option', async ({ page }) => {
+        await login(page);
+        await page.goto('/changelog.html');
+        const defaultOption = page.locator('#restore-time option[value="__default__"]');
+        await expect(defaultOption).toBeAttached();
+        await expect(defaultOption).toHaveText('Default data (original bundled JSON)');
+    });
+
+    test('restore entry appears in changelog after restore', async ({ page }) => {
+        await login(page);
+
+        // Save a med first to create a save point
+        const medSelect = page.locator('#med-select');
+        await medSelect.selectOption({ index: 1 });
+        await expect(page.locator('#form-editor')).not.toBeEmpty();
+        await page.click('#save-btn');
+        await expect(page.locator('#top-status')).toContainText('Saved');
+
+        await page.goto('/changelog.html');
+
+        // Restore to default data
+        await page.locator('#restore-time').selectOption('__default__');
+        page.on('dialog', (dialog) => dialog.accept());
+        await page.locator('#restore-btn').click();
+
+        await expect(page.locator('#changelog-status')).toContainText('Restored');
+
+        // A "Restored" badge should now appear at the top
+        const firstBadge = page.locator('.action-badge').first();
+        await expect(firstBadge).toContainText('Restored');
     });
 });
