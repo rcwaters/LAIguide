@@ -117,8 +117,8 @@ test.describe('changelog persistence — save in admin then view changelog', () 
         // Navigate to changelog
         await page.goto('/changelog.html');
 
-        // Should show at least one row
-        const rows = page.locator('#changelog-tbody tr');
+        // Should show at least one main row (excludes hidden detail rows)
+        const rows = page.locator('#changelog-tbody tr:not(.changelog-details)');
         await expect(rows).toHaveCount(1);
 
         // Row should contain the medication name and the user's email
@@ -141,7 +141,7 @@ test.describe('changelog persistence — save in admin then view changelog', () 
 
         await page.goto('/changelog.html');
 
-        const rows = page.locator('#changelog-tbody tr');
+        const rows = page.locator('#changelog-tbody tr:not(.changelog-details)');
         await expect(rows).toHaveCount(1);
         await expect(rows.first()).toContainText('Deleted');
     });
@@ -163,7 +163,7 @@ test.describe('changelog persistence — save in admin then view changelog', () 
 
         await page.goto('/changelog.html');
 
-        await expect(page.locator('#changelog-tbody tr')).toHaveCount(2);
+        await expect(page.locator('#changelog-tbody tr:not(.changelog-details)')).toHaveCount(2);
     });
 
     test('saved medication shows expandable "Updated N items" badge', async ({ page }) => {
