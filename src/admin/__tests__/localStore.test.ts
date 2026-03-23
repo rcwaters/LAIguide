@@ -85,10 +85,29 @@ describe('createLocalStore', () => {
         );
     });
 
-    it('stores from separate createLocalStore calls are independent', async () => {
+    it('stores created at the same time have independent in-memory state', async () => {
         const storeA = createLocalStore();
         const storeB = createLocalStore();
         await storeA.saveMed('only_in_a', { displayName: 'A only' });
         expect(await storeB.getMed('only_in_a')).toBeNull();
+    });
+
+    it('med saved by one instance is visible to a new instance created afterwards', async () => {
+        const storeA = createLocalStore();
+        await storeA.saveMed('persisted_med', { displayName: 'Persisted' });
+
+        const storeB = createLocalStore();
+        expect(await storeB.getMed('persisted_med')).toEqual({ displayName: 'Persisted' });
+    });
+
+    it('deleted med is absent from a new instance created afterwards', async () => {
+        const storeA = createLocalStore();
+        await storeA.saveMed('temp_med', { displayName: 'Temp' });
+
+        const storeB = createLocalStore();
+        await storeB.deleteMed('temp_med');
+
+        const storeC = createLocalStore();
+        expect(await storeC.getMed('temp_med')).toBeNull();
     });
 });
