@@ -60,6 +60,16 @@ export function makeComboInput(
     for (const opt of options) {
         datalist.append(createEl('option', { value: opt }));
     }
+    // Clear on focus so the datalist shows all options (browsers filter by current value).
+    // Restore the previous value on blur if the user didn't pick anything.
+    input.addEventListener('focus', () => {
+        input.dataset.saved = input.value;
+        input.value = '';
+    });
+    input.addEventListener('blur', () => {
+        if (input.value === '') input.value = input.dataset.saved ?? '';
+        delete input.dataset.saved;
+    });
     row.append(datalist, input);
     return row;
 }
