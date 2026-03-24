@@ -58,13 +58,13 @@ export interface RawEarlyVariant {
     key: string;
     minDays?: number;
     sameAs?: string;
-    noGuidanceMessage?: string;
+    guidanceNote?: string[];
 }
 
 export interface RawEarlyGuidance {
     minDays?: number;
     daysBeforeDue?: number;
-    guidanceNote?: string;
+    guidanceNote?: string[];
     variants?: RawEarlyVariant[];
 }
 

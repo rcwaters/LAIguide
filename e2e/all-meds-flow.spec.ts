@@ -266,10 +266,10 @@ test.describe('early guidance complete flow', () => {
         await expect(page.locator('.guidance-section')).toContainText('Brixadi');
     });
 
-    // variant: weekly shows no-guidance message immediately (no date needed)
-    test('brixadi (variant weekly — no date needed)', async ({ page }) => {
+    test('brixadi (variant weekly)', async ({ page }) => {
         await page.selectOption('#medication', 'brixadi');
         await selectGuidanceType(page, 'early');
+        await fillDate(page, 'last-brixadi', daysAgo(10));
         await page.selectOption('#brixadi-type', 'weekly');
         await expect(page.locator('.guidance-section')).toBeVisible();
         await expect(page.locator('.guidance-section')).toContainText('Brixadi');

@@ -75,15 +75,14 @@ describe('buildEarlyFields', () => {
         expect(vm['monthly-64'].minDays).toBe(21);
     });
 
-    it('builds earlyVariantMap entry with noGuidanceMessage', () => {
+    it('builds earlyVariantMap entry with no minDays', () => {
         const early = {
-            variants: [{ key: 'weekly', noGuidanceMessage: 'No early guidance at this time' }],
+            variants: [{ key: 'weekly' }],
         };
         const vm = buildEarlyFields(early, {
             paramField: 'type',
             dateField: 'last',
         }).earlyVariantMap!;
-        expect(vm['weekly'].noGuidanceMessage).toBe('No early guidance at this time');
         expect(vm['weekly'].minDays).toBeUndefined();
     });
 
@@ -135,5 +134,65 @@ describe('buildEarlyFields', () => {
         expect(result.earlyVariantMap!['a'].minDays).toBe(10);
         expect(result.earlyParamField).toBe('type-field');
         expect(result.earlyDateField).toBe('last-date');
+    });
+
+    // ── variant guidanceNote ──────────────────────────────────────────────────
+
+    it('stores guidanceNote on a variant map entry', () => {
+        const early = {
+            variants: [{ key: 'weekly', guidanceNote: ['No weekly early dosing at this time.'] }],
+        };
+        const vm = buildEarlyFields(early, {
+            paramField: 'type',
+            dateField: 'last',
+        }).earlyVariantMap!;
+        expect(vm['weekly'].guidanceNote).toEqual(['No weekly early dosing at this time.']);
+    });
+
+    it('omits guidanceNote from variant map entry when absent', () => {
+        const early = { variants: [{ key: 'monthly', minDays: 21 }] };
+        const vm = buildEarlyFields(early, {
+            paramField: 'type',
+            dateField: 'last',
+        }).earlyVariantMap!;
+        expect(vm['monthly'].guidanceNote).toBeUndefined();
+    });
+
+    it('omits guidanceNote from variant map entry when empty array', () => {
+        const early = { variants: [{ key: 'monthly', guidanceNote: [] }] };
+        const vm = buildEarlyFields(early, {
+            paramField: 'type',
+            dateField: 'last',
+        }).earlyVariantMap!;
+        expect(vm['monthly'].guidanceNote).toBeUndefined();
+    });
+
+    it('sameAs variant shares guidanceNote from its target', () => {
+        const early = {
+            variants: [
+                { key: 'monthly-64', minDays: 21, guidanceNote: ['Provider approval required.'] },
+                { key: 'monthly-96', sameAs: 'monthly-64' },
+            ],
+        };
+        const vm = buildEarlyFields(early, {
+            paramField: 'type',
+            dateField: 'last',
+        }).earlyVariantMap!;
+        expect(vm['monthly-96'].guidanceNote).toEqual(['Provider approval required.']);
+    });
+
+    // ── earlySharedNotes ──────────────────────────────────────────────────────
+
+    it('sets earlySharedNotes from early.guidanceNote', () => {
+        const early = { guidanceNote: ['Note A', 'Note B'] };
+        expect(buildEarlyFields(early, undefined).earlySharedNotes).toEqual(['Note A', 'Note B']);
+    });
+
+    it('omits earlySharedNotes when guidanceNote is absent', () => {
+        expect(buildEarlyFields({}, undefined).earlySharedNotes).toBeUndefined();
+    });
+
+    it('omits earlySharedNotes when guidanceNote is an empty array', () => {
+        expect(buildEarlyFields({ guidanceNote: [] }, undefined).earlySharedNotes).toBeUndefined();
     });
 });

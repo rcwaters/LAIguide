@@ -64,9 +64,15 @@ describe('MED_REGISTRY — localStorage overrides', () => {
         let store: Record<string, string> = {};
         return {
             getItem: (key: string) => store[key] ?? null,
-            setItem: (key: string, value: string) => { store[key] = value; },
-            removeItem: (key: string) => { delete store[key]; },
-            clear: () => { store = {}; },
+            setItem: (key: string, value: string) => {
+                store[key] = value;
+            },
+            removeItem: (key: string) => {
+                delete store[key];
+            },
+            clear: () => {
+                store = {};
+            },
         };
     }
 
@@ -101,9 +107,12 @@ describe('MED_REGISTRY — localStorage overrides', () => {
     });
 
     it('ignores localStorage entries without a guidance field', async () => {
-        lsMock.setItem('lai_local_meds', JSON.stringify({
-            fake_med: { displayName: 'No Guidance Med' }, // no guidance field
-        }));
+        lsMock.setItem(
+            'lai_local_meds',
+            JSON.stringify({
+                fake_med: { displayName: 'No Guidance Med' }, // no guidance field
+            }),
+        );
         const { MED_REGISTRY: reg } = await import('../index');
         expect('fake_med' in reg).toBe(false);
     });

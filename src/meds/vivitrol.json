@@ -66,9 +66,7 @@
                                 "idealSteps": [
                                     "**Consult provider before administering Vivitrol.** The injection is more than 8 weeks overdue. Provider guidance is required before proceeding."
                                 ],
-                                "providerNotifications": [
-                                    "Consult provider before any injection."
-                                ]
+                                "providerNotifications": ["Consult provider before any injection."]
                             }
                         }
                     ]
@@ -128,9 +126,7 @@
                                 "idealSteps": [
                                     "**Consult provider before administering Vivitrol.** The injection is more than 8 weeks overdue. Provider guidance is required before proceeding."
                                 ],
-                                "providerNotifications": [
-                                    "Consult provider before any injection."
-                                ]
+                                "providerNotifications": ["Consult provider before any injection."]
                             }
                         }
                     ]

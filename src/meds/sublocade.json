@@ -5,7 +5,7 @@
             "providerNotifications": []
         },
         "early": {
-            "guidanceNote": "This may be given earlier with provider approval",
+            "guidanceNote": ["This may be given earlier with provider approval"],
             "minDays": 21
         },
         "late": {

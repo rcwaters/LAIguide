@@ -1,44 +1,44 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
-    branches: [main]
-  workflow_dispatch:
+    push:
+        branches: [main]
+    workflow_dispatch:
 
 permissions:
-  contents: write
+    contents: write
 
 jobs:
-  deploy:
-    name: Build & Deploy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    deploy:
+        name: Build & Deploy
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: npm
 
-      - name: Install dependencies
-        run: npm ci
+            - name: Install dependencies
+              run: npm ci
 
-      - name: Build
-        env:
-          VITE_GITHUB_TOKEN: ${{ secrets.ADMIN_PAT }}
-        run: npm run build
+            - name: Build
+              env:
+                  VITE_GITHUB_TOKEN: ${{ secrets.ADMIN_PAT }}
+              run: npm run build
 
-      - name: Deploy to main
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          branch: main
-          folder: dist/
-          clean: false
+            - name: Deploy to main
+              uses: JamesIves/github-pages-deploy-action@v4
+              with:
+                  branch: main
+                  folder: dist/
+                  clean: false
 
-      - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
+            - name: Install Playwright browser
+              run: npx playwright install --with-deps chromium
 
-      - name: Post-deploy smoke test (live URL)
-        env:
-          PLAYWRIGHT_BASE_URL: https://rcwaters.github.io/LAIguide
-        run: npx playwright test e2e/deploy-smoke.spec.ts --project=chromium
+            - name: Post-deploy smoke test (live URL)
+              env:
+                  PLAYWRIGHT_BASE_URL: https://rcwaters.github.io/LAIguide
+              run: npx playwright test e2e/deploy-smoke.spec.ts --project=chromium

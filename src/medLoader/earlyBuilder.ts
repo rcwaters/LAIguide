@@ -3,14 +3,19 @@ import type { EarlyVariantDef, CoreDef } from '../interfaces/med';
 type RawEarlyVariant = {
     key: string;
     minDays?: number;
-    noGuidanceMessage?: string;
     sameAs?: string;
+    guidanceNote?: string[];
 };
 
 function buildEarlyVariantMap(variants: RawEarlyVariant[]): Record<string, EarlyVariantDef> {
     const map: Record<string, EarlyVariantDef> = {};
     for (const v of variants) {
-        if (!v.sameAs) map[v.key] = { minDays: v.minDays, noGuidanceMessage: v.noGuidanceMessage };
+        if (!v.sameAs) {
+            map[v.key] = {
+                minDays: v.minDays,
+                ...(v.guidanceNote?.length ? { guidanceNote: v.guidanceNote } : {}),
+            };
+        }
     }
     for (const v of variants) {
         if (v.sameAs) map[v.key] = map[v.sameAs]!;
@@ -27,7 +32,7 @@ export function pluralDays(n: number): string {
 export function composeEarlyGuidance(
     daysBeforeDue: number | undefined,
     minDays: number | undefined,
-    note: string | undefined,
+    notes: string[] | undefined,
 ): string {
     let core: string;
     if (daysBeforeDue != null && minDays != null) {
@@ -37,7 +42,8 @@ export function composeEarlyGuidance(
     } else {
         core = `No sooner than ${pluralDays(minDays!)} after last injection`;
     }
-    return note ? `${core}  \n*(${note})*` : core;
+    if (!notes?.length) return core;
+    return `${core}\n${notes.map((n) => `- ${n}`).join('\n')}`;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -58,6 +64,9 @@ export function buildEarlyFields(
             ? { earlyProviderNotification: providerNotifications }
             : {}),
         ...(rawVariants ? { earlyVariantMap: buildEarlyVariantMap(rawVariants) } : {}),
+        ...(early?.guidanceNote?.length
+            ? { earlySharedNotes: early.guidanceNote as string[] }
+            : {}),
         ...(paramField ? { earlyParamField: paramField, earlyDateField: dateField } : {}),
     };
 }

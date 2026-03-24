@@ -32,8 +32,8 @@ export type InfoRowSpec =
 export interface EarlyVariantDef {
     /** Minimum days since last injection required for early administration. */
     minDays?: number;
-    /** If set, early guidance is not applicable — display this message instead. */
-    noGuidanceMessage?: string;
+    /** Variant-specific notes shown before shared early.guidanceNote bullets. */
+    guidanceNote?: string[];
 }
 
 /** Auto-derives validateLate / buildLateParams / buildLateInfoRows from JSON data */
@@ -92,6 +92,8 @@ export interface MedDefinition {
     earlyDateField?: string;
     /** Maps each variant key to its early-guidance definition. */
     earlyVariantMap?: Record<string, EarlyVariantDef>;
+    /** Shared notes from early.guidanceNote — appended after variant-specific notes. */
+    earlySharedNotes?: string[];
     getLateGuidance(params: LateGuidanceParams): GuidanceResult;
 
     // UI config: used by main.ts to generically handle form interaction
@@ -134,6 +136,7 @@ export type CoreDef = Pick<
     | 'earlyParamField'
     | 'earlyDateField'
     | 'earlyVariantMap'
+    | 'earlySharedNotes'
     | 'getLateGuidance'
 >;
 

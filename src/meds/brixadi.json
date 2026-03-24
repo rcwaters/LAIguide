@@ -5,24 +5,29 @@
             "providerNotifications": []
         },
         "early": {
-            "guidanceNote": "This may be given earlier with provider approval",
             "minDays": 21,
             "variants": [
                 {
                     "key": "monthly-64",
-                    "minDays": 21
+                    "minDays": 21,
+                    "guidanceNote": ["This may be given earlier with provider approval"]
                 },
                 {
                     "key": "monthly-96",
-                    "sameAs": "monthly-64"
+                    "sameAs": "monthly-64",
+                    "guidanceNote": ["This may be given earlier with provider approval"]
                 },
                 {
                     "key": "monthly-128",
-                    "sameAs": "monthly-64"
+                    "sameAs": "monthly-64",
+                    "guidanceNote": ["This may be given earlier with provider approval"]
                 },
                 {
                     "key": "weekly",
-                    "noGuidanceMessage": "Brixadi weekly early dosing guidance does not exist at this time. Please wait for the next scheduled dosing."
+                    "minDays": 7,
+                    "guidanceNote": [
+                        "Brixadi weekly early dosing guidance does not exist at this time. Please wait for the next scheduled dosing."
+                    ]
                 }
             ]
         },

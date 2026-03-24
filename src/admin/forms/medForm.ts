@@ -145,10 +145,10 @@ function renderEarlyVariant(variant: RawEarlyVariant, idx: number): HTMLDivEleme
         makeTextInput('Same As', variant.sameAs ?? '', `guidance.early.variants.${idx}.sameAs`),
     );
     body.append(
-        makeTextInput(
-            'No Guidance Message',
-            variant.noGuidanceMessage ?? '',
-            `guidance.early.variants.${idx}.noGuidanceMessage`,
+        makeListEditor(
+            'Variant Notes',
+            variant.guidanceNote ?? [],
+            `guidance.early.variants.${idx}.guidanceNote`,
         ),
     );
 
@@ -200,16 +200,14 @@ function renderVariant(variant: RawVariant, idx: number): HTMLDivElement {
     return block;
 }
 
-export function renderForm(
-    container: HTMLDivElement,
+function buildMedInfoPanel(
+    panel: HTMLDivElement,
     data: RawMedJson,
-    existingGroups: string[] = [],
+    existingGroups: string[],
 ): void {
-    container.innerHTML = '';
-
-    const { section: basicSec, body: basicBody } = makeSection('Medication Info');
-    basicBody.append(makeTextInput('Medication Name', data.displayName ?? '', 'displayName'));
-    basicBody.append(
+    const { section, body } = makeSection('Medication Info');
+    body.append(makeTextInput('Medication Name', data.displayName ?? '', 'displayName'));
+    body.append(
         makeComboInput(
             'Medication Group',
             data.optgroupLabel ?? '',
@@ -218,30 +216,32 @@ export function renderForm(
             'med-groups-datalist',
         ),
     );
-    container.append(basicSec);
+    panel.append(section);
+}
 
-    const { section: sharedSec, body: sharedBody } = makeSection(
-        'Provider Notifications — All Scenarios',
-    );
-    sharedBody.append(
+function buildSharedPanel(panel: HTMLDivElement, data: RawMedJson): void {
+    const { section, body } = makeSection('Provider Notifications — All Scenarios');
+    body.append(
         createEl('p', {
             class: 'section-note',
             textContent:
                 'These notification rules will appear below any early or late guidance provider notifications.',
         }),
     );
-    sharedBody.append(
+    body.append(
         makeListEditor(
             'When to Notify Provider',
             data.guidance.shared?.providerNotifications ?? [],
             'guidance.shared.providerNotifications',
         ),
     );
-    container.append(sharedSec);
+    panel.append(section);
+}
 
+function buildEarlyPanel(panel: HTMLDivElement, data: RawMedJson): void {
     const early = data.guidance.early ?? {};
-    const { section: earlySec, body: earlyBody } = makeSection('Early Administration Window');
-    earlyBody.append(
+    const { section, body } = makeSection('Early Administration Window');
+    body.append(
         makeNumberInput(
             'Minimum Days Since Last Dose',
             early.minDays ?? null,
@@ -249,7 +249,7 @@ export function renderForm(
         ),
     );
     if (early.daysBeforeDue != null) {
-        earlyBody.append(
+        body.append(
             makeNumberInput(
                 'Days Before Due Date Allowed',
                 early.daysBeforeDue,
@@ -257,31 +257,29 @@ export function renderForm(
             ),
         );
     }
-    if (early.guidanceNote) {
-        earlyBody.append(
-            makeTextInput('Clinical Note', early.guidanceNote, 'guidance.early.guidanceNote'),
-        );
-    }
+    body.append(
+        makeListEditor('Clinical Notes', early.guidanceNote ?? [], 'guidance.early.guidanceNote'),
+    );
     const earlyVariants = (early as { variants?: RawEarlyVariant[] }).variants;
     if (Array.isArray(earlyVariants) && earlyVariants.length > 0) {
-        earlyBody.append(
+        body.append(
             createEl('div', {
                 class: 'variant-label',
                 textContent: 'Formulation-Specific Early Windows',
             }),
         );
         for (let i = 0; i < earlyVariants.length; i++) {
-            earlyBody.append(renderEarlyVariant(earlyVariants[i], i));
+            body.append(renderEarlyVariant(earlyVariants[i], i));
         }
     }
-    container.append(earlySec);
+    panel.append(section);
+}
 
+function buildLatePanel(panel: HTMLDivElement, data: RawMedJson): void {
     const variants = data.guidance.late?.variants ?? [];
-    const { section: lateSec, body: lateBody } = makeSection(
-        'Overdue Guidance — Scenarios & Time Windows',
-    );
+    const { section, body } = makeSection('Overdue Guidance — Scenarios & Time Windows');
     for (let i = 0; i < variants.length; i++) {
-        lateBody.append(renderVariant(variants[i], i));
+        body.append(renderVariant(variants[i], i));
     }
     const addScenarioBtn = createEl('button', {
         class: 'add-scenario-btn',
@@ -289,8 +287,68 @@ export function renderForm(
         textContent: '+ Add Scenario',
     });
     addScenarioBtn.addEventListener('click', () => {
-        lateBody.dispatchEvent(new CustomEvent('addscenario', { bubbles: true }));
+        body.dispatchEvent(new CustomEvent('addscenario', { bubbles: true }));
     });
-    lateBody.append(addScenarioBtn);
-    container.append(lateSec);
+    body.append(addScenarioBtn);
+    panel.append(section);
+}
+
+const GUIDANCE_TAB_MAP: Record<
+    string,
+    { label: string; build: (panel: HTMLDivElement, data: RawMedJson) => void }
+> = {
+    shared: { label: 'Shared Notifications', build: buildSharedPanel },
+    early: { label: 'Early Guidance', build: buildEarlyPanel },
+    late: { label: 'Overdue Guidance', build: buildLatePanel },
+};
+
+export function renderForm(
+    container: HTMLDivElement,
+    data: RawMedJson,
+    existingGroups: string[] = [],
+): void {
+    container.innerHTML = '';
+
+    type TabDef = { label: string; build: (panel: HTMLDivElement) => void };
+
+    const tabDefs: TabDef[] = [
+        { label: 'Medication Info', build: (p) => buildMedInfoPanel(p, data, existingGroups) },
+    ];
+
+    for (const key of Object.keys(data.guidance)) {
+        const entry = GUIDANCE_TAB_MAP[key];
+        if (entry) {
+            tabDefs.push({ label: entry.label, build: (p) => entry.build(p, data) });
+        }
+    }
+
+    const tabBar = createEl('div', { class: 'form-tab-bar' });
+    const panels = tabDefs.map(() => createEl('div', { class: 'form-tab-panel' }));
+
+    const activateTab = (idx: number): void => {
+        tabBar.querySelectorAll('.form-tab-btn').forEach((btn, i) => {
+            btn.classList.toggle('active', i === idx);
+        });
+        panels.forEach((panel, i) => {
+            (panel as HTMLDivElement).hidden = i !== idx;
+        });
+    };
+
+    tabDefs.forEach(({ label }, idx) => {
+        const btn = createEl('button', {
+            class: 'form-tab-btn',
+            type: 'button',
+            textContent: label,
+        });
+        btn.addEventListener('click', () => activateTab(idx));
+        tabBar.append(btn);
+    });
+
+    container.append(tabBar);
+    panels.forEach((panel, idx) => {
+        tabDefs[idx].build(panel);
+        container.append(panel);
+    });
+
+    activateTab(0);
 }

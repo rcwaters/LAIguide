@@ -9,7 +9,7 @@
             ]
         },
         "early": {
-            "guidanceNote": "Note: after completing full initiation process",
+            "guidanceNote": ["Note: after completing full initiation process"],
             "daysBeforeDue": 2,
             "minDays": 21
         },
@@ -27,9 +27,7 @@
                                 "idealSteps": [
                                     "The 156 mg is not significantly overdue. Administer 56 mg and proceed with original plans and orders."
                                 ],
-                                "providerNotifications": [
-                                    "For any questions or concerns"
-                                ]
+                                "providerNotifications": ["For any questions or concerns"]
                             }
                         },
                         {
@@ -83,9 +81,7 @@
                         {
                             "maxDays": null,
                             "guidance": {
-                                "idealSteps": [
-                                    "Consult provider to get orders to proceed"
-                                ],
+                                "idealSteps": ["Consult provider to get orders to proceed"],
                                 "pragmaticVariations": [
                                     "Consult provider to administer the 156 mg injection at time of patient presentation if a 234 mg injection is not available and arrange for the patient to return in 1 week."
                                 ],
@@ -120,9 +116,7 @@
                             "maxDays": 120,
                             "guidanceByDoseRules": [
                                 {
-                                    "doses": [
-                                        "39-to-156"
-                                    ],
+                                    "doses": ["39-to-156"],
                                     "guidance": {
                                         "idealSteps": [
                                             "Administer usual maintenance dose.",
@@ -138,9 +132,7 @@
                                     }
                                 },
                                 {
-                                    "doses": [
-                                        "234"
-                                    ],
+                                    "doses": ["234"],
                                     "guidance": {
                                         "idealSteps": [
                                             "Administer 156 mg Invega Sustenna",

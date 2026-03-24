@@ -12,7 +12,7 @@ function makeMed(overrides: Partial<RawMedJson> = {}): RawMedJson {
         optgroupLabel: 'Antipsychotics',
         guidance: {
             shared: { providerNotifications: ['Notify on side effects'] },
-            early: { minDays: 21, daysBeforeDue: 2, guidanceNote: 'After initiation' },
+            early: { minDays: 21, daysBeforeDue: 2, guidanceNote: ['After initiation'] },
             late: {
                 variants: [
                     {
@@ -95,12 +95,13 @@ describe('renderForm', () => {
         expect(input?.value).toBe('2');
     });
 
-    it('renders early guidance guidanceNote when present', () => {
+    it('renders early guidance guidanceNote as list editor', () => {
         renderForm(container, makeMed());
-        const input = container.querySelector<HTMLInputElement>(
-            'input[data-path="guidance.early.guidanceNote"]',
+        const editor = container.querySelector<HTMLDivElement>(
+            '.list-editor[data-path="guidance.early.guidanceNote"]',
         );
-        expect(input?.value).toBe('After initiation');
+        expect(editor).not.toBeNull();
+        expect(editor!.querySelector('textarea')?.value).toBe('After initiation');
     });
 
     it('does not render daysBeforeDue when absent', () => {
@@ -220,6 +221,86 @@ describe('renderForm', () => {
             '[data-path="guidance.late.variants.0.tiers.0.guidanceByDoseRules.0.guidance.idealSteps"]',
         );
         expect(stepsEditor?.querySelector('textarea')?.value).toBe('Give 156 mg.');
+    });
+});
+
+// ── tab bar ───────────────────────────────────────────────────────────────────
+
+describe('tab bar', () => {
+    it('renders a .form-tab-bar with .form-tab-btn buttons', () => {
+        renderForm(container, makeMed());
+        const buttons = container.querySelectorAll('.form-tab-btn');
+        expect(buttons.length).toBeGreaterThan(0);
+    });
+
+    it('renders 4 buttons for a med with shared, early, and late', () => {
+        renderForm(container, makeMed());
+        expect(container.querySelectorAll('.form-tab-btn').length).toBe(4);
+    });
+
+    it('button labels are Medication Info, Shared Notifications, Early Guidance, Overdue Guidance', () => {
+        renderForm(container, makeMed());
+        const labels = [...container.querySelectorAll('.form-tab-btn')].map((b) => b.textContent);
+        expect(labels).toEqual([
+            'Medication Info',
+            'Shared Notifications',
+            'Early Guidance',
+            'Overdue Guidance',
+        ]);
+    });
+
+    it('first tab is active and all others are not by default', () => {
+        renderForm(container, makeMed());
+        const buttons = container.querySelectorAll('.form-tab-btn');
+        expect(buttons[0].classList.contains('active')).toBe(true);
+        for (let i = 1; i < buttons.length; i++) {
+            expect(buttons[i].classList.contains('active')).toBe(false);
+        }
+    });
+
+    it('first panel is visible and all others are hidden by default', () => {
+        renderForm(container, makeMed());
+        const panels = container.querySelectorAll<HTMLElement>('.form-tab-panel');
+        expect(panels[0].hidden).toBe(false);
+        for (let i = 1; i < panels.length; i++) {
+            expect(panels[i].hidden).toBe(true);
+        }
+    });
+
+    it('clicking a tab activates it and hides all other panels', () => {
+        renderForm(container, makeMed());
+        const buttons = container.querySelectorAll<HTMLButtonElement>('.form-tab-btn');
+        const panels = container.querySelectorAll<HTMLElement>('.form-tab-panel');
+        buttons[2].click();
+        expect(buttons[2].classList.contains('active')).toBe(true);
+        expect(buttons[0].classList.contains('active')).toBe(false);
+        expect(panels[2].hidden).toBe(false);
+        expect(panels[0].hidden).toBe(true);
+        expect(panels[1].hidden).toBe(true);
+    });
+
+    it('omits tabs for guidance keys absent from the JSON', () => {
+        const med = makeMed();
+        delete med.guidance.shared;
+        delete med.guidance.early;
+        renderForm(container, med);
+        const labels = [...container.querySelectorAll('.form-tab-btn')].map((b) => b.textContent);
+        expect(labels).toEqual(['Medication Info', 'Overdue Guidance']);
+    });
+
+    it('each section is rendered inside its own panel', () => {
+        renderForm(container, makeMed());
+        const panels = container.querySelectorAll<HTMLElement>('.form-tab-panel');
+        expect(panels[0].querySelector('[data-path="displayName"]')).not.toBeNull();
+        expect(
+            panels[1].querySelector('[data-path="guidance.shared.providerNotifications"]'),
+        ).not.toBeNull();
+        expect(panels[2].querySelector('[data-path="guidance.early.minDays"]')).not.toBeNull();
+        expect(
+            panels[3].querySelector(
+                '[data-path="guidance.late.variants.0.tiers.0.guidance.idealSteps"]',
+            ),
+        ).not.toBeNull();
     });
 });
 

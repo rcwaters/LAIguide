@@ -9,7 +9,7 @@
             ]
         },
         "early": {
-            "guidanceNote": "DESC created guidance",
+            "guidanceNote": ["DESC created guidance"],
             "daysBeforeDue": 2,
             "minDays": 14
         },

@@ -51,9 +51,7 @@
                         {
                             "maxDays": null,
                             "guidance": {
-                                "idealSteps": [
-                                    "Consult provider first"
-                                ],
+                                "idealSteps": ["Consult provider first"],
                                 "providerNotifications": [
                                     "**Before any injection:** Consult provider"
                                 ]
@@ -100,9 +98,7 @@
                         {
                             "maxDays": null,
                             "guidance": {
-                                "idealSteps": [
-                                    "Consult provider first"
-                                ],
+                                "idealSteps": ["Consult provider first"],
                                 "providerNotifications": [
                                     "**Before any injection:** Consult provider"
                                 ]

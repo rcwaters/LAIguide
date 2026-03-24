@@ -1,0 +1,32 @@
+/* ─── Reset & base ────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Domine:wght@400;500;600;700&display=swap');
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Domine', Georgia, serif;
+    background: #aecfcc;
+    min-height: 100vh;
+    padding: 0 8px 8px;
+    padding: 0 max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom))
+        max(8px, env(safe-area-inset-left));
+}
+
+@media (min-width: 480px) {
+    body {
+        padding: 0 16px 16px;
+    }
+}
+
+@media (min-width: 768px) {
+    body {
+        padding: 0 20px 20px;
+    }
+}

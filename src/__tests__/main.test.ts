@@ -682,14 +682,15 @@ describe('handleSubmit — guidance rendering', () => {
             expect(resultText()).toContain('Early administration is allowed');
         });
 
-        test('weekly variant: shows no-guidance message', () => {
+        test('weekly variant: shows early guidance using shared minDays', () => {
             setField('medication', 'brixadi');
             setField('guidance-type', 'early');
             setField('brixadi-type', 'weekly');
+            setField('last-brixadi', daysAgo(25));
             handleSubmit();
             expectGuidanceRendered();
-            expect(document.querySelector('.guidance-content')!.textContent).toContain(
-                'does not exist at this time',
+            expect(document.querySelector('.guidance-content')!.textContent).toMatch(
+                /Early administration is allowed|Too early to administer/,
             );
         });
     });
