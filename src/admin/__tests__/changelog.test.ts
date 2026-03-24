@@ -8,9 +8,15 @@ function makeLocalStorageMock() {
     let store: Record<string, string> = {};
     return {
         getItem: (key: string) => store[key] ?? null,
-        setItem: (key: string, value: string) => { store[key] = value; },
-        removeItem: (key: string) => { delete store[key]; },
-        clear: () => { store = {}; },
+        setItem: (key: string, value: string) => {
+            store[key] = value;
+        },
+        removeItem: (key: string) => {
+            delete store[key];
+        },
+        clear: () => {
+            store = {};
+        },
     };
 }
 
@@ -78,7 +84,11 @@ describe('localStore — changelog', () => {
 
     it('preserves all entry fields exactly', async () => {
         const store = createLocalStore();
-        const entry = makeEntry({ action: 'delete', medKey: 'abilify_maintena', displayName: 'Abilify Maintena' });
+        const entry = makeEntry({
+            action: 'delete',
+            medKey: 'abilify_maintena',
+            displayName: 'Abilify Maintena',
+        });
         await store.appendChangelog(entry);
         expect(await store.getChangelog()).toContainEqual(entry);
     });
@@ -111,7 +121,11 @@ describe('localStore — changelog', () => {
         await store.appendChangelog(entry);
         const [saved] = await store.getChangelog();
         expect(saved.changes).toHaveLength(2);
-        expect(saved.changes![0]).toEqual({ path: 'displayName', from: 'Old Name', to: 'New Name' });
+        expect(saved.changes![0]).toEqual({
+            path: 'displayName',
+            from: 'Old Name',
+            to: 'New Name',
+        });
     });
 
     it('preserves snapshot on update entries', async () => {
@@ -154,7 +168,9 @@ describe('localStore — changelog', () => {
     it('restore entry appears before earlier update entry (newest-first)', async () => {
         const store = createLocalStore();
         await store.appendChangelog(makeEntry({ action: 'update', displayName: 'First Save' }));
-        await store.appendChangelog(makeEntry({ action: 'restore', medKey: '*', displayName: 'Restore Op' }));
+        await store.appendChangelog(
+            makeEntry({ action: 'restore', medKey: '*', displayName: 'Restore Op' }),
+        );
         const entries = await store.getChangelog();
         expect(entries[0].action).toBe('restore');
         expect(entries[1].action).toBe('update');

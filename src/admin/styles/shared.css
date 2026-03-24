@@ -1,0 +1,50 @@
+/* ─── Reset & base ────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Domine:wght@400;500;600;700&display=swap');
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Domine', Georgia, serif;
+    background: #aecfcc;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* ─── Admin shell ────────────────────────────────────────────────────────── */
+
+.admin-header {
+    background: #3c8476;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 16px;
+    text-align: center;
+}
+
+.admin-header h1 {
+    color: #000;
+    font-size: clamp(24px, 5vw, 34px);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.admin-header-logo {
+    height: 36px;
+    width: auto;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+.admin-container {
+    background: white;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}

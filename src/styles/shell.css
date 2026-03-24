@@ -1,0 +1,83 @@
+/* ─── App shell ───────────────────────────────────────────────────────────── */
+
+.protocol-link {
+    margin: 12px 0 -16px;
+    text-align: center;
+}
+
+.protocol-link a {
+    color: #006c87;
+    text-decoration: underline;
+}
+
+.app-container {
+    background: white;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    padding: 1px 16px 16px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+@media (min-width: 480px) {
+    .app-container {
+        padding: 1px 24px 24px;
+    }
+}
+
+@media (min-width: 768px) {
+    .app-container {
+        padding: 1px 30px 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* ─── Header ──────────────────────────────────────────────────────────────── */
+
+.app-header {
+    text-align: center;
+    background: #3c8476;
+    max-width: 700px;
+    margin: 0 auto;
+    position: relative;
+    padding: 20px 16px;
+}
+
+.header-logo {
+    height: 36px;
+    width: auto;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+@media (min-width: 601px) {
+    .header-logo {
+        height: 44px;
+    }
+}
+
+@media (max-width: 600px) {
+    .app-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 16px;
+    }
+
+    .header-logo {
+        height: 30px;
+    }
+}
+
+.app-title {
+    color: black;
+    font-size: clamp(28px, 7vw, 34px);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.app-subtitle {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: clamp(14px, 3vw, 16px);
+    font-weight: 500;
+}

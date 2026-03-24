@@ -19,9 +19,7 @@
                         {
                             "maxDays": 180,
                             "guidance": {
-                                "idealSteps": [
-                                    "Please refer to the early dosing guidance."
-                                ]
+                                "idealSteps": ["Please refer to the early dosing guidance."]
                             }
                         },
                         {

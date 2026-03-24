@@ -489,9 +489,10 @@ test.describe('early guidance — Brixadi (variant-aware)', () => {
         await expect(page.locator('.guidance-section')).toContainText('Too early to administer');
     });
 
-    test('weekly: no early dosing guidance message shown', async ({ page }) => {
+    test('weekly: no early dosing guidance note shown as bullet', async ({ page }) => {
         await selectField(page, 'medication', 'brixadi');
         await selectField(page, 'guidance-type', 'early');
+        await fillDate(page, 'last-brixadi', daysAgo(10));
         await selectField(page, 'brixadi-type', 'weekly');
 
         await expect(page.locator('.guidance-section')).toBeVisible();

@@ -44,7 +44,7 @@ export function buildCoreDef(json: any) {
         earlyGuidance: composeEarlyGuidance(
             early?.daysBeforeDue,
             early?.minDays,
-            early?.guidanceNote as string | undefined,
+            early?.guidanceNote as string[] | undefined,
         ),
         ...buildEarlyFields(early, json.earlySpec),
         ...(commonNotifs?.length ? { commonProviderNotifications: commonNotifs } : {}),

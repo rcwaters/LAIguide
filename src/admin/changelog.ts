@@ -1,3 +1,5 @@
+import './styles/shared.css';
+import './styles/changelog.css';
 import { createGitHubStore } from '../services/github/store';
 import { createLocalStore } from './localStore';
 import { getSession } from './session';
@@ -56,7 +58,7 @@ const DEFAULT_TARGET = '__default__';
 
 function populateRestoreDropdown(entries: ChangelogEntry[]): void {
     // Keep only update entries that have a snapshot, newest-first (already sorted).
-    const savePoints = entries.filter(e => e.action === 'update' && e.snapshot);
+    const savePoints = entries.filter((e) => e.action === 'update' && e.snapshot);
 
     restoreSelect.innerHTML = '<option value="">Select a save point…</option>';
 
@@ -79,9 +81,11 @@ function populateRestoreDropdown(entries: ChangelogEntry[]): void {
 function renderRow(entry: ChangelogEntry): HTMLTableRowElement[] {
     const tr = document.createElement('tr');
     tr.className =
-        entry.action === 'delete' ? 'row-delete' :
-        entry.action === 'restore' ? 'row-restore' :
-        'row-update';
+        entry.action === 'delete'
+            ? 'row-delete'
+            : entry.action === 'restore'
+              ? 'row-restore'
+              : 'row-update';
 
     const tdTime = document.createElement('td');
     tdTime.textContent = formatTimestamp(entry.timestamp);
@@ -139,9 +143,10 @@ function renderRow(entry: ChangelogEntry): HTMLTableRowElement[] {
         detailsRow.className = 'changelog-details';
         const detailsTd = document.createElement('td');
         detailsTd.colSpan = 4;
-        detailsTd.textContent = entry.restoreTarget === DEFAULT_TARGET
-            ? 'Restored to: default (original bundled) data'
-            : `Restored to: ${formatTimestamp(entry.restoreTarget)}`;
+        detailsTd.textContent =
+            entry.restoreTarget === DEFAULT_TARGET
+                ? 'Restored to: default (original bundled) data'
+                : `Restored to: ${formatTimestamp(entry.restoreTarget)}`;
         detailsRow.appendChild(detailsTd);
         rows.push(detailsRow);
 
@@ -192,7 +197,9 @@ restoreBtn.addEventListener('click', async () => {
     }
 
     const isDefault = targetIso === DEFAULT_TARGET;
-    const targetDisplay = isDefault ? 'default (original bundled) data' : formatTimestamp(targetIso);
+    const targetDisplay = isDefault
+        ? 'default (original bundled) data'
+        : formatTimestamp(targetIso);
     const confirmed = confirm(
         `Restore all medications to ${targetDisplay}?\n\nThis will overwrite all current local changes.`,
     );

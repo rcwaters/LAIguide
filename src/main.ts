@@ -1,4 +1,4 @@
-import './styles.css';
+import './styles/index.css';
 import 'flatpickr/dist/flatpickr.min.css';
 import flatpickr from 'flatpickr';
 import { initForm } from './ui/formInit';

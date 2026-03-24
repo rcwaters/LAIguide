@@ -19,17 +19,13 @@
                         {
                             "maxDays": 89,
                             "guidance": {
-                                "idealSteps": [
-                                    "Please refer to the early dosing guidance."
-                                ]
+                                "idealSteps": ["Please refer to the early dosing guidance."]
                             }
                         },
                         {
                             "maxDays": 120,
                             "guidance": {
-                                "idealSteps": [
-                                    "Administer next usual Invega Trinza dose"
-                                ],
+                                "idealSteps": ["Administer next usual Invega Trinza dose"],
                                 "providerNotifications": [
                                     "No need but notify full care team of importance of avoiding missed doses of Trinza."
                                 ]
@@ -39,9 +35,7 @@
                             "maxDays": 270,
                             "guidanceByDoseRules": [
                                 {
-                                    "doses": [
-                                        "410"
-                                    ],
+                                    "doses": ["410"],
                                     "guidance": {
                                         "idealSteps": [
                                             "**Do not administer Trinza dose. Consult provider first!**",
@@ -52,16 +46,11 @@
                                         "pragmaticVariations": [
                                             "None. Consult provider prior to deviating from ideal steps."
                                         ],
-                                        "providerNotifications": [
-                                            "Consult provider in all cases."
-                                        ]
+                                        "providerNotifications": ["Consult provider in all cases."]
                                     }
                                 },
                                 {
-                                    "doses": [
-                                        "546",
-                                        "819"
-                                    ],
+                                    "doses": ["546", "819"],
                                     "guidance": {
                                         "idealSteps": [
                                             "**Do not administer Trinza dose. Consult provider first!**",
@@ -72,9 +61,7 @@
                                         "pragmaticVariations": [
                                             "None. Consult provider prior to deviating from ideal steps."
                                         ],
-                                        "providerNotifications": [
-                                            "Consult provider in all cases."
-                                        ]
+                                        "providerNotifications": ["Consult provider in all cases."]
                                     }
                                 }
                             ]
@@ -82,12 +69,8 @@
                         {
                             "maxDays": null,
                             "guidance": {
-                                "idealSteps": [
-                                    "Consult provider. Reinitiation is necessary"
-                                ],
-                                "providerNotifications": [
-                                    "Consult provider in all cases"
-                                ]
+                                "idealSteps": ["Consult provider. Reinitiation is necessary"],
+                                "providerNotifications": ["Consult provider in all cases"]
                             }
                         }
                     ]

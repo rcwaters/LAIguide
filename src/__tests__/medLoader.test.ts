@@ -28,8 +28,8 @@ describe('earlyGuidance', () => {
         it('before-next, no note', () =>
             expect(composeEarlyGuidance(7, undefined, undefined)).toBe('1 week before due date'));
         it('before-next, with note', () =>
-            expect(composeEarlyGuidance(3, undefined, 'DESC created guidance')).toBe(
-                '3 days before due date  \n*(DESC created guidance)*',
+            expect(composeEarlyGuidance(3, undefined, ['DESC created guidance'])).toBe(
+                '3 days before due date\n- DESC created guidance',
             ));
         it('since-last, no note', () =>
             expect(composeEarlyGuidance(undefined, 21, undefined)).toBe(
@@ -37,13 +37,11 @@ describe('earlyGuidance', () => {
             ));
         it('since-last, with note', () =>
             expect(
-                composeEarlyGuidance(
-                    undefined,
-                    21,
+                composeEarlyGuidance(undefined, 21, [
                     'This may be given earlier with provider approval',
-                ),
+                ]),
             ).toBe(
-                'No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*',
+                'No sooner than 3 weeks after last injection\n- This may be given earlier with provider approval',
             ));
         it('since-last, non-week days', () =>
             expect(composeEarlyGuidance(undefined, 26, undefined)).toBe(
@@ -67,28 +65,25 @@ describe('earlyGuidance', () => {
             ['aristada', '2 days before due date; no sooner than 3 weeks after last injection'],
             [
                 'invega_sustenna',
-                '2 days before due date; no sooner than 3 weeks after last injection  \n*(Note: after completing full initiation process)*',
+                '2 days before due date; no sooner than 3 weeks after last injection\n- Note: after completing full initiation process',
             ],
             ['invega_hafyera', '2 weeks before due date'],
             [
                 'fluphenazine_decanoate',
-                '2 days before due date; no sooner than 2 weeks after last injection  \n*(DESC created guidance)*',
+                '2 days before due date; no sooner than 2 weeks after last injection\n- DESC created guidance',
             ],
             [
                 'haloperidol_decanoate',
-                '2 days before due date; no sooner than 2 weeks after last injection  \n*(DESC created guidance)*',
+                '2 days before due date; no sooner than 2 weeks after last injection\n- DESC created guidance',
             ],
             [
                 'uzedy',
-                '2 days before due date; no sooner than 3 weeks after last injection  \n*(DESC created guidance)*',
+                '2 days before due date; no sooner than 3 weeks after last injection\n- DESC created guidance',
             ],
-            [
-                'brixadi',
-                'No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*',
-            ],
+            ['brixadi', 'No sooner than 3 weeks after last injection'],
             [
                 'sublocade',
-                'No sooner than 3 weeks after last injection  \n*(This may be given earlier with provider approval)*',
+                'No sooner than 3 weeks after last injection\n- This may be given earlier with provider approval',
             ],
             ['vivitrol', 'No sooner than 4 weeks after last injection'],
         ];
@@ -599,10 +594,9 @@ describe('buildCoreDef — earlyVariantMap (Brixadi)', () => {
         expect(vm['monthly-128']).toBe(vm['monthly-64']);
     });
 
-    it('weekly variant has noGuidanceMessage and no minDays', () => {
+    it('weekly variant has minDays 7', () => {
         const weekly = MED_REGISTRY['brixadi'].earlyVariantMap!['weekly'];
-        expect(weekly.noGuidanceMessage).toContain('does not exist at this time');
-        expect(weekly.minDays).toBeUndefined();
+        expect(weekly.minDays).toBe(7);
     });
 
     it('earlyParamField and earlyVariantMap are absent for non-variant-aware meds', () => {
@@ -610,5 +604,34 @@ describe('buildCoreDef — earlyVariantMap (Brixadi)', () => {
         expect(MED_REGISTRY['abilify_maintena'].earlyVariantMap).toBeUndefined();
         expect(MED_REGISTRY['sublocade'].earlyParamField).toBeUndefined();
         expect(MED_REGISTRY['uzedy'].earlyParamField).toBeUndefined();
+    });
+
+    // ── earlySharedNotes / variant guidanceNote ───────────────────────────────
+
+    it('earlySharedNotes is absent when early has no top-level guidanceNote (brixadi)', () => {
+        expect(MED_REGISTRY['brixadi'].earlySharedNotes).toBeUndefined();
+    });
+
+    it('earlySharedNotes is absent for meds with no early.guidanceNote', () => {
+        expect(MED_REGISTRY['abilify_maintena'].earlySharedNotes).toBeUndefined();
+        expect(MED_REGISTRY['invega_trinza'].earlySharedNotes).toBeUndefined();
+    });
+
+    it('monthly-64 variant has variant-specific guidanceNote', () => {
+        const vm = MED_REGISTRY['brixadi'].earlyVariantMap!;
+        expect(vm['monthly-64'].guidanceNote).toEqual([
+            'This may be given earlier with provider approval',
+        ]);
+    });
+
+    it('weekly variant has its own guidanceNote', () => {
+        const vm = MED_REGISTRY['brixadi'].earlyVariantMap!;
+        expect(vm['weekly'].guidanceNote).toEqual([
+            'Brixadi weekly early dosing guidance does not exist at this time. Please wait for the next scheduled dosing.',
+        ]);
+    });
+
+    it('weekly variant has minDays 7', () => {
+        expect(MED_REGISTRY['brixadi'].earlyVariantMap!['weekly'].minDays).toBe(7);
     });
 });

@@ -28,13 +28,19 @@ describe('makeTextInput', () => {
     });
 
     it('input has the given value', () => {
-        const input = makeTextInput('Name', 'Abilify', 'displayName').querySelector<HTMLInputElement>('input')!;
+        const input = makeTextInput(
+            'Name',
+            'Abilify',
+            'displayName',
+        ).querySelector<HTMLInputElement>('input')!;
         expect(input.value).toBe('Abilify');
         expect(input.type).toBe('text');
     });
 
     it('input carries data-path attribute', () => {
-        const input = makeTextInput('Name', '', 'guidance.note').querySelector<HTMLInputElement>('input')!;
+        const input = makeTextInput('Name', '', 'guidance.note').querySelector<HTMLInputElement>(
+            'input',
+        )!;
         expect(input.dataset.path).toBe('guidance.note');
     });
 });
@@ -43,18 +49,26 @@ describe('makeTextInput', () => {
 
 describe('makeNumberInput', () => {
     it('converts number value to string for input.value', () => {
-        const input = makeNumberInput('Days', 28, 'maxDays').querySelector<HTMLInputElement>('input')!;
+        const input = makeNumberInput('Days', 28, 'maxDays').querySelector<HTMLInputElement>(
+            'input',
+        )!;
         expect(input.value).toBe('28');
         expect(input.type).toBe('number');
     });
 
     it('uses empty string for null value', () => {
-        const input = makeNumberInput('Days', null, 'maxDays').querySelector<HTMLInputElement>('input')!;
+        const input = makeNumberInput('Days', null, 'maxDays').querySelector<HTMLInputElement>(
+            'input',
+        )!;
         expect(input.value).toBe('');
     });
 
     it('carries data-path attribute', () => {
-        const input = makeNumberInput('Days', 14, 'tiers.0.maxDays').querySelector<HTMLInputElement>('input')!;
+        const input = makeNumberInput(
+            'Days',
+            14,
+            'tiers.0.maxDays',
+        ).querySelector<HTMLInputElement>('input')!;
         expect(input.dataset.path).toBe('tiers.0.maxDays');
     });
 });
@@ -63,13 +77,21 @@ describe('makeNumberInput', () => {
 
 describe('makeComboInput', () => {
     it('input has the given initial value', () => {
-        const input = makeComboInput('Group', 'Antipsychotics', 'optgroupLabel', [], 'l1').querySelector<HTMLInputElement>('input')!;
+        const input = makeComboInput(
+            'Group',
+            'Antipsychotics',
+            'optgroupLabel',
+            [],
+            'l1',
+        ).querySelector<HTMLInputElement>('input')!;
         expect(input.value).toBe('Antipsychotics');
     });
 
     it('datalist contains all provided options', () => {
         const row = makeComboInput('Group', '', 'optgroupLabel', ['Alpha', 'Beta', 'Gamma'], 'l2');
-        const opts = [...row.querySelectorAll<HTMLOptionElement>('datalist option')].map(o => o.value);
+        const opts = [...row.querySelectorAll<HTMLOptionElement>('datalist option')].map(
+            (o) => o.value,
+        );
         expect(opts).toEqual(['Alpha', 'Beta', 'Gamma']);
     });
 
@@ -80,26 +102,50 @@ describe('makeComboInput', () => {
     });
 
     it('focus clears the current value so all options appear', () => {
-        const input = makeComboInput('Group', 'Antipsychotics', 'path', ['Antipsychotics', 'Other'], 'l3').querySelector<HTMLInputElement>('input')!;
+        const input = makeComboInput(
+            'Group',
+            'Antipsychotics',
+            'path',
+            ['Antipsychotics', 'Other'],
+            'l3',
+        ).querySelector<HTMLInputElement>('input')!;
         input.dispatchEvent(new Event('focus'));
         expect(input.value).toBe('');
     });
 
     it('focus saves the previous value in dataset.saved', () => {
-        const input = makeComboInput('Group', 'Antipsychotics', 'path', [], 'l4').querySelector<HTMLInputElement>('input')!;
+        const input = makeComboInput(
+            'Group',
+            'Antipsychotics',
+            'path',
+            [],
+            'l4',
+        ).querySelector<HTMLInputElement>('input')!;
         input.dispatchEvent(new Event('focus'));
         expect(input.dataset.saved).toBe('Antipsychotics');
     });
 
     it('blur restores saved value when input is still empty', () => {
-        const input = makeComboInput('Group', 'Antipsychotics', 'path', [], 'l5').querySelector<HTMLInputElement>('input')!;
+        const input = makeComboInput(
+            'Group',
+            'Antipsychotics',
+            'path',
+            [],
+            'l5',
+        ).querySelector<HTMLInputElement>('input')!;
         input.dispatchEvent(new Event('focus'));
         input.dispatchEvent(new Event('blur'));
         expect(input.value).toBe('Antipsychotics');
     });
 
     it('blur keeps newly entered value when input is non-empty', () => {
-        const input = makeComboInput('Group', 'Antipsychotics', 'path', [], 'l6').querySelector<HTMLInputElement>('input')!;
+        const input = makeComboInput(
+            'Group',
+            'Antipsychotics',
+            'path',
+            [],
+            'l6',
+        ).querySelector<HTMLInputElement>('input')!;
         input.dispatchEvent(new Event('focus'));
         input.value = 'New Group';
         input.dispatchEvent(new Event('blur'));
@@ -107,14 +153,26 @@ describe('makeComboInput', () => {
     });
 
     it('blur removes dataset.saved', () => {
-        const input = makeComboInput('Group', 'Antipsychotics', 'path', [], 'l7').querySelector<HTMLInputElement>('input')!;
+        const input = makeComboInput(
+            'Group',
+            'Antipsychotics',
+            'path',
+            [],
+            'l7',
+        ).querySelector<HTMLInputElement>('input')!;
         input.dispatchEvent(new Event('focus'));
         input.dispatchEvent(new Event('blur'));
         expect(input.dataset.saved).toBeUndefined();
     });
 
     it('empty initial value stays empty after focus+blur with no selection', () => {
-        const input = makeComboInput('Group', '', 'path', ['Alpha'], 'l8').querySelector<HTMLInputElement>('input')!;
+        const input = makeComboInput(
+            'Group',
+            '',
+            'path',
+            ['Alpha'],
+            'l8',
+        ).querySelector<HTMLInputElement>('input')!;
         input.dispatchEvent(new Event('focus'));
         input.dispatchEvent(new Event('blur'));
         expect(input.value).toBe('');

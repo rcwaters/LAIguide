@@ -170,12 +170,11 @@ describe('showEarlyGuidance — dual-constraint path (aristada)', () => {
 describe('showEarlyGuidance — variant path (brixadi)', () => {
     beforeEach(setupDOM);
 
-    it('shows noGuidanceMessage for weekly variant (no date needed)', () => {
+    it('shows early guidance for weekly variant using shared minDays', () => {
+        setInputVal('last-brixadi', localDaysAgo(25));
         showEarlyGuidance('brixadi', 'weekly');
-        expect(guidance()!.querySelector('.early-not-allowed')).not.toBeNull();
-        // Should contain the no-guidance message without showing allowed/denied date logic
-        expect(guidance()!.innerHTML).not.toContain('Early administration is allowed');
-        expect(guidance()!.innerHTML).not.toContain('Too early to administer');
+        const html = guidance()!.innerHTML;
+        expect(html).toMatch(/Early administration is allowed|Too early to administer/);
     });
 
     it('shows "Early administration is allowed" for monthly variant when >= minDays', () => {
@@ -208,6 +207,49 @@ describe('showEarlyGuidance — variant path (brixadi)', () => {
         setInputVal('last-brixadi', localDaysAgo(25));
         showEarlyGuidance('brixadi', 'monthly-96');
         expect(guidance()!.innerHTML).toContain('Early administration is allowed');
+    });
+
+    it('monthly-64 variant guidanceNote appears in guidance text', () => {
+        setInputVal('last-brixadi', localDaysAgo(25));
+        showEarlyGuidance('brixadi', 'monthly-64');
+        expect(guidance()!.innerHTML).toContain('This may be given earlier with provider approval');
+    });
+
+    it('renders variant guidanceNote as list items', () => {
+        setInputVal('last-brixadi', localDaysAgo(25));
+        showEarlyGuidance('brixadi', 'monthly-64');
+        expect(guidance()!.querySelector('.guidance-text ul')).not.toBeNull();
+        const items = [...guidance()!.querySelectorAll('.guidance-text ul li')].map(
+            (li) => li.textContent ?? '',
+        );
+        expect(items.some((t) => t.includes('This may be given earlier with provider approval'))).toBe(
+            true,
+        );
+    });
+
+    it('weekly variant shows its own guidanceNote', () => {
+        setInputVal('last-brixadi', localDaysAgo(10));
+        showEarlyGuidance('brixadi', 'weekly');
+        expect(guidance()!.innerHTML).toContain(
+            'Brixadi weekly early dosing guidance does not exist at this time',
+        );
+    });
+
+    it('variant guidanceNote appears before earlySharedNotes', async () => {
+        const { MED_REGISTRY } = await import('../../medLoader');
+        const origShared = MED_REGISTRY['brixadi'].earlySharedNotes;
+        MED_REGISTRY['brixadi'].earlySharedNotes = ['Shared note'];
+        setInputVal('last-brixadi', localDaysAgo(25));
+        showEarlyGuidance('brixadi', 'monthly-64');
+        const items = [...guidance()!.querySelectorAll('.guidance-text ul li')].map(
+            (li) => li.textContent ?? '',
+        );
+        const variantIdx = items.findIndex((t) => t.includes('This may be given earlier'));
+        const sharedIdx = items.findIndex((t) => t.includes('Shared note'));
+        expect(variantIdx).toBeGreaterThanOrEqual(0);
+        expect(sharedIdx).toBeGreaterThanOrEqual(0);
+        expect(variantIdx).toBeLessThan(sharedIdx);
+        MED_REGISTRY['brixadi'].earlySharedNotes = origShared;
     });
 });
 

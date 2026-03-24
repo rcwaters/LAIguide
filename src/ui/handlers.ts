@@ -99,9 +99,7 @@ export function checkAutoSubmit(): void {
         if (entry?.earlyParamField) {
             const paramVal = val(entry.earlyParamField);
             if (!paramVal) return;
-            const varDef = entry.earlyVariantMap?.[paramVal];
-            if (!varDef?.noGuidanceMessage && entry.earlyDateField && !val(entry.earlyDateField))
-                return;
+            if (entry.earlyDateField && !val(entry.earlyDateField)) return;
             handleSubmit();
             return;
         }
@@ -132,8 +130,7 @@ function showEarlyGuidanceValidated(medication: string): void {
             alert('Please select the formulation and dose.');
             return;
         }
-        const varDef = entry.earlyVariantMap?.[paramVal];
-        if (!varDef?.noGuidanceMessage && entry.earlyDateField && !val(entry.earlyDateField)) {
+        if (entry.earlyDateField && !val(entry.earlyDateField)) {
             alert('Please enter the date of the last injection.');
             return;
         }

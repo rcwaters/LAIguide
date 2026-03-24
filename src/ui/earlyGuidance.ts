@@ -14,6 +14,7 @@ import {
     injectGuidanceSection,
     buildNotifyBlock,
 } from './guidanceRenderer';
+import { composeEarlyGuidance } from '../medLoader';
 
 function earlyResultBox(allowed: boolean, strong: string, detail?: string): string {
     const cls = allowed ? 'early-allowed' : 'early-not-allowed';
@@ -57,14 +58,6 @@ export function showEarlyGuidance(medication: string, variantKey?: string): void
                 infoRow('Guidance Type:', EARLY_GUIDANCE_LABEL) +
                 infoRow('Formulation:', selectedLabel);
 
-            if (varDef?.noGuidanceMessage) {
-                injectGuidanceSection(
-                    rows,
-                    `<div class="guidance-content early-not-allowed"><p>ℹ️ ${varDef.noGuidanceMessage}</p></div>`,
-                );
-                return;
-            }
-
             const lastDate = val(entry.earlyDateField ?? LAST_INJECTION_DATE_ID);
             const daysSince = daysSinceDate(lastDate);
             const minDays = varDef?.minDays ?? entry.earlyMinDays!;
@@ -74,11 +67,21 @@ export function showEarlyGuidance(medication: string, variantKey?: string): void
                 ...(entry.earlyProviderNotification ?? []),
                 ...(entry.commonProviderNotifications ?? []),
             ];
+            const combinedNotes = [
+                ...(varDef?.guidanceNote ?? []),
+                ...(entry.earlySharedNotes ?? []),
+            ];
+            const variantEarlyGuidance = composeEarlyGuidance(
+                entry.earlyDaysBeforeDue,
+                varDef?.minDays ?? entry.earlyMinDays,
+                combinedNotes.length ? combinedNotes : undefined,
+            );
+
             const body = `
             ${minDaysResult(daysSince, minDays)}
             <div class="guidance-content no-box">
                 <h3 class="guidance-heading">Early administration window:</h3>
-                <div class="guidance-text">${md(entry.earlyGuidance)}</div>
+                <div class="guidance-text">${md(variantEarlyGuidance)}</div>
             </div>
             ${buildNotifyBlock(notifs)}
             ${entry.optgroupLabel === ADDICTION_MEDICINE_LABEL ? addictionMedicineAccordion() : ''}`;

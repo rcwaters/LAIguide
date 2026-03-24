@@ -29,7 +29,9 @@
       "Bash(grep -rn '\"\"onchange\"\"' src/meds/)",
       "Bash(grep -v \"^Running\\\\|^$\\\\|node_modules\")",
       "Bash(echo \"EXIT: $?\")",
-      "Bash(ls .prettierrc* prettier.config*)"
+      "Bash(ls .prettierrc* prettier.config*)",
+      "Bash(gh pr:*)",
+      "Bash(npx lint-staged:*)"
     ]
   }
 }

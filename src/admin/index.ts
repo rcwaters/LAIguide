@@ -1,3 +1,5 @@
+import './styles/shared.css';
+import './styles/editor.css';
 import { createGitHubStore } from '../services/github/store';
 import { createLocalStore } from './localStore';
 import { getSession, setSession, clearSession, sha256 } from './session';
