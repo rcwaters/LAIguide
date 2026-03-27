@@ -1,133 +1,99 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>DESC LAI Medication Standing Order Tool</title>
-        <link rel="icon" id="favicon" type="image/png" href="./assets/logo-desc-DqcXQLlW.png" />
-        <script>
-            const img = new Image();
-            img.onload = () => {
-                const c = document.createElement('canvas');
-                c.width = c.height = 64;
-                const ctx = c.getContext('2d');
-                ctx.fillStyle = '#3c8476';
-                ctx.fillRect(0, 0, 64, 64);
-                ctx.drawImage(img, 0, 0, 64, 64);
-                document.getElementById('favicon').href = c.toDataURL('image/png');
-            };
-            img.src = './media/logo-desc.png';
-        </script>
-        <!-- <script type="module" src="/src/main.ts"></script> -->
-      <script type="module" crossorigin src="./assets/main-CsHJnt87.js"></script>
-      <link rel="modulepreload" crossorigin href="./assets/vivitrol-BZvl7Tg8.js">
-      <link rel="modulepreload" crossorigin href="./assets/constants-D_WzPCnM.js">
-      <link rel="stylesheet" crossorigin href="./assets/main-BXv4LTM9.css">
-    </head>
 
-    <body>
-        <div class="app-header">
-            <h1 class="app-title">
-                <img
-                    src="./assets/logo-desc-DqcXQLlW.png"
-                    alt="DESC logo"
-                    class="header-logo"
-                    style="
-                        position: static;
-                        transform: none;
-                        height: 36px;
-                        vertical-align: middle;
-                        margin-right: 4px;
-                    "
-                />
-                LAI Med Guide
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="-5 -5 74 74"
-                    width="1.05em"
-                    height="1.05em"
-                    style="
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DESC LAI Medication Standing Order Tool</title>
+    <link rel="icon" id="favicon" type="image/png" href="./assets/logo-desc-DqcXQLlW.png" />
+    <script>
+        const img = new Image();
+        img.onload = () => {
+            const c = document.createElement('canvas');
+            c.width = c.height = 64;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#3c8476';
+            ctx.fillRect(0, 0, 64, 64);
+            ctx.drawImage(img, 0, 0, 64, 64);
+            document.getElementById('favicon').href = c.toDataURL('image/png');
+        };
+        img.src = './media/logo-desc.png';
+    </script>
+    <!-- <script type="module" src="/src/main.ts"></script> -->
+    <script type="module" src="/src/main.ts"></script>
+    <link rel="modulepreload" crossorigin href="./assets/vivitrol-BZvl7Tg8.js">
+    <link rel="modulepreload" crossorigin href="./assets/constants-D_WzPCnM.js">
+</head>
+
+<body>
+    <div class="app-header">
+        <img src="./media/logo-desc.png" alt="DESC logo" class="header-logo" />
+        <h1 class="app-title">
+            LAI Med Guide
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="-5 -5 74 74" width="1.05em" height="1.05em" style="
                         vertical-align: -0.15em;
                         filter: drop-shadow(0 0 2px #000) drop-shadow(0 0 2px #000);
-                    "
-                    aria-hidden="true"
-                >
-                    <g transform="rotate(-45 32 32)">
-                        <polygon points="58,29 58,35 66,32" fill="#607D8B" />
-                        <rect x="50" y="29" width="8" height="6" fill="#90A4AE" />
-                        <rect
-                            x="18"
-                            y="26"
-                            width="32"
-                            height="12"
-                            rx="3"
-                            fill="white"
-                            stroke="#CFD8DC"
-                            stroke-width="1.5"
-                        />
-                        <line x1="26" y1="27" x2="26" y2="32" stroke="#B0BEC5" stroke-width="1.5" />
-                        <line x1="34" y1="27" x2="34" y2="32" stroke="#B0BEC5" stroke-width="1.5" />
-                        <line x1="42" y1="27" x2="42" y2="32" stroke="#B0BEC5" stroke-width="1.5" />
-                        <rect x="14" y="22" width="5" height="20" rx="2" fill="#90A4AE" />
-                        <rect x="2" y="29" width="13" height="6" rx="2" fill="#B0BEC5" />
-                        <rect x="0" y="23" width="4" height="18" rx="2" fill="#78909C" />
-                    </g>
-                </svg>
-            </h1>
-            <p class="app-subtitle">Long-acting injectable for early or overdue dose</p>
-        </div>
+                    " aria-hidden="true">
+                <g transform="rotate(-45 32 32)">
+                    <polygon points="58,29 58,35 66,32" fill="#607D8B" />
+                    <rect x="50" y="29" width="8" height="6" fill="#90A4AE" />
+                    <rect x="18" y="26" width="32" height="12" rx="3" fill="white" stroke="#CFD8DC"
+                        stroke-width="1.5" />
+                    <line x1="26" y1="27" x2="26" y2="32" stroke="#B0BEC5" stroke-width="1.5" />
+                    <line x1="34" y1="27" x2="34" y2="32" stroke="#B0BEC5" stroke-width="1.5" />
+                    <line x1="42" y1="27" x2="42" y2="32" stroke="#B0BEC5" stroke-width="1.5" />
+                    <rect x="14" y="22" width="5" height="20" rx="2" fill="#90A4AE" />
+                    <rect x="2" y="29" width="13" height="6" rx="2" fill="#B0BEC5" />
+                    <rect x="0" y="23" width="4" height="18" rx="2" fill="#78909C" />
+                </g>
+            </svg>
+        </h1>
+        <p class="app-subtitle">Long-acting injectable for early or overdue dose</p>
+    </div>
 
-        <div class="app-container">
-            <div class="form-section">
-                <div class="input-group">
-                    <select id="medication">
-                        <option value="">Select medication...</option>
-                    </select>
-                </div>
-
-                <div class="input-group" id="guidance-type-group" style="display: none">
-                    <label>Choose Guidance Type <span class="required">*</span></label>
-                    <div class="seg-group">
-                        <button type="button" class="seg-btn" data-value="early">
-                            Early Administration
-                        </button>
-                        <button type="button" class="seg-btn" data-value="late">
-                            Late / Overdue Administration
-                        </button>
-                    </div>
-                    <input type="hidden" id="guidance-type" value="" />
-                </div>
-
-                <!-- Medication-specific form field groups are injected here by main.ts -->
+    <div class="app-container">
+        <div class="form-section">
+            <div class="input-group">
+                <select id="medication">
+                    <option value="">Select medication...</option>
+                </select>
             </div>
 
-            <div class="disclaimer">
-                <strong>⚠️ Standing Order Disclaimer:</strong> This tool implements DESC's LAI
-                medication standing order protocols for use by licensed RNs and MAs only. CONSULT
-                decision points require contact with a DESC prescriber. This tool does not replace
-                clinical judgment and should be used alongside the complete DESC LAI standing order
-                document.
+            <div class="input-group" id="guidance-type-group" style="display: none">
+                <label>Choose Guidance Type <span class="required">*</span></label>
+                <div class="seg-group">
+                    <button type="button" class="seg-btn" data-value="early">
+                        Early Administration
+                    </button>
+                    <button type="button" class="seg-btn" data-value="late">
+                        Late / Overdue Administration
+                    </button>
+                </div>
+                <input type="hidden" id="guidance-type" value="" />
             </div>
-            <p class="protocol-link">
-                Download the protocol
-                <a
-                    href="./media/protocol.pdf"
-                    download="DESC LAI Protocol.pdf"
-                    style="text-decoration: none"
-                    >document</a
-                >
-            </p>
+
+            <!-- Medication-specific form field groups are injected here by main.ts -->
         </div>
-        <p style="text-align: center; margin-top: 1rem">
-            <a href="https://www.desc.org/" style="color: #1a5c3a; text-decoration: none">DESC</a>
-            &nbsp;&nbsp;
-            <a
-                href="https://www.desc.org/orca-center/"
-                style="color: #1a5c3a; text-decoration: none"
-                >ORCA Center</a
-            >
-            &nbsp;&nbsp;
-            <a href="./admin.html" style="color: #1a5c3a; text-decoration: none">Admin</a>
+
+        <div class="disclaimer">
+            <strong>⚠️ Standing Order Disclaimer:</strong> This tool implements DESC's LAI
+            medication standing order protocols for use by licensed RNs and MAs only. CONSULT
+            decision points require contact with a DESC prescriber. This tool does not replace
+            clinical judgment and should be used alongside the complete DESC LAI standing order
+            document.
+        </div>
+        <p class="protocol-link">
+            Download the protocol
+            <a href="./media/protocol.pdf" download="DESC LAI Protocol.pdf" style="text-decoration: none">document</a>
         </p>
-    </body>
+    </div>
+    <p style="text-align: center; margin-top: 1rem">
+        <a href="https://www.desc.org/" style="color: #1a5c3a; text-decoration: none">DESC</a>
+        &nbsp;&nbsp;
+        <a href="https://www.desc.org/orca-center/" style="color: #1a5c3a; text-decoration: none">ORCA Center</a>
+        &nbsp;&nbsp;
+        <a href="./admin.html" style="color: #1a5c3a; text-decoration: none">Admin</a>
+    </p>
+</body>
+
 </html>

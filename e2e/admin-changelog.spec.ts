@@ -55,7 +55,7 @@ test.describe('changelog page — authenticated', () => {
     });
 
     test('shows the changelog table headers', async ({ page }) => {
-        await expect(page.locator('thead')).toContainText('Date / Time');
+        await expect(page.locator('thead')).toContainText('Date');
         await expect(page.locator('thead')).toContainText('Email');
         await expect(page.locator('thead')).toContainText('Action');
         await expect(page.locator('thead')).toContainText('Medication');

@@ -154,16 +154,20 @@ async function loadMed(key: string): Promise<void> {
     jsonEditor.value = '';
     deployStatus.textContent = '';
     currentMedData = null;
-    if (!key) return;
+    if (!key) {
+        toggleJsonBtn.style.display = 'none';
+        return;
+    }
     try {
         const data = await store.getMed(key);
         if (data) {
             currentMedData = data;
+            toggleJsonBtn.style.display = '';
             if (jsonMode) {
                 jsonMode = false;
                 jsonSection.style.display = 'none';
                 formEditorEl.style.display = 'block';
-                toggleJsonBtn.textContent = 'Raw JSON';
+                toggleJsonBtn.textContent = 'JSON View';
             }
             if (isDefinitionsData(data)) {
                 renderDefinitionsForm(formEditorEl, data);
@@ -259,7 +263,7 @@ toggleJsonBtn.addEventListener('click', () => {
         }
         formEditorEl.style.display = 'block';
         jsonSection.style.display = 'none';
-        toggleJsonBtn.textContent = 'Raw JSON';
+        toggleJsonBtn.textContent = 'JSON View';
     }
 });
 
