@@ -6,6 +6,11 @@
     margin-bottom: 12px;
 }
 
+.table-wrapper {
+    margin: 0 -24px;
+    overflow-x: auto;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -13,8 +18,8 @@ table {
 }
 
 thead th {
-    background: #3c8476;
-    color: white;
+    background: #6aab9e;
+    color: black;
     padding: 10px 12px;
     text-align: left;
     font-weight: 600;
@@ -119,7 +124,7 @@ tbody td {
 
 .th-hint {
     font-weight: normal;
-    color: #fff;
+    color: black;
     font-size: 10px;
     position: absolute;
     left: 0;
@@ -131,6 +136,7 @@ tbody td {
 th:has(.th-hint) {
     text-align: center;
     position: relative;
+    padding-bottom: 18px;
 }
 
 .restore-bar {
@@ -143,7 +149,7 @@ th:has(.th-hint) {
 
 .restore-label {
     font-size: 13px;
-    color: #444;
+    color: black;
 }
 
 .restore-select {

@@ -45,13 +45,7 @@ if (!GITHUB_TOKEN) {
 
 function formatTimestamp(iso: string): string {
     const d = new Date(iso);
-    return d.toLocaleString(undefined, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 const DEFAULT_TARGET = '__default__';

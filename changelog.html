@@ -23,22 +23,13 @@
             };
             img.src = './media/logo-desc.png';
         </script>
-      <script type="module" crossorigin src="./assets/changelog-DEQ3puj8.js"></script>
-      <link rel="modulepreload" crossorigin href="./assets/vivitrol-BZvl7Tg8.js">
-      <link rel="modulepreload" crossorigin href="./assets/session-2nyAmeg4.js">
-      <link rel="stylesheet" crossorigin href="./assets/session-CRMlyaGl.css">
-      <link rel="stylesheet" crossorigin href="./assets/changelog-f1e_m4Ep.css">
+      <script type="module" src="./src/admin/changelog.ts"></script>
     </head>
 
     <body>
         <div class="admin-header">
-            <h1>
-                <img
-                    src="./assets/logo-desc-DqcXQLlW.png"
-                    alt="DESC logo"
-                    class="admin-header-logo"
-                />Change Log
-            </h1>
+            <img src="./media/logo-desc.png" alt="DESC logo" class="admin-header-logo" />
+            <h1>Change Log</h1>
         </div>
 
         <div class="admin-container">
@@ -50,10 +41,11 @@
                 <button id="restore-btn" class="restore-btn">Restore</button>
             </div>
             <div id="changelog-status">Loading…</div>
+            <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
-                        <th>Date / Time</th>
+                        <th>Date</th>
                         <th>Email</th>
                         <th>Action<small class="th-hint">(click to expand)</small></th>
                         <th>Medication</th>
@@ -61,6 +53,7 @@
                 </thead>
                 <tbody id="changelog-tbody"></tbody>
             </table>
+            </div>
         </div>
 
         <p style="text-align: center; margin-top: 1rem">

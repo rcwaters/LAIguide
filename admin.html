@@ -23,23 +23,13 @@
             };
             img.src = './media/logo-desc.png';
         </script>
-      <script type="module" crossorigin src="./assets/admin-DNK1Du4t.js"></script>
-      <link rel="modulepreload" crossorigin href="./assets/vivitrol-BZvl7Tg8.js">
-      <link rel="modulepreload" crossorigin href="./assets/session-2nyAmeg4.js">
-      <link rel="modulepreload" crossorigin href="./assets/constants-D_WzPCnM.js">
-      <link rel="stylesheet" crossorigin href="./assets/session-CRMlyaGl.css">
-      <link rel="stylesheet" crossorigin href="./assets/admin-Bok18QT5.css">
+      <script type="module" src="./src/admin/index.ts"></script>
     </head>
 
     <body>
         <div class="admin-header">
-            <h1>
-                <img
-                    src="./assets/logo-desc-DqcXQLlW.png"
-                    alt="DESC logo"
-                    class="admin-header-logo"
-                />Admin Portal
-            </h1>
+            <img src="./media/logo-desc.png" alt="DESC logo" class="admin-header-logo" />
+            <h1>Admin Portal</h1>
         </div>
 
         <div class="admin-container">
@@ -57,31 +47,9 @@
             <div id="editor-section">
                 <div class="user-bar">
                     <span id="user-email"></span>
-                    <div
-                        style="
-                            position: absolute;
-                            left: 50%;
-                            transform: translateX(-50%);
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            gap: 4px;
-                        "
-                    >
-                        <a
-                            href="./changelog.html"
-                            style="
-                                font-size: 13px;
-                                color: #3c8476;
-                                text-decoration: none;
-                                white-space: nowrap;
-                            "
-                            >Change Log</a
-                        >
-                        <span id="top-status"></span>
-                    </div>
                     <button id="logout-btn">Sign Out</button>
                 </div>
+                <span id="top-status" style="display: block; text-align: center; font-size: 13px; padding: 4px 0;"></span>
 
                 <div class="editor-toolbar">
                     <select id="med-select">
@@ -89,7 +57,7 @@
                     </select>
                     <button id="save-btn">Save</button>
                     <button id="delete-btn">Delete</button>
-                    <button id="toggle-json-btn" type="button">Raw JSON</button>
+                    <button id="toggle-json-btn" type="button" style="display: none">JSON View</button>
                 </div>
 
                 <!-- Structured form editor -->
@@ -104,9 +72,9 @@
             </div>
         </div>
         <p style="text-align: center; margin-top: 1rem">
-            <a href="./index.html" style="color: #1a5c3a; text-decoration: none"
-                >Back to Clinical Tool</a
-            >
+            <a href="./index.html" style="color: #1a5c3a; text-decoration: none">Back to Clinical Tool</a>
+            &nbsp;&nbsp;
+            <a href="./changelog.html" style="color: #1a5c3a; text-decoration: none">Change Log</a>
         </p>
     </body>
 </html>
