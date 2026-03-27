@@ -76,7 +76,7 @@ test.describe('changelog page — authenticated', () => {
     test('has a Back to Admin Portal link', async ({ page }) => {
         const backLink = page.locator('a[href="./admin.html"]');
         await expect(backLink).toBeVisible();
-        await expect(backLink).toHaveText('Back to Admin Portal');
+        await expect(backLink).toHaveText('Admin Portal');
     });
 
     test('Back to Admin Portal link navigates back', async ({ page }) => {

@@ -17,6 +17,16 @@ body {
     padding: 20px;
 }
 
+@media (max-width: 600px) {
+    body {
+        padding: 0;
+    }
+
+    .admin-container {
+        padding: 16px;
+    }
+}
+
 /* ─── Admin shell ────────────────────────────────────────────────────────── */
 
 .admin-header {
@@ -30,7 +40,7 @@ body {
 
 .admin-header h1 {
     color: #000;
-    font-size: clamp(24px, 5vw, 34px);
+    font-size: clamp(28px, 6vw, 42px);
     font-weight: 700;
     letter-spacing: 0.02em;
 }
