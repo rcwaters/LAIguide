@@ -6,11 +6,12 @@ import { getSession } from './session';
 import { GITHUB_OWNER, GITHUB_REPO } from './config';
 import type { ChangelogEntry } from './types';
 
-// Bundled med JSONs — loaded at build time, never touched by localStorage.
-// This is the protected default state that restoration can always fall back to.
+// Original med JSONs — copied once to src/data/originals/ and never overwritten by admin saves.
+// This ensures "restore to default" always returns to the truly original data regardless of
+// how many times admins have modified src/meds/*.json via the GitHub store.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const BUNDLED_MED_ENTRIES = Object.entries(
-    import.meta.glob<Record<string, unknown>>('../meds/*.json', { eager: true, import: 'default' }),
+    import.meta.glob<Record<string, unknown>>('../meds/originals/*.json', { eager: true, import: 'default' }),
 );
 
 function getBundledSnapshot(): Map<string, Record<string, unknown>> {

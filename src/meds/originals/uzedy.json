@@ -1,0 +1,115 @@
+{
+    "displayName": "Uzedy (risperidone subcutaneous)",
+    "guidance": {
+        "shared": {
+            "providerNotifications": [
+                "New side effects from recent injection",
+                "New abnormal involuntary movements, excessive sedation, dizziness, agitation, delirium, fever, tachycardia, abnormal blood pressure, or any concerning symptoms"
+            ]
+        },
+        "early": {
+            "guidanceNote": ["DESC created guidance"],
+            "daysBeforeDue": 2,
+            "minDays": 21
+        },
+        "late": {
+            "variants": [
+                {
+                    "key": "default",
+                    "tiers": [
+                        {
+                            "maxDays": 27,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Uzedy is not yet due. Please consult the Uzedy early administration guidance."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": 119,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Administer usual Uzedy maintenance dose (unless it is not yet due, in which case consult the early administration guidance)",
+                                    "Arrange for the next injection at the usual dosing interval."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": null,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Guidance for providers:",
+                                    "Administer usual Uzedy maintenance dose (150 mg or less), otherwise",
+                                    "If dose > 150 mg, administer aproximately 150 mg. Example: the typical injection is 200 mg; administer approximately ¾ of the medication (purpose: to reduce risk of sedation)",
+                                    "Arrange for care team to check in with patient within 1-2 days, to assess for sedation",
+                                    "Next injection at usual dosing interval"
+                                ],
+                                "providerNotifications": ["Consult provider prior to any injection"]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "optgroupLabel": "Antipsychotics",
+    "formGroupsSpec": [
+        {
+            "groupId": "uzedy-fields",
+            "fields": [
+                {
+                    "type": "date",
+                    "id": "last-uzedy",
+                    "label": "Date of last Uzedy injection"
+                },
+                {
+                    "type": "select",
+                    "id": "uzedy-dose",
+                    "label": "Uzedy maintenance dose",
+                    "placeholder": "Select dose...",
+                    "options": [
+                        {
+                            "value": "150-or-less",
+                            "label": "150 mg or less"
+                        },
+                        {
+                            "value": "200-or-more",
+                            "label": "200 mg or more"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "lateSpec": {
+        "requiredFields": [
+            {
+                "id": "last-uzedy",
+                "message": "Please enter the date of last Uzedy injection."
+            },
+            {
+                "id": "uzedy-dose",
+                "message": "Please select the Uzedy maintenance dose."
+            }
+        ],
+        "dateField": "last-uzedy",
+        "paramKey": "dose",
+        "paramField": "uzedy-dose",
+        "infoRows": [
+            {
+                "label": "Date of last injection:",
+                "field": "last-uzedy",
+                "format": "date"
+            },
+            {
+                "label": "Uzedy maintenance dose:",
+                "field": "uzedy-dose",
+                "format": "option-label"
+            },
+            {
+                "label": "Time since last injection:",
+                "format": "days-weeks"
+            }
+        ]
+    }
+}

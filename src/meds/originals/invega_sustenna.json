@@ -1,0 +1,309 @@
+{
+    "displayName": "Invega Sustenna (paliperidone palmitate)",
+    "guidance": {
+        "shared": {
+            "providerNotifications": [
+                "eGFR is < 80 mL/min and if this is not known to the prescriber",
+                "New side effects from recent injection",
+                "New abnormal involuntary movements, excessive sedation, dizziness, agitation, delirium, fever, tachycardia, abnormal blood pressure, or any concerning symptoms"
+            ]
+        },
+        "early": {
+            "guidanceNote": ["Note: after completing full initiation process"],
+            "daysBeforeDue": 2,
+            "minDays": 21
+        },
+        "late": {
+            "internalNotes": [
+                "initiationTiers = days since first 234 mg initiation dose; maintenanceTiers = days since last monthly dose"
+            ],
+            "variants": [
+                {
+                    "key": "initiation",
+                    "tiers": [
+                        {
+                            "maxDays": 12,
+                            "guidance": {
+                                "idealSteps": [
+                                    "The 156 mg is not significantly overdue. Administer 56 mg and proceed with original plans and orders."
+                                ],
+                                "providerNotifications": ["For any questions or concerns"]
+                            }
+                        },
+                        {
+                            "maxDays": 28,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Administer 156 mg (in deltoid ideally).",
+                                    "Arrange for a 117 mg injection 5 weeks after the first (234 mg) injection, regardless of when the 156 mg injection (in step 1) is administered",
+                                    "Thereafter, start monthly maintenance dosing 4 weeks after step 2."
+                                ],
+                                "pragmaticVariations": [
+                                    "Ok to administer the 156 mg injection in gluteal muscle if patient strongly prefers."
+                                ],
+                                "providerNotifications": [
+                                    "**Post-injection (156 mg):** Notify provider of the situation and need to order a 117 mg injection if not already done."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": 49,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Administer 156 mg (in deltoid ideally).",
+                                    "Arrange for a 2nd 156 mg injection (in deltoid ideally) 1 week after step 1.",
+                                    "Start monthly maintenance dosing 4 weeks after step 2."
+                                ],
+                                "pragmaticVariations": [
+                                    "Ok to administer the 156 mg injection in gluteal muscle if patient strongly prefers."
+                                ],
+                                "providerNotifications": [
+                                    "**Post-injection (1st 156 mg):** Notify provider of the situation and need to order a 2nd 156 mg injection if not already done."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": 120,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Restart initiation: Administer a 234 mg injection if available",
+                                    "Arrange for a 156 mg injection 1 week after step 1.",
+                                    "Start monthly maintenance dosing 4 weeks after step 2."
+                                ],
+                                "pragmaticVariations": [
+                                    "Ok to administer the 156 mg injection at time of patient presentation if a 234 mg injection is not available and arrange for the patient to return in 1 week."
+                                ],
+                                "providerNotifications": [
+                                    "**Post-injection:** notify provider of situation and for orders and guidance on next steps"
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": null,
+                            "guidance": {
+                                "idealSteps": ["Consult provider to get orders to proceed"],
+                                "pragmaticVariations": [
+                                    "Consult provider to administer the 156 mg injection at time of patient presentation if a 234 mg injection is not available and arrange for the patient to return in 1 week."
+                                ],
+                                "providerNotifications": [
+                                    "**Before any injection:** Consult provider"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "maintenance",
+                    "tiers": [
+                        {
+                            "maxDays": 27,
+                            "guidance": {
+                                "idealSteps": [
+                                    "The maintenance injection is not significantly overdue (less than 4 weeks since last injection). Proceed with administering the usual maintenance dose and continue with normal monthly schedule."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": 42,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Administer usual Invega Sustenna dose.",
+                                    "Arrange for next usual monthly maintenance dose = 4 weeks later."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": 120,
+                            "guidanceByDoseRules": [
+                                {
+                                    "doses": ["39-to-156"],
+                                    "guidance": {
+                                        "idealSteps": [
+                                            "Administer usual maintenance dose.",
+                                            "Arrange for a 2nd usual maintenance dose (same dose) to be administered 1 week later.",
+                                            "Then resume usual monthly doses 4 weeks after step 2."
+                                        ],
+                                        "pragmaticVariations": [
+                                            "For step (2), ok if the 2nd usual maintenance dose happens anytime 1 week or beyond. Attempt to return to a monthly cycle after the 2nd usual maintenance dose."
+                                        ],
+                                        "providerNotifications": [
+                                            "**Post-injection:** Notify provider of the need to have a 2nd usual maintenance dose ordered."
+                                        ]
+                                    }
+                                },
+                                {
+                                    "doses": ["234"],
+                                    "guidance": {
+                                        "idealSteps": [
+                                            "Administer 156 mg Invega Sustenna",
+                                            "Arrange for another 156 mg injection to be administered 1 week later",
+                                            "Then resume usual monthly doses with 234 mg at 4 weeks after step 2."
+                                        ],
+                                        "pragmaticVariations": [
+                                            "If a 156 mg Invega Sustenna injection is not available at the time the patient presents, give the 234 mg injection. Notify the provider to guide next steps."
+                                        ],
+                                        "providerNotifications": [
+                                            "**Post-injection:** Notify provider of the situation. If ideal steps are followed, a 2nd 156 mg injection may need to be ordered.",
+                                            "If the pragmatic variation was followed, the provider will guide next steps."
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "maxDays": null,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Consult provider: reinitiation will need to happen"
+                                ],
+                                "providerNotifications": [
+                                    "**Before any injection:** Consult provider"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "optgroupLabel": "Antipsychotics",
+    "formGroupsSpec": [
+        {
+            "groupId": "invega-sustenna-options",
+            "fields": [
+                {
+                    "type": "select",
+                    "id": "invega-type",
+                    "label": "Invega Sustenna Injection Type",
+                    "placeholder": "Select injection type...",
+                    "onchange": "handleInvegaTypeChange()",
+                    "options": [
+                        {
+                            "value": "initiation",
+                            "label": "Missed/delayed 2nd initiation (156 mg) injection"
+                        },
+                        {
+                            "value": "maintenance",
+                            "label": "Missed/delayed monthly maintenance injection"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "groupId": "first-injection-date",
+            "fields": [
+                {
+                    "type": "date",
+                    "id": "first-injection",
+                    "label": "Date of first (234 mg) injection"
+                }
+            ]
+        },
+        {
+            "groupId": "maintenance-fields",
+            "fields": [
+                {
+                    "type": "date",
+                    "id": "last-maintenance",
+                    "label": "Date of last maintenance injection"
+                },
+                {
+                    "type": "select",
+                    "id": "maintenance-dose",
+                    "label": "Monthly maintenance injection dose",
+                    "placeholder": "Select dose...",
+                    "options": [
+                        {
+                            "value": "39-to-156",
+                            "label": "39 to 156 mg"
+                        },
+                        {
+                            "value": "234",
+                            "label": "234 mg"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "lateSpec": {
+        "kind": "branched",
+        "branchField": "invega-type",
+        "requiredBase": [
+            {
+                "id": "invega-type",
+                "message": "Please select the Invega Sustenna injection type."
+            }
+        ],
+        "branches": {
+            "initiation": {
+                "requiredFields": [
+                    {
+                        "id": "first-injection",
+                        "message": "Please enter the date of first (234 mg) injection."
+                    }
+                ],
+                "dateField": "first-injection",
+                "showGroup": "first-injection-date",
+                "params": {
+                    "variant": "initiation"
+                },
+                "infoRows": [
+                    {
+                        "label": "Injection Type:",
+                        "value": "Missed/delayed 2nd initiation (156 mg) injection"
+                    },
+                    {
+                        "label": "Date of first (234 mg) injection:",
+                        "field": "first-injection",
+                        "format": "date"
+                    },
+                    {
+                        "label": "Time since first (234 mg) injection:",
+                        "format": "days-weeks"
+                    }
+                ]
+            },
+            "maintenance": {
+                "requiredFields": [
+                    {
+                        "id": "last-maintenance",
+                        "message": "Please enter the date of last maintenance injection."
+                    },
+                    {
+                        "id": "maintenance-dose",
+                        "message": "Please select the monthly maintenance injection dose."
+                    }
+                ],
+                "dateField": "last-maintenance",
+                "showGroup": "maintenance-fields",
+                "params": {
+                    "variant": "maintenance"
+                },
+                "paramKey": "dose",
+                "paramField": "maintenance-dose",
+                "infoRows": [
+                    {
+                        "label": "Injection Type:",
+                        "value": "Missed/delayed monthly maintenance injection"
+                    },
+                    {
+                        "label": "Date of last maintenance injection:",
+                        "field": "last-maintenance",
+                        "format": "date"
+                    },
+                    {
+                        "label": "Monthly maintenance dose:",
+                        "field": "maintenance-dose",
+                        "format": "option-label"
+                    },
+                    {
+                        "label": "Time since last maintenance injection:",
+                        "format": "days-weeks"
+                    }
+                ]
+            }
+        }
+    }
+}

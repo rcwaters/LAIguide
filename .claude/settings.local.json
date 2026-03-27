@@ -31,7 +31,12 @@
       "Bash(echo \"EXIT: $?\")",
       "Bash(ls .prettierrc* prettier.config*)",
       "Bash(gh pr:*)",
-      "Bash(npx lint-staged:*)"
+      "Bash(npx lint-staged:*)",
+      "Bash(xargs grep:*)",
+      "Bash(where gh:*)",
+      "Bash(cmd.exe /c \"where gh 2>nul || echo not found\")",
+      "Bash(cmd.exe /c \"gh --version\")",
+      "Bash(powershell.exe -Command \"gh --version\")"
     ]
   }
 }

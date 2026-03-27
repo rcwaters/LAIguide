@@ -1,0 +1,83 @@
+{
+    "displayName": "Invega Hafyera (paliperidone palmitate 6-month)",
+    "guidance": {
+        "shared": {
+            "providerNotifications": [
+                "eGFR is < 80 mL/min and if this is not known to the prescriber",
+                "New side effects from recent injection",
+                "New abnormal involuntary movements, excessive sedation, dizziness, agitation, delirium, fever, tachycardia, abnormal blood pressure, or any concerning symptoms"
+            ]
+        },
+        "early": {
+            "daysBeforeDue": 14
+        },
+        "late": {
+            "variants": [
+                {
+                    "key": "default",
+                    "tiers": [
+                        {
+                            "maxDays": 180,
+                            "guidance": {
+                                "idealSteps": ["Please refer to the early dosing guidance."]
+                            }
+                        },
+                        {
+                            "maxDays": 202,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Proceed with administering the Hafyera injection.",
+                                    "Plan for the subsequent injection in 6 months."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": null,
+                            "guidance": {
+                                "idealSteps": [
+                                    "The patient is presenting more than 6 months and 3 weeks after the last Hafyera dose. Consult provider prior to proceeding with any injection."
+                                ],
+                                "providerNotifications": [
+                                    "**Before any injection:** Consult provider"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "optgroupLabel": "Antipsychotics",
+    "formGroupsSpec": [
+        {
+            "groupId": "hafyera-fields",
+            "fields": [
+                {
+                    "type": "date",
+                    "id": "last-hafyera",
+                    "label": "Date of last Hafyera injection"
+                }
+            ]
+        }
+    ],
+    "lateSpec": {
+        "requiredFields": [
+            {
+                "id": "last-hafyera",
+                "message": "Please enter the date of last Hafyera injection."
+            }
+        ],
+        "dateField": "last-hafyera",
+        "infoRows": [
+            {
+                "label": "Date of last Hafyera injection:",
+                "field": "last-hafyera",
+                "format": "date"
+            },
+            {
+                "label": "Time since last injection:",
+                "format": "days-weeks-months"
+            }
+        ]
+    }
+}

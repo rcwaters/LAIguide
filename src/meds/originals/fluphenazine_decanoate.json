@@ -1,0 +1,166 @@
+{
+    "displayName": "Fluphenazine Decanoate (formerly Prolixin Dec)",
+    "guidance": {
+        "shared": {
+            "providerNotifications": [
+                "New side effects from recent injection",
+                "New abnormal involuntary movements, excessive sedation, dizziness, agitation, delirium, fever, tachycardia, abnormal blood pressure, or any concerning symptoms"
+            ]
+        },
+        "early": {
+            "guidanceNote": ["DESC created guidance"],
+            "daysBeforeDue": 2,
+            "minDays": 14
+        },
+        "late": {
+            "variants": [
+                {
+                    "key": "1-2",
+                    "tiers": [
+                        {
+                            "maxDays": 27,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Dose not yet due. Please consult the fluphenazine early administration guidance."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": 120,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Administer usual fluphenazine decanoate injection **if the dose is 50 mg or less**. (If the dose is greater than 50 mg, consult provider *before* administering.)",
+                                    "If symptoms of psychosis have returned or worsened, recommend oral fluphenazine supplementation (consult provider for order).",
+                                    "Schedule a check-in with patient in approximately **24 hours** (near peak dose) to assess for fluphenazine-related adverse effects."
+                                ],
+                                "providerNotifications": [
+                                    "**Pre-injection:** Consult provider only if fluphenazine decanoate dose is greater than 50 mg.",
+                                    "**Post-injection:** Notify provider of the situation and request an order for oral supplementation if needed."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": null,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Do not administer. Reinitiation is required. **Consult provider BEFORE any injection.**"
+                                ],
+                                "providerNotifications": [
+                                    "**Before any injection:** Consult provider in all cases."
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "3+",
+                    "tiers": [
+                        {
+                            "maxDays": 27,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Dose not yet due. Please consult the fluphenazine early administration guidance."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": 42,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Administer usual fluphenazine decanoate injection.",
+                                    "Arrange for next injection at the previously planned dosing interval."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": 120,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Administer usual fluphenazine decanoate injection **if the dose is 50 mg or less**.",
+                                    "> If the dose is greater than 50 mg, consult provider *before* administering.",
+                                    "If symptoms of psychosis have returned or worsened, recommend oral fluphenazine supplementation (consult provider for order).",
+                                    "Schedule a check-in with patient in approximately **24 hours** (near peak dose) to assess for fluphenazine-related adverse effects."
+                                ],
+                                "providerNotifications": [
+                                    "**Pre-injection:** Consult provider only if fluphenazine decanoate dose is greater than 50 mg.",
+                                    "**Post-injection:** Notify provider of the situation and request an order for oral supplementation if needed (returned or worsened psychosis symptoms)."
+                                ]
+                            }
+                        },
+                        {
+                            "maxDays": null,
+                            "guidance": {
+                                "idealSteps": [
+                                    "Do not administer. Reinitiation is required. **Consult provider BEFORE any injection.**"
+                                ],
+                                "providerNotifications": [
+                                    "**Before any injection:** Consult provider in all cases."
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "optgroupLabel": "Antipsychotics",
+    "formGroupsSpec": [
+        {
+            "groupId": "fluphenazine-fields",
+            "fields": [
+                {
+                    "type": "date",
+                    "id": "last-fluphenazine",
+                    "label": "Date of last Fluphenazine Decanoate injection"
+                },
+                {
+                    "type": "select",
+                    "id": "fluphenazine-prior-doses",
+                    "label": "Prior consecutive Fluphenazine Decanoate injections received",
+                    "placeholder": "Select number...",
+                    "options": [
+                        {
+                            "value": "1-2",
+                            "label": "1–2 injections (before steady state achieved)"
+                        },
+                        {
+                            "value": "3+",
+                            "label": "3 or more injections (steady state achieved)"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "lateSpec": {
+        "requiredFields": [
+            {
+                "id": "last-fluphenazine",
+                "message": "Please enter the date of last Fluphenazine Decanoate injection."
+            },
+            {
+                "id": "fluphenazine-prior-doses",
+                "message": "Please select the number of prior Fluphenazine Decanoate injections."
+            }
+        ],
+        "dateField": "last-fluphenazine",
+        "paramKey": "variant",
+        "paramField": "fluphenazine-prior-doses",
+        "infoRows": [
+            {
+                "label": "Date of last injection:",
+                "field": "last-fluphenazine",
+                "format": "date"
+            },
+            {
+                "label": "Prior consecutive injections:",
+                "field": "fluphenazine-prior-doses",
+                "format": "option-label"
+            },
+            {
+                "label": "Time since last injection:",
+                "format": "days-weeks"
+            }
+        ]
+    }
+}
