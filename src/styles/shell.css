@@ -60,6 +60,10 @@
         padding: 16px 16px 16px 72px;
     }
 
+    .header-logo {
+        max-height: 56px;
+    }
+
     .protocol-link {
         margin-bottom: 0;
     }
