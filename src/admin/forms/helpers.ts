@@ -91,10 +91,25 @@ export function makeNumberInput(
     return row;
 }
 
-export function makeListEditor(label: string, items: string[], dataPath: string): HTMLDivElement {
+export function makeListEditor(
+    label: string,
+    items: string[],
+    dataPath: string,
+    emptyHint?: string,
+): HTMLDivElement {
     const row = createEl('div', { class: 'form-row' });
     row.append(createEl('label', { textContent: label }));
     const container = createEl('div', { class: 'list-editor', 'data-path': dataPath });
+    const hintEl = emptyHint
+        ? createEl('span', { class: 'list-empty-hint', textContent: `Default: ${emptyHint}` })
+        : null;
+    if (hintEl) container.append(hintEl);
+
+    function updateHint() {
+        if (hintEl) {
+            hintEl.style.display = container.querySelectorAll('.list-item').length === 0 ? '' : 'none';
+        }
+    }
 
     function addItem(text: string) {
         const item = createEl('div', { class: 'list-item' });
@@ -113,10 +128,12 @@ export function makeListEditor(label: string, items: string[], dataPath: string)
         removeBtn.addEventListener('click', () => {
             item.remove();
             refreshDragHandles(container, '.list-item');
+            updateHint();
         });
         item.append(handle, ta, removeBtn);
         container.insertBefore(item, addBtnEl);
         refreshDragHandles(container, '.list-item');
+        updateHint();
     }
 
     const addBtnEl = createEl('button', {
@@ -152,7 +169,12 @@ function setNested(obj: Record<string, unknown>, path: string, value: unknown): 
             target = target[key] as Record<string, unknown>;
         }
     }
-    target[parts[parts.length - 1]] = value;
+    const lastKey = parts[parts.length - 1];
+    if (value === undefined) {
+        delete target[lastKey];
+    } else {
+        target[lastKey] = value;
+    }
 }
 
 export function collectFormData(
@@ -176,7 +198,7 @@ export function collectFormData(
         container.querySelectorAll<HTMLTextAreaElement>('.list-item textarea').forEach((ta) => {
             if (ta.value.trim()) items.push(ta.value);
         });
-        setNested(data, container.dataset.path!, items);
+        setNested(data, container.dataset.path!, items.length > 0 ? items : undefined);
     });
 
     return data;
