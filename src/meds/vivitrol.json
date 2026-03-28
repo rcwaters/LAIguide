@@ -49,7 +49,7 @@
               "guidance": {
                 "idealSteps": [
                   "**If NO intentional fentanyl use reported AND \"minimal or no fentanyl dependence\" criteria met**, administer Vivitrol (no UDS needed)",
-                  "**If intentional fentanyl use IS reported:** Obtain a point-of-care UDS (document in chasers):\n\n- UDS **Negative** ÃÂ¢ÃÂÃÂ Administer Vivitrol if patient meets \"minimal or no fentanyl dependence\" criteria.\n\n- UDS **Positive** ÃÂ¢ÃÂÃÂ Consult provider. If history truly confirms no/minimal withdrawal and no significant fentanyl effects, may administer or consider naloxone challenge."
+                  "**If intentional fentanyl use IS reported:** Obtain a point-of-care UDS (document in chasers):\n\n- UDS **Negative** ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ Administer Vivitrol if patient meets \"minimal or no fentanyl dependence\" criteria.\n\n- UDS **Positive** ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ Consult provider. If history truly confirms no/minimal withdrawal and no significant fentanyl effects, may administer or consider naloxone challenge."
                 ],
                 "providerNotifications": [
                   "Consult provider if UDS positive, or if patient does not meet \"minimal or no fentanyl dependence\" criteria."
@@ -105,7 +105,7 @@
               "guidance": {
                 "idealSteps": [
                   "Obtain a point-of-care urine drug screen not required",
-                  "**Administer Vivitrol 380 mg IM** as long as the patient has no intentional daily use of opioids. No UDS required at this interval.\n\nIf there is regular opioid use, do **NOT** administer ÃÂ¢ÃÂÃÂ consult provider."
+                  "**Administer Vivitrol 380 mg IM** as long as the patient has no intentional daily use of opioids. No UDS required at this interval.\n\nIf there is regular opioid use, do **NOT** administer ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ consult provider."
                 ],
                 "providerNotifications": [
                   "Consult provider if patient has regular opioid use."
