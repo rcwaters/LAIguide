@@ -1,7 +1,7 @@
 import { test, expect, Page } from '@playwright/test';
 
-// Set by global-setup.ts when a local .env with VITE_GITHUB_TOKEN is present.
-// Persistence tests use localStorage and must be skipped when the GitHub store is active.
+// Set by global-setup.ts when a local .env with ADMIN_PAT is present.
+// Used to skip tests that are not verifiable against the live GitHub store.
 const HAS_GITHUB_TOKEN = !!process.env.HAS_GITHUB_TOKEN;
 
 const TEST_EMAIL = 'test@desc.org';
@@ -72,7 +72,10 @@ test.describe('changelog page — authenticated', () => {
     });
 
     test('shows empty state message when no changes recorded', async ({ page }) => {
-        test.skip(HAS_GITHUB_TOKEN, 'Empty state not verifiable against live GitHub changelog');
+        test.skip(
+            HAS_GITHUB_TOKEN || !process.env.CI,
+            'Empty state only verifiable in CI where the store is guaranteed empty',
+        );
         await expect(page.locator('#changelog-status')).toHaveText(
             'No changes have been recorded yet.',
         );
@@ -91,13 +94,13 @@ test.describe('changelog page — authenticated', () => {
 });
 
 // ─── Save → changelog persistence ─────────────────────────────────────────
-// These tests exercise the localStorage-backed local store and only apply
-// when running against the Vite dev server (no deployed GitHub token).
+// These tests are skipped: appendChangelog only runs when a GitHub token is
+// present, so the local store never records entries.
 
 test.describe('changelog persistence — save in admin then view changelog', () => {
     test.skip(
-        !!process.env.PLAYWRIGHT_BASE_URL || HAS_GITHUB_TOKEN,
-        'localStorage persistence only applies to local dev (no GitHub token)',
+        true,
+        'Local changelog disabled — appendChangelog only runs with GitHub token',
     );
 
     test.beforeEach(async ({ page }) => {
