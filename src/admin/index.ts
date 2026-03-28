@@ -303,7 +303,7 @@ saveBtn.addEventListener('click', async () => {
         await store.saveMed(key, result.data);
         currentMedData = result.data;
         const session = getSession();
-        if (session) {
+        if (session && GITHUB_TOKEN) {
             const changes = diffMed(
                 previousData as Record<string, unknown>,
                 result.data as Record<string, unknown>,
@@ -318,17 +318,8 @@ saveBtn.addEventListener('click', async () => {
                 snapshot: result.data,
             });
         }
-        if (GITHUB_TOKEN) {
-            showStatus(`✓ Saved "${key}" — changes committed to GitHub. Site will update in a few minutes.`, true);
-            deployStatus.textContent =
-                '⏳ Deployment in progress — changes will be live in ~1-2 minutes.';
-            deployStatus.style.color = '#2980b9';
-        } else {
-            showStatus(
-                `✓ Saved "${key}" locally — changes are temporary and will be lost on page refresh.`,
-                true,
-            );
-        }
+        showStatus(GITHUB_TOKEN ? `✓ Saved "${key}"` : `✓ Saved "${key}" (local only)`, true);
+        deployStatus.textContent = '';
     } catch (err: unknown) {
         showStatus(err instanceof Error ? err.message : 'Save failed.', false);
     }
@@ -345,7 +336,7 @@ deleteBtn.addEventListener('click', async () => {
     try {
         await store.deleteMed(key);
         const session = getSession();
-        if (session) {
+        if (session && GITHUB_TOKEN) {
             void store.appendChangelog({
                 timestamp: new Date().toISOString(),
                 email: session.email,
@@ -354,9 +345,8 @@ deleteBtn.addEventListener('click', async () => {
                 displayName: displayNameBeforeDelete,
             });
         }
-        showStatus(`Deleted "${key}" — commit pushed. Site will redeploy shortly.`, true);
-        deployStatus.textContent = '⏳ Deploy triggered — changes will be live in ~1-2 minutes.';
-        deployStatus.style.color = '#2980b9';
+        showStatus(`✓ Deleted "${key}"`, true);
+        deployStatus.textContent = '';
         await loadMedList();
         jsonEditor.value = '';
     } catch (err: unknown) {

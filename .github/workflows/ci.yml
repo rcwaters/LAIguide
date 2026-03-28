@@ -3,6 +3,11 @@ name: CI
 on:
     push:
         branches: [main]
+        # Skip CI for admin content-only saves (med JSON + changelog).
+        # These trigger deploy.yml but don't need a full test run.
+        paths-ignore:
+            - 'src/meds/**'
+            - 'src/data/changelog.json'
     pull_request:
         branches: [main]
 
