@@ -33,7 +33,7 @@ jobs:
               with:
                   branch: main
                   folder: dist/
-                  clean: true
+                  clean: false
 
             - name: Install Playwright browser
               run: npx playwright install --with-deps chromium

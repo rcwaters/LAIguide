@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^@\"\nconst \\{ chromium \\} = require\\('playwright'\\);\n\\(async \\(\\) => \\{\n  const browser = await chromium\\.launch\\(\\);\n  const page = await browser\\.newPage\\(\\);\n  await page\\.goto\\('http://localhost:5173'\\);\n  const result = await page\\.evaluate\\(\\(\\) => typeof window\\.selectGuidanceType\\);\n  console\\.log\\('typeof window\\.selectGuidanceType:', result\\);\n  await browser\\.close\\(\\);\n\\}\\)\\(\\);\n\"@ \\| node -e \"process\\.stdin\\.resume\\(\\); let d=''; process\\.stdin\\.on\\('data', c => d\\+=c\\); process\\.stdin\\.on\\('end', \\(\\) => eval\\(d\\)\\);\" 2>&1$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
