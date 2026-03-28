@@ -37,7 +37,8 @@
       "Bash(cmd.exe /c \"where gh 2>nul || echo not found\")",
       "Bash(cmd.exe /c \"gh --version\")",
       "Bash(powershell.exe -Command \"gh --version\")",
-      "Bash(grep -v \"^$\")"
+      "Bash(grep -v \"^$\")",
+      "Bash(npm ci:*)"
     ]
   }
 }
