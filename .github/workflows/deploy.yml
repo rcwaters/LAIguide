@@ -8,6 +8,13 @@ on:
 permissions:
     contents: write
 
+# One deploy at a time. Each admin save makes two commits (saveMed + appendChangelog),
+# which would otherwise trigger two parallel deploys that race and one fails.
+# cancel-in-progress: false queues the second run so both changes land cleanly.
+concurrency:
+    group: deploy
+    cancel-in-progress: false
+
 jobs:
     deploy:
         name: Build & Deploy

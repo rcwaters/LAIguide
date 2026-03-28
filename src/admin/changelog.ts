@@ -226,7 +226,7 @@ restoreBtn.addEventListener('click', async () => {
             await store.saveMed(key, data);
         }
 
-        if (session) {
+        if (session && GITHUB_TOKEN) {
             await store.appendChangelog({
                 timestamp: new Date().toISOString(),
                 email: session.email,
