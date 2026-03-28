@@ -20,11 +20,13 @@ function isDefinitionsData(data: Record<string, unknown>): boolean {
 
 // ── Store ────────────────────────────────────────────────────────────────────
 
-declare const __GITHUB_TOKEN_B64__: string;
-const GITHUB_TOKEN =
-    typeof __GITHUB_TOKEN_B64__ !== 'undefined' && __GITHUB_TOKEN_B64__
-        ? atob(__GITHUB_TOKEN_B64__)
-        : '';
+declare const __TOKEN_ENC__: string;
+const GITHUB_TOKEN = __TOKEN_ENC__
+    ? atob(__TOKEN_ENC__)
+          .split('')
+          .map((c) => String.fromCharCode(c.charCodeAt(0) ^ 0x5a))
+          .join('')
+    : '';
 const store: MedDataStore = GITHUB_TOKEN
     ? createGitHubStore(GITHUB_OWNER, GITHUB_REPO, GITHUB_TOKEN)
     : createLocalStore();
