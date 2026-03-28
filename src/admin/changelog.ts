@@ -39,10 +39,7 @@ const restoreBar = document.getElementById('restore-bar') as HTMLDivElement;
 const restoreSelect = document.getElementById('restore-time') as HTMLSelectElement;
 const restoreBtn = document.getElementById('restore-btn') as HTMLButtonElement;
 
-// Restoration requires localStorage snapshots — only available for local store.
-if (!GITHUB_TOKEN) {
-    restoreBar.style.display = 'flex';
-}
+restoreBar.style.display = 'flex';
 
 function formatTimestamp(iso: string): string {
     const d = new Date(iso);
@@ -164,9 +161,7 @@ function renderRow(entry: ChangelogEntry): HTMLTableRowElement[] {
 async function loadChangelog(): Promise<void> {
     try {
         const entries = await store.getChangelog();
-        if (!GITHUB_TOKEN) {
-            populateRestoreDropdown(entries);
-        }
+        populateRestoreDropdown(entries);
         if (entries.length === 0) {
             statusEl.textContent = 'No changes have been recorded yet.';
             return;
