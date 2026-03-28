@@ -144,24 +144,30 @@ describe('renderForm', () => {
         expect(note?.textContent).toContain('maintenance');
     });
 
-    it('shows the NO_PROVIDER_NOTIFICATION default when providerNotifications is empty', () => {
+    it('shows the NO_PROVIDER_NOTIFICATION hint (not a textarea) when providerNotifications is empty', () => {
         const med = makeMed();
         med.guidance.late.variants[0].tiers![1].guidance!.providerNotifications = [];
         renderForm(container, med);
         const list = container.querySelector<HTMLDivElement>(
             '[data-path="guidance.late.variants.0.tiers.1.guidance.providerNotifications"]',
         );
-        expect(list?.querySelector('textarea')?.value).toBe(NO_PROVIDER_NOTIFICATION);
+        expect(list?.querySelector('textarea')).toBeNull();
+        expect(list?.querySelector('.list-empty-hint')?.textContent).toContain(
+            NO_PROVIDER_NOTIFICATION,
+        );
     });
 
-    it('shows the NO_PROVIDER_NOTIFICATION default when providerNotifications is absent', () => {
+    it('shows the NO_PROVIDER_NOTIFICATION hint (not a textarea) when providerNotifications is absent', () => {
         const med = makeMed();
         delete med.guidance.late.variants[0].tiers![1].guidance!.providerNotifications;
         renderForm(container, med);
         const list = container.querySelector<HTMLDivElement>(
             '[data-path="guidance.late.variants.0.tiers.1.guidance.providerNotifications"]',
         );
-        expect(list?.querySelector('textarea')?.value).toBe(NO_PROVIDER_NOTIFICATION);
+        expect(list?.querySelector('textarea')).toBeNull();
+        expect(list?.querySelector('.list-empty-hint')?.textContent).toContain(
+            NO_PROVIDER_NOTIFICATION,
+        );
     });
 
     it('does not show the default when providerNotifications has values', () => {
@@ -364,7 +370,7 @@ describe('collectFormData', () => {
         expect(result.guidance.shared.providerNotifications).toEqual(['Updated notification']);
     });
 
-    it('omits blank list items', () => {
+    it('omits blank list items and removes key when all items are blank', () => {
         const med = makeMed();
         renderForm(container, med);
         const list = container.querySelector<HTMLDivElement>(
@@ -373,9 +379,9 @@ describe('collectFormData', () => {
         const ta = list.querySelector('textarea')!;
         ta.value = '   ';
         const result = collectFormData(container, med) as {
-            guidance: { shared: { providerNotifications: string[] } };
+            guidance: { shared: { providerNotifications?: string[] } };
         };
-        expect(result.guidance.shared.providerNotifications).toEqual([]);
+        expect(result.guidance.shared.providerNotifications).toBeUndefined();
     });
 
     it('writes nested values at the correct path', () => {
