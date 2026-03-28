@@ -20,7 +20,11 @@ function isDefinitionsData(data: Record<string, unknown>): boolean {
 
 // ── Store ────────────────────────────────────────────────────────────────────
 
-const GITHUB_TOKEN = getSession()?.githubToken ?? '';
+declare const __GITHUB_TOKEN_B64__: string;
+const GITHUB_TOKEN =
+    typeof __GITHUB_TOKEN_B64__ !== 'undefined' && __GITHUB_TOKEN_B64__
+        ? atob(__GITHUB_TOKEN_B64__)
+        : '';
 const store: MedDataStore = GITHUB_TOKEN
     ? createGitHubStore(GITHUB_OWNER, GITHUB_REPO, GITHUB_TOKEN)
     : createLocalStore();
@@ -38,7 +42,6 @@ const loginError = $<HTMLDivElement>('login-error');
 const deployStatus = $<HTMLDivElement>('deploy-status');
 const userEmail = $<HTMLSpanElement>('user-email');
 const logoutBtn = $<HTMLButtonElement>('logout-btn');
-const tokenInput = $<HTMLInputElement>('token-input');
 const medSelect = $<HTMLSelectElement>('med-select');
 const saveBtn = $<HTMLButtonElement>('save-btn');
 const deleteBtn = $<HTMLButtonElement>('delete-btn');
@@ -207,7 +210,7 @@ loginBtn.addEventListener('click', async () => {
             showLoginError('Email and/or access code is invalid.');
             return;
         }
-        setSession(email, tokenInput.value.trim() || undefined);
+        setSession(email);
         showEditor(email);
     } catch (err: unknown) {
         console.error('[loginBtn] Login error:', err);

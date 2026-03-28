@@ -24,6 +24,8 @@ jobs:
               run: npm ci
 
             - name: Build
+              env:
+                  VITE_GITHUB_TOKEN: ${{ secrets.ADMIN_PAT }}
               run: npm run build
 
             - name: Deploy to main

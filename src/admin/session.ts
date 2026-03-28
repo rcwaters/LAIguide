@@ -3,7 +3,6 @@ import { SESSION_KEY, SESSION_TTL_HOURS } from './config';
 export interface AdminSession {
     email: string;
     loginAt: number;
-    githubToken?: string;
 }
 
 export function getSession(): AdminSession | null {
@@ -23,10 +22,8 @@ export function getSession(): AdminSession | null {
     }
 }
 
-export function setSession(email: string, githubToken?: string): void {
-    const session: AdminSession = { email, loginAt: Date.now() };
-    if (githubToken) session.githubToken = githubToken;
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+export function setSession(email: string): void {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ email, loginAt: Date.now() }));
 }
 
 export function clearSession(): void {

@@ -69,25 +69,6 @@ describe('setSession / getSession', () => {
     });
 });
 
-// ── githubToken ──────────────────────────────────────────────────────────────
-
-describe('setSession — githubToken', () => {
-    it('stores and retrieves githubToken when provided', () => {
-        setSession('user@desc.org', 'github_pat_abc123');
-        expect(getSession()?.githubToken).toBe('github_pat_abc123');
-    });
-
-    it('omits githubToken from session when not provided', () => {
-        setSession('user@desc.org');
-        expect(getSession()?.githubToken).toBeUndefined();
-    });
-
-    it('omits githubToken when an empty string is passed', () => {
-        setSession('user@desc.org', '');
-        expect(getSession()?.githubToken).toBeUndefined();
-    });
-});
-
 // ── Session expiry ───────────────────────────────────────────────────────────
 
 describe('getSession — expiry', () => {

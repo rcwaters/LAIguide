@@ -23,7 +23,11 @@ function getBundledSnapshot(): Map<string, Record<string, unknown>> {
     return map;
 }
 
-const GITHUB_TOKEN = getSession()?.githubToken ?? '';
+declare const __GITHUB_TOKEN_B64__: string;
+const GITHUB_TOKEN =
+    typeof __GITHUB_TOKEN_B64__ !== 'undefined' && __GITHUB_TOKEN_B64__
+        ? atob(__GITHUB_TOKEN_B64__)
+        : '';
 const store = GITHUB_TOKEN
     ? createGitHubStore(GITHUB_OWNER, GITHUB_REPO, GITHUB_TOKEN)
     : createLocalStore();
