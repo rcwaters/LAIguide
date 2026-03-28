@@ -55,12 +55,12 @@ function appendGuidanceFields(
             `${path}.pragmaticVariations`,
         ),
     );
-    const providerNotifs = guidance?.providerNotifications ?? [];
     body.append(
         makeListEditor(
             'When to Notify Provider',
-            providerNotifs.length ? providerNotifs : [NO_PROVIDER_NOTIFICATION],
+            guidance?.providerNotifications ?? [],
             `${path}.providerNotifications`,
+            NO_PROVIDER_NOTIFICATION,
         ),
     );
 }

@@ -79,8 +79,8 @@ export function createGitHubStore(
             if (res.status === 404) return null;
             if (!res.ok) throw new Error(`GitHub API ${res.status}: ${await res.text()}`);
             const data = (await res.json()) as GitHubContentResponse;
-            const decoded = atob(data.content);
-            return JSON.parse(decoded) as Record<string, unknown>;
+            const bytes = Uint8Array.from(atob(data.content), (c) => c.charCodeAt(0));
+            return JSON.parse(new TextDecoder().decode(bytes)) as Record<string, unknown>;
         },
 
         async getAllMeds(): Promise<Record<string, unknown>[]> {
@@ -125,7 +125,8 @@ export function createGitHubStore(
             if (res.status === 404) return [];
             if (!res.ok) throw new Error(`GitHub API ${res.status}: ${await res.text()}`);
             const data = (await res.json()) as GitHubContentResponse;
-            return JSON.parse(atob(data.content)) as ChangelogEntry[];
+            const bytes = Uint8Array.from(atob(data.content), (c) => c.charCodeAt(0));
+            return JSON.parse(new TextDecoder().decode(bytes)) as ChangelogEntry[];
         },
 
         async appendChangelog(entry: ChangelogEntry): Promise<void> {

@@ -318,7 +318,7 @@ saveBtn.addEventListener('click', async () => {
                 snapshot: result.data,
             });
         }
-        showStatus(GITHUB_TOKEN ? `✓ Saved "${key}"` : `✓ Saved "${key}" (local only)`, true);
+        showStatus(GITHUB_TOKEN ? `✓ Saved "${key}" — changes will take effect in ~5 mins` : `✓ Saved "${key}" (local only)`, true);
         deployStatus.textContent = '';
     } catch (err: unknown) {
         showStatus(err instanceof Error ? err.message : 'Save failed.', false);
