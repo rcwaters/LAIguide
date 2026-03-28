@@ -1,0 +1,28 @@
+{
+    "addictionMedicine": {
+        "groupTitle": "Addiction Medicine definitions",
+        "definitions": [
+            {
+                "label": "Minimal or no fentanyl dependence",
+                "allCriteria": [
+                    "Client reports that they do not experience any significant opioid withdrawal symptoms during a typical day, including no more than mild morning withdrawals after awakening or during the day.",
+                    "Client reports that they do not feel any significant effects of fentanyl if they use fentanyl.",
+                    "Client reports that they can go 6 hours or more without using fentanyl (or other unregulated opioids) and still not experience significant opioid withdrawal.",
+                    "Client reports that their fentanyl use remains \"much less\" than before they started MOUD."
+                ]
+            },
+            {
+                "label": "Moderate fentanyl dependence",
+                "description": "Defined as a history that fits between the \"minimal or no fentanyl dependence\" category and the \"significant fentanyl dependence\" category."
+            },
+            {
+                "label": "Significant fentanyl dependence",
+                "allCriteria": [
+                    "Client reports significant opioid withdrawal symptoms during a typical day, including experiencing morning withdrawal symptoms prompting use of fentanyl (or other unregulated opioids) within an hour after awakening, and significant withdrawal symptoms during the day.",
+                    "Client reports using fentanyl every 3 hours or more often during the day.",
+                    "Client reports that their fentanyl use is at levels roughly the same as before they started MOUD."
+                ]
+            }
+        ]
+    }
+}

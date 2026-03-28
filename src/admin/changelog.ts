@@ -6,11 +6,12 @@ import { getSession } from './session';
 import { GITHUB_OWNER, GITHUB_REPO } from './config';
 import type { ChangelogEntry } from './types';
 
-// Bundled med JSONs — loaded at build time, never touched by localStorage.
-// This is the protected default state that restoration can always fall back to.
+// Original med JSONs — copied once to src/data/originals/ and never overwritten by admin saves.
+// This ensures "restore to default" always returns to the truly original data regardless of
+// how many times admins have modified src/meds/*.json via the GitHub store.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const BUNDLED_MED_ENTRIES = Object.entries(
-    import.meta.glob<Record<string, unknown>>('../meds/*.json', { eager: true, import: 'default' }),
+    import.meta.glob<Record<string, unknown>>('../meds/originals/*.json', { eager: true, import: 'default' }),
 );
 
 function getBundledSnapshot(): Map<string, Record<string, unknown>> {
@@ -38,10 +39,7 @@ const restoreBar = document.getElementById('restore-bar') as HTMLDivElement;
 const restoreSelect = document.getElementById('restore-time') as HTMLSelectElement;
 const restoreBtn = document.getElementById('restore-btn') as HTMLButtonElement;
 
-// Restoration requires localStorage snapshots — only available for local store.
-if (!GITHUB_TOKEN) {
-    restoreBar.style.display = 'flex';
-}
+restoreBar.style.display = 'flex';
 
 function formatTimestamp(iso: string): string {
     const d = new Date(iso);
@@ -163,9 +161,7 @@ function renderRow(entry: ChangelogEntry): HTMLTableRowElement[] {
 async function loadChangelog(): Promise<void> {
     try {
         const entries = await store.getChangelog();
-        if (!GITHUB_TOKEN) {
-            populateRestoreDropdown(entries);
-        }
+        populateRestoreDropdown(entries);
         if (entries.length === 0) {
             statusEl.textContent = 'No changes have been recorded yet.';
             return;

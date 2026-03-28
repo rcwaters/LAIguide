@@ -313,13 +313,13 @@ saveBtn.addEventListener('click', async () => {
             });
         }
         if (GITHUB_TOKEN) {
-            showStatus(`✓ Saved "${key}" — commit pushed. Site will redeploy shortly.`, true);
+            showStatus(`✓ Saved "${key}" — changes committed to GitHub. Site will update in a few minutes.`, true);
             deployStatus.textContent =
-                '⏳ Deploy triggered — changes will be live in ~1-2 minutes.';
+                '⏳ Deployment in progress — changes will be live in ~1-2 minutes.';
             deployStatus.style.color = '#2980b9';
         } else {
             showStatus(
-                `✓ Saved "${key}" locally — no GitHub token, changes will not persist on reload.`,
+                `✓ Saved "${key}" locally — changes are temporary and will be lost on page refresh.`,
                 true,
             );
         }

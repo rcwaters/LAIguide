@@ -1,5 +1,9 @@
 import { test, expect, Page } from '@playwright/test';
 
+// Set by global-setup.ts when a local .env with VITE_GITHUB_TOKEN is present.
+// Persistence tests use localStorage and must be skipped when the GitHub store is active.
+const HAS_GITHUB_TOKEN = !!process.env.HAS_GITHUB_TOKEN;
+
 const TEST_EMAIL = 'test@desc.org';
 const TEST_CODE = '1234';
 
@@ -68,6 +72,7 @@ test.describe('changelog page — authenticated', () => {
     });
 
     test('shows empty state message when no changes recorded', async ({ page }) => {
+        test.skip(HAS_GITHUB_TOKEN, 'Empty state not verifiable against live GitHub changelog');
         await expect(page.locator('#changelog-status')).toHaveText(
             'No changes have been recorded yet.',
         );
@@ -91,7 +96,7 @@ test.describe('changelog page — authenticated', () => {
 
 test.describe('changelog persistence — save in admin then view changelog', () => {
     test.skip(
-        !!process.env.PLAYWRIGHT_BASE_URL,
+        !!process.env.PLAYWRIGHT_BASE_URL || HAS_GITHUB_TOKEN,
         'localStorage persistence only applies to local dev (no GitHub token)',
     );
 
