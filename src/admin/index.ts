@@ -20,7 +20,11 @@ function isDefinitionsData(data: Record<string, unknown>): boolean {
 
 // ── Store ────────────────────────────────────────────────────────────────────
 
-const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN as string;
+declare const __GITHUB_TOKEN_B64__: string;
+const GITHUB_TOKEN =
+    typeof __GITHUB_TOKEN_B64__ !== 'undefined' && __GITHUB_TOKEN_B64__
+        ? atob(__GITHUB_TOKEN_B64__)
+        : '';
 const store: MedDataStore = GITHUB_TOKEN
     ? createGitHubStore(GITHUB_OWNER, GITHUB_REPO, GITHUB_TOKEN)
     : createLocalStore();
