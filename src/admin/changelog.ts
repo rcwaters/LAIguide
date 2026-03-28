@@ -23,7 +23,7 @@ function getBundledSnapshot(): Map<string, Record<string, unknown>> {
     return map;
 }
 
-const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN as string;
+const GITHUB_TOKEN = getSession()?.githubToken ?? '';
 const store = GITHUB_TOKEN
     ? createGitHubStore(GITHUB_OWNER, GITHUB_REPO, GITHUB_TOKEN)
     : createLocalStore();

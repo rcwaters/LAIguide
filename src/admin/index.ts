@@ -20,7 +20,7 @@ function isDefinitionsData(data: Record<string, unknown>): boolean {
 
 // ── Store ────────────────────────────────────────────────────────────────────
 
-const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN as string;
+const GITHUB_TOKEN = getSession()?.githubToken ?? '';
 const store: MedDataStore = GITHUB_TOKEN
     ? createGitHubStore(GITHUB_OWNER, GITHUB_REPO, GITHUB_TOKEN)
     : createLocalStore();
@@ -38,6 +38,7 @@ const loginError = $<HTMLDivElement>('login-error');
 const deployStatus = $<HTMLDivElement>('deploy-status');
 const userEmail = $<HTMLSpanElement>('user-email');
 const logoutBtn = $<HTMLButtonElement>('logout-btn');
+const tokenInput = $<HTMLInputElement>('token-input');
 const medSelect = $<HTMLSelectElement>('med-select');
 const saveBtn = $<HTMLButtonElement>('save-btn');
 const deleteBtn = $<HTMLButtonElement>('delete-btn');
@@ -206,7 +207,7 @@ loginBtn.addEventListener('click', async () => {
             showLoginError('Email and/or access code is invalid.');
             return;
         }
-        setSession(email);
+        setSession(email, tokenInput.value.trim() || undefined);
         showEditor(email);
     } catch (err: unknown) {
         console.error('[loginBtn] Login error:', err);
