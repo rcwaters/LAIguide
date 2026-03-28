@@ -1,223 +1,223 @@
 {
-    "displayName": "Aristada (aripiprazole lauroxil)",
-    "guidance": {
-        "shared": {
-            "providerNotifications": [
-                "New side effects from recent injection",
-                "New abnormal involuntary movements, excessive sedation, dizziness, agitation, delirium, fever, tachycardia, abnormal blood pressure, or any concerning symptoms"
-            ]
-        },
-        "early": {
-            "daysBeforeDue": 2,
-            "minDays": 21
-        },
-        "late": {
-            "variants": [
-                {
-                    "key": "441",
-                    "tiers": [
-                        {
-                            "maxDays": 42,
-                            "guidance": {
-                                "idealSteps": [
-                                    "Administer the usual dose as soon as possible. No supplementation required."
-                                ]
-                            }
-                        },
-                        {
-                            "maxDays": 49,
-                            "guidance": {
-                                "idealSteps": [
-                                    "Administer the usual dose as soon as possible. Supplement oral aripiprazole for 7 days **OR** Aristada Initio 675 mg IM once (now or within next few days)"
-                                ],
-                                "providerNotifications": [
-                                    "Notify provider with patient preference for supplementation and to order medications"
-                                ]
-                            }
-                        },
-                        {
-                            "maxDays": 120,
-                            "guidance": {
-                                "idealSteps": [
-                                    "Administer the usual dose as soon as possible. Supplement oral aripiprazole for 21 days **OR** Aristada Initio 675 mg IM once (now or within next few days)"
-                                ],
-                                "providerNotifications": [
-                                    "Notify provider with patient preference for supplementation and to order medications"
-                                ]
-                            }
-                        },
-                        {
-                            "maxDays": null,
-                            "guidance": {
-                                "idealSteps": [
-                                    "Administer the usual dose as soon as possible. Supplement oral aripiprazole for 21 days **OR** Aristada Initio 675 mg IM once (now or within next few days)"
-                                ],
-                                "providerNotifications": [
-                                    "Notify provider with patient preference for supplementation and to order medications"
-                                ]
-                            }
-                        }
-                    ]
-                },
-                {
-                    "key": "662",
-                    "tiers": [
-                        {
-                            "maxDays": 42,
-                            "guidance": {
-                                "idealSteps": [
-                                    "The Aristada injection is not yet due. Please consult the guidance on early dosing."
-                                ]
-                            }
-                        },
-                        {
-                            "maxDays": 56,
-                            "guidance": {
-                                "idealSteps": [
-                                    "Administer the usual dose as soon as possible. No supplementation required."
-                                ]
-                            }
-                        },
-                        {
-                            "maxDays": 84,
-                            "guidance": {
-                                "idealSteps": [
-                                    "Administer the usual dose as soon as possible. Supplement oral aripiprazole for 7 days **OR** Aristada Initio 675 mg IM once (now or within next few days)"
-                                ],
-                                "providerNotifications": [
-                                    "Notify provider with patient preference for supplementation and to order medications"
-                                ]
-                            }
-                        },
-                        {
-                            "maxDays": null,
-                            "guidance": {
-                                "idealSteps": [
-                                    "Administer the usual dose as soon as possible. Supplement oral aripiprazole for 21 days **OR** Aristada Initio 675 mg IM once (now or within next few days)"
-                                ],
-                                "providerNotifications": [
-                                    "Notify provider with patient preference for supplementation and to order medications"
-                                ]
-                            }
-                        }
-                    ]
-                },
-                {
-                    "key": "882",
-                    "sameAs": "662"
-                },
-                {
-                    "key": "1064",
-                    "tiers": [
-                        {
-                            "maxDays": 42,
-                            "guidance": {
-                                "idealSteps": [
-                                    "The Aristada injection is not yet due. Please consult the guidance on early dosing."
-                                ]
-                            }
-                        },
-                        {
-                            "maxDays": 70,
-                            "guidance": {
-                                "idealSteps": [
-                                    "Administer the usual dose as soon as possible. No supplementation required."
-                                ]
-                            }
-                        },
-                        {
-                            "maxDays": 84,
-                            "guidance": {
-                                "idealSteps": [
-                                    "Administer the usual dose as soon as possible. Supplement oral aripiprazole for 7 days **OR** Aristada Initio 675 mg IM once (now or within next few days)"
-                                ],
-                                "providerNotifications": [
-                                    "Notify provider with patient preference for supplementation and to order medications"
-                                ]
-                            }
-                        },
-                        {
-                            "maxDays": null,
-                            "guidance": {
-                                "idealSteps": [
-                                    "Administer the usual dose as soon as possible. Supplement oral aripiprazole for 21 days **OR** Aristada Initio 675 mg IM once (now or within next few days)"
-                                ],
-                                "providerNotifications": [
-                                    "Notify provider with patient preference for supplementation and to order medications"
-                                ]
-                            }
-                        }
-                    ]
-                }
-            ]
-        }
+  "displayName": "Aristada (aripiprazole lauroxil)",
+  "guidance": {
+    "shared": {
+      "providerNotifications": [
+        "New side effects from recent injection",
+        "New abnormal involuntary movements, excessive sedation, dizziness, agitation, delirium, fever, tachycardia, abnormal blood pressure, or any concerning symptoms"
+      ]
     },
-    "optgroupLabel": "Antipsychotics",
-    "formGroupsSpec": [
+    "early": {
+      "daysBeforeDue": 2,
+      "minDays": 21
+    },
+    "late": {
+      "variants": [
         {
-            "groupId": "aristada-fields",
-            "fields": [
-                {
-                    "type": "date",
-                    "id": "last-aristada",
-                    "label": "Date of last Aristada injection"
-                },
-                {
-                    "type": "select",
-                    "id": "aristada-dose",
-                    "label": "Dose of last Aristada injection",
-                    "placeholder": "Select dose...",
-                    "options": [
-                        {
-                            "value": "441",
-                            "label": "441 mg"
-                        },
-                        {
-                            "value": "662",
-                            "label": "662 mg"
-                        },
-                        {
-                            "value": "882",
-                            "label": "882 mg"
-                        },
-                        {
-                            "value": "1064",
-                            "label": "1064 mg"
-                        }
-                    ]
-                }
-            ]
+          "key": "441",
+          "tiers": [
+            {
+              "maxDays": 42,
+              "guidance": {
+                "idealSteps": [
+                  "Administer the usual dose as soon as possible. No supplementation required."
+                ]
+              }
+            },
+            {
+              "maxDays": 49,
+              "guidance": {
+                "idealSteps": [
+                  "Administer the usual dose as soon as possible. Supplement oral aripiprazole for 7 days **OR** Aristada Initio 675 mg IM once (now or within next few days)"
+                ],
+                "providerNotifications": [
+                  "Notify provider with patient preference for supplementation and to order medications"
+                ]
+              }
+            },
+            {
+              "maxDays": 120,
+              "guidance": {
+                "idealSteps": [
+                  "Administer the usual dose as soon as possible. Supplement oral aripiprazole for 21 days **OR** Aristada Initio 675 mg IM once (now or within next few days)"
+                ],
+                "providerNotifications": [
+                  "Notify provider with patient preference for supplementation and to order medications"
+                ]
+              }
+            },
+            {
+              "maxDays": null,
+              "guidance": {
+                "idealSteps": [
+                  "Administer the usual dose as soon as possible. Supplement oral aripiprazole for 21 days **OR** Aristada Initio 675 mg IM once (now or within next few days)"
+                ],
+                "providerNotifications": [
+                  "Notify provider with patient preference for supplementation and to order medications"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "key": "662",
+          "tiers": [
+            {
+              "maxDays": 42,
+              "guidance": {
+                "idealSteps": [
+                  "The Aristada injection is not yet due. Please consult the guidance on early dosing."
+                ]
+              }
+            },
+            {
+              "maxDays": 56,
+              "guidance": {
+                "idealSteps": [
+                  "Administer the usual dose as soon as possible. No supplementation required."
+                ]
+              }
+            },
+            {
+              "maxDays": 84,
+              "guidance": {
+                "idealSteps": [
+                  "Administer the usual dose as soon as possible. Supplement oral aripiprazole for 7 days **OR** Aristada Initio 675 mg IM once (now or within next few days)"
+                ],
+                "providerNotifications": [
+                  "Notify provider with patient preference for supplementation and to order medications"
+                ]
+              }
+            },
+            {
+              "maxDays": null,
+              "guidance": {
+                "idealSteps": [
+                  "Administer the usual dose as soon as possible. Supplement oral aripiprazole for 21 days **OR** Aristada Initio 675 mg IM once (now or within next few days)"
+                ],
+                "providerNotifications": [
+                  "Notify provider with patient preference for supplementation and to order medications"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "key": "882",
+          "sameAs": "662"
+        },
+        {
+          "key": "1064",
+          "tiers": [
+            {
+              "maxDays": 42,
+              "guidance": {
+                "idealSteps": [
+                  "The Aristada injection is not yet due. Please consult the guidance on early dosing."
+                ]
+              }
+            },
+            {
+              "maxDays": 70,
+              "guidance": {
+                "idealSteps": [
+                  "Administer the usual dose as soon as possible. No supplementation required."
+                ]
+              }
+            },
+            {
+              "maxDays": 84,
+              "guidance": {
+                "idealSteps": [
+                  "Administer the usual dose as soon as possible. Supplement oral aripiprazole for 7 days **OR** Aristada Initio 675 mg IM once (now or within next few days)"
+                ],
+                "providerNotifications": [
+                  "Notify provider with patient preference for supplementation and to order medications"
+                ]
+              }
+            },
+            {
+              "maxDays": null,
+              "guidance": {
+                "idealSteps": [
+                  "Administer the usual dose as soon as possible. Supplement oral aripiprazole for 21 days **OR** Aristada Initio 675 mg IM once (now or within next few days)"
+                ],
+                "providerNotifications": [
+                  "Notify provider with patient preference for supplementation and to order medications"
+                ]
+              }
+            }
+          ]
         }
-    ],
-    "lateSpec": {
-        "requiredFields": [
-            {
-                "id": "last-aristada",
-                "message": "Please enter the date of last Aristada injection."
-            },
-            {
-                "id": "aristada-dose",
-                "message": "Please select the dose of last Aristada injection."
-            }
-        ],
-        "dateField": "last-aristada",
-        "paramKey": "dose",
-        "paramField": "aristada-dose",
-        "infoRows": [
-            {
-                "label": "Date of last injection:",
-                "field": "last-aristada",
-                "format": "date"
-            },
-            {
-                "label": "Dose of last injection:",
-                "field": "aristada-dose",
-                "format": "option-label"
-            },
-            {
-                "label": "Time since last injection:",
-                "format": "days-weeks"
-            }
-        ]
+      ]
     }
+  },
+  "optgroupLabel": "Antipsychotics",
+  "formGroupsSpec": [
+    {
+      "groupId": "aristada-fields",
+      "fields": [
+        {
+          "type": "date",
+          "id": "last-aristada",
+          "label": "Date of last Aristada injection"
+        },
+        {
+          "type": "select",
+          "id": "aristada-dose",
+          "label": "Dose of last Aristada injection",
+          "placeholder": "Select dose...",
+          "options": [
+            {
+              "value": "441",
+              "label": "441 mg"
+            },
+            {
+              "value": "662",
+              "label": "662 mg"
+            },
+            {
+              "value": "882",
+              "label": "882 mg"
+            },
+            {
+              "value": "1064",
+              "label": "1064 mg"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "lateSpec": {
+    "requiredFields": [
+      {
+        "id": "last-aristada",
+        "message": "Please enter the date of last Aristada injection."
+      },
+      {
+        "id": "aristada-dose",
+        "message": "Please select the dose of last Aristada injection."
+      }
+    ],
+    "dateField": "last-aristada",
+    "paramKey": "dose",
+    "paramField": "aristada-dose",
+    "infoRows": [
+      {
+        "label": "Date of last injection:",
+        "field": "last-aristada",
+        "format": "date"
+      },
+      {
+        "label": "Dose of last injection:",
+        "field": "aristada-dose",
+        "format": "option-label"
+      },
+      {
+        "label": "Time since last injection:",
+        "format": "days-weeks"
+      }
+    ]
+  }
 }
