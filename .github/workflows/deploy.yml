@@ -49,23 +49,22 @@ jobs:
                   clean: false
                   commit-message: 'Deploy built assets [skip ci]'
 
+            - name: Re-checkout main (restores git credentials)
+              uses: actions/checkout@v4
+              with:
+                  ref: main
+
             - name: Restore source HTML on main
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"
-                  git fetch origin main
-                  git reset --mixed origin/main
                   cp /tmp/index.html.src     index.html
                   cp /tmp/admin.html.src     admin.html
                   cp /tmp/changelog.html.src changelog.html
                   git add index.html admin.html changelog.html
                   git diff --cached --quiet && echo "HTML already in source form." || {
                     git commit -m "Restore source HTML entry points [skip ci]"
-                    git -c credential.helper= \
-                        -c http.https://github.com/.extraheader= \
-                        push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" HEAD:main
+                    git push
                   }
 
             - name: Wait for GitHub Pages to propagate
