@@ -284,4 +284,25 @@ describe('collectFormData', () => {
         const result = collectFormData(container, {});
         expect(((result.a as Record<string, unknown>).b as Record<string, unknown>).c).toBe('val');
     });
+
+    it('removes the key from result when all list items are blank (empty list deletes key)', () => {
+        // Build a list editor with only whitespace items
+        const listEditor = document.createElement('div');
+        listEditor.className = 'list-editor';
+        listEditor.dataset.path = 'steps';
+        const makeItem = (text: string) => {
+            const item = document.createElement('div');
+            item.className = 'list-item';
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            item.append(ta);
+            return item;
+        };
+        listEditor.append(makeItem('  '), makeItem('\t'));
+        container.append(listEditor);
+
+        // Base data has a pre-existing 'steps' value that should be removed
+        const result = collectFormData(container, { steps: ['old step'] });
+        expect(result.steps).toBeUndefined();
+    });
 });
