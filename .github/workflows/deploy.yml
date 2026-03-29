@@ -41,12 +41,27 @@ jobs:
                   branch: main
                   folder: dist/
                   clean: false
+                  commit-message: 'Deploy built assets [skip ci]'
+
+            - name: Restore source HTML on main
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git fetch origin main
+                  git reset --mixed origin/main
+                  git add index.html admin.html changelog.html
+                  git diff --cached --quiet && echo "HTML already in source form." || {
+                    git commit -m "Restore source HTML entry points [skip ci]"
+                    git push origin HEAD:main
+                  }
+
+            - name: Wait for GitHub Pages to propagate
+              run: sleep 60
 
             - name: Install Playwright browser
               run: npx playwright install --with-deps chromium
 
             - name: Post-deploy smoke test (live URL)
-              continue-on-error: true
               env:
                   PLAYWRIGHT_BASE_URL: https://rcwaters.github.io/LAIguide
               run: npx playwright test e2e/deploy-smoke.spec.ts --project=chromium
