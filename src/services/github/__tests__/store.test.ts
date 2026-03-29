@@ -278,3 +278,143 @@ describe('deleteMed', () => {
         await expect(store.deleteMed('forbidden_med')).rejects.toThrow('GitHub API 403');
     });
 });
+
+// ── getChangelog ──────────────────────────────────────────────────────────────
+
+describe('getChangelog', () => {
+    it('returns an empty array for a 404 response', async () => {
+        mockFetch.mockResolvedValueOnce({ ok: false, status: 404 } as Response);
+        const store = createGitHubStore(OWNER, REPO, TOKEN);
+        expect(await store.getChangelog()).toEqual([]);
+    });
+
+    it('returns parsed changelog entries for an existing file', async () => {
+        const entries = [
+            {
+                timestamp: '2026-01-01T00:00:00.000Z',
+                email: 'user@desc.org',
+                action: 'update',
+                medKey: 'abilify_maintena',
+                displayName: 'Abilify Maintena',
+            },
+        ];
+        mockFetch.mockResolvedValueOnce(
+            makeJsonResponse({ sha: 'cl-sha', content: b64(entries), encoding: 'base64' }),
+        );
+        const store = createGitHubStore(OWNER, REPO, TOKEN);
+        const result = await store.getChangelog();
+        expect(result).toEqual(entries);
+    });
+
+    it('throws for non-404 error responses', async () => {
+        mockFetch.mockResolvedValueOnce(makeErrorResponse(500, 'Internal Server Error'));
+        const store = createGitHubStore(OWNER, REPO, TOKEN);
+        await expect(store.getChangelog()).rejects.toThrow('GitHub API 500');
+    });
+
+    it('requests the changelog file path', async () => {
+        mockFetch.mockResolvedValueOnce({ ok: false, status: 404 } as Response);
+        const store = createGitHubStore(OWNER, REPO, TOKEN);
+        await store.getChangelog();
+        const [url] = mockFetch.mock.calls[0] as [string];
+        expect(url).toContain('changelog.json');
+        expect(url).toContain('src/data');
+    });
+});
+
+// ── appendChangelog ───────────────────────────────────────────────────────────
+
+describe('appendChangelog', () => {
+    const newEntry = {
+        timestamp: '2026-02-01T00:00:00.000Z',
+        email: 'user@desc.org',
+        action: 'update' as const,
+        medKey: 'abilify_maintena',
+        displayName: 'Abilify Maintena',
+    };
+
+    it('creates a new file when changelog does not exist (404)', async () => {
+        mockFetch.mockResolvedValueOnce({ ok: false, status: 404 } as Response);
+        mockFetch.mockResolvedValueOnce(makeJsonResponse({ commit: {} }));
+
+        const store = createGitHubStore(OWNER, REPO, TOKEN);
+        await store.appendChangelog(newEntry);
+
+        const [putUrl, putInit] = mockFetch.mock.calls[1] as [string, RequestInit];
+        expect(putInit.method).toBe('PUT');
+        expect(putUrl).toContain('changelog.json');
+    });
+
+    it('does not include SHA in PUT body when changelog is new', async () => {
+        mockFetch.mockResolvedValueOnce({ ok: false, status: 404 } as Response);
+        mockFetch.mockResolvedValueOnce(makeJsonResponse({ commit: {} }));
+
+        const store = createGitHubStore(OWNER, REPO, TOKEN);
+        await store.appendChangelog(newEntry);
+
+        const [, putInit] = mockFetch.mock.calls[1] as [string, RequestInit];
+        const body = JSON.parse(putInit.body as string) as Record<string, unknown>;
+        expect(body['sha']).toBeUndefined();
+    });
+
+    it('includes SHA in PUT body when file exists', async () => {
+        mockFetch.mockResolvedValueOnce(
+            makeJsonResponse({ sha: 'cl-sha', content: b64([]), encoding: 'base64' }),
+        );
+        mockFetch.mockResolvedValueOnce(makeJsonResponse({ commit: {} }));
+
+        const store = createGitHubStore(OWNER, REPO, TOKEN);
+        await store.appendChangelog(newEntry);
+
+        const [, putInit] = mockFetch.mock.calls[1] as [string, RequestInit];
+        const body = JSON.parse(putInit.body as string) as Record<string, unknown>;
+        expect(body['sha']).toBe('cl-sha');
+    });
+
+    it('prepends the new entry to the existing changelog', async () => {
+        const existing = [
+            {
+                timestamp: '2026-01-01T00:00:00.000Z',
+                email: 'other@desc.org',
+                action: 'update',
+                medKey: 'vivitrol',
+                displayName: 'Vivitrol',
+            },
+        ];
+        mockFetch.mockResolvedValueOnce(
+            makeJsonResponse({ sha: 'cl-sha', content: b64(existing), encoding: 'base64' }),
+        );
+        mockFetch.mockResolvedValueOnce(makeJsonResponse({ commit: {} }));
+
+        const store = createGitHubStore(OWNER, REPO, TOKEN);
+        await store.appendChangelog(newEntry);
+
+        const [, putInit] = mockFetch.mock.calls[1] as [string, RequestInit];
+        const body = JSON.parse(putInit.body as string) as Record<string, unknown>;
+        const decoded = Buffer.from(body['content'] as string, 'base64').toString('utf8');
+        const savedEntries = JSON.parse(decoded) as Array<{ medKey: string }>;
+        expect(savedEntries).toHaveLength(2);
+        expect(savedEntries[0].medKey).toBe('abilify_maintena');
+        expect(savedEntries[1].medKey).toBe('vivitrol');
+    });
+
+    it('commit message includes action and medKey', async () => {
+        mockFetch.mockResolvedValueOnce({ ok: false, status: 404 } as Response);
+        mockFetch.mockResolvedValueOnce(makeJsonResponse({ commit: {} }));
+
+        const store = createGitHubStore(OWNER, REPO, TOKEN);
+        await store.appendChangelog(newEntry);
+
+        const [, putInit] = mockFetch.mock.calls[1] as [string, RequestInit];
+        const body = JSON.parse(putInit.body as string) as Record<string, unknown>;
+        const message = body['message'] as string;
+        expect(message).toContain('update');
+        expect(message).toContain('abilify_maintena');
+    });
+
+    it('throws when the initial GET returns a non-404 error', async () => {
+        mockFetch.mockResolvedValueOnce(makeErrorResponse(403, 'Forbidden'));
+        const store = createGitHubStore(OWNER, REPO, TOKEN);
+        await expect(store.appendChangelog(newEntry)).rejects.toThrow('GitHub API 403');
+    });
+});

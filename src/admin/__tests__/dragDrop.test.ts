@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { enableDrag, refreshDragHandles } from '../forms/dragDrop';
 
 // jsdom does not implement DragEvent or DataTransfer; provide minimal polyfills.
@@ -292,5 +292,71 @@ describe('enableDrag', () => {
         expect(dragged.classList.contains('dragging')).toBe(false);
         expect(target.classList.contains('drop-before')).toBe(false);
         expect(target.classList.contains('drop-after')).toBe(false);
+    });
+
+    it('calls the onDrop callback on dragend', () => {
+        const onDrop = vi.fn();
+        for (let i = 0; i < 2; i++) container.appendChild(makeItem());
+        enableDrag(container, '.draggable-item', onDrop);
+        const [dragged] = Array.from(container.querySelectorAll<HTMLElement>('.draggable-item'));
+
+        const handle = dragged.querySelector<HTMLElement>('.drag-handle')!;
+        handle.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+        dragged.dispatchEvent(new DragEvent('dragstart', { bubbles: true, cancelable: true }));
+        container.dispatchEvent(new DragEvent('dragend', { bubbles: true }));
+
+        expect(onDrop).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not call onDrop when no callback is provided', () => {
+        // Verifies the optional chaining (onDrop?.()) does not throw when absent
+        const items = setup(2);
+        const [dragged] = items;
+        startDrag(container, dragged);
+        expect(() =>
+            container.dispatchEvent(new DragEvent('dragend', { bubbles: true })),
+        ).not.toThrow();
+    });
+
+    it('clears drop indicator when dragover target is the dragged element itself', () => {
+        const items = setup(2);
+        const [dragged, other] = items;
+
+        startDrag(container, dragged);
+
+        // First, set a drop indicator on the other item
+        other.getBoundingClientRect = () =>
+            ({
+                top: 100,
+                height: 40,
+                left: 0,
+                right: 100,
+                bottom: 140,
+                width: 100,
+                x: 0,
+                y: 100,
+                toJSON: () => ({}),
+            }) as DOMRect;
+
+        const overOther = new DragEvent('dragover', {
+            bubbles: true,
+            cancelable: true,
+            clientY: 110,
+        });
+        Object.defineProperty(overOther, 'target', { value: other });
+        container.dispatchEvent(overOther);
+        expect(other.classList.contains('drop-before')).toBe(true);
+
+        // Now dragover the dragged element itself — indicator should clear
+        const overSelf = new DragEvent('dragover', {
+            bubbles: true,
+            cancelable: true,
+            clientY: 110,
+        });
+        Object.defineProperty(overSelf, 'target', { value: dragged });
+        container.dispatchEvent(overSelf);
+
+        expect(other.classList.contains('drop-before')).toBe(false);
+        expect(other.classList.contains('drop-after')).toBe(false);
     });
 });
