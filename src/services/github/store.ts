@@ -17,6 +17,17 @@ interface GitHubContentResponse {
     encoding: string;
 }
 
+/** Encode a byte array to base64 without spreading into String.fromCodePoint,
+ *  which hits the JS call-stack argument limit on arrays larger than ~65 K. */
+function bytesToBase64(bytes: Uint8Array): string {
+    let binary = '';
+    const CHUNK = 0x8000;
+    for (let i = 0; i < bytes.length; i += CHUNK) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+    }
+    return btoa(binary);
+}
+
 function headers(token: string): HeadersInit {
     return {
         Authorization: `Bearer ${token}`,
@@ -93,7 +104,7 @@ export function createGitHubStore(
             const filePath = `${MEDS_PATH}/${key}.json`;
             const sha = await getFileSha(owner, repo, filePath, token, branch);
             const bytes = new TextEncoder().encode(JSON.stringify(data, null, 2) + '\n');
-            const content = btoa(String.fromCodePoint(...bytes));
+            const content = bytesToBase64(bytes);
             await ghFetch(`${api}/contents/${filePath}`, token, {
                 method: 'PUT',
                 body: JSON.stringify({
@@ -137,13 +148,14 @@ export function createGitHubStore(
             if (res.ok) {
                 const data = (await res.json()) as GitHubContentResponse;
                 sha = data.sha;
-                entries = JSON.parse(atob(data.content)) as ChangelogEntry[];
+                const clBytes = Uint8Array.from(atob(data.content.replace(/\n/g, '')), (c) => c.charCodeAt(0));
+                entries = JSON.parse(new TextDecoder().decode(clBytes)) as ChangelogEntry[];
             } else if (res.status !== 404) {
                 throw new Error(`GitHub API ${res.status}: ${await res.text()}`);
             }
             entries.unshift(entry);
             const bytes = new TextEncoder().encode(JSON.stringify(entries, null, 2) + '\n');
-            const content = btoa(String.fromCodePoint(...bytes));
+            const content = bytesToBase64(bytes);
             await ghFetch(`${api}/contents/${CHANGELOG_PATH}`, token, {
                 method: 'PUT',
                 body: JSON.stringify({
