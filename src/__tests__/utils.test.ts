@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { daysSinceDate, formatWeeksAndDays, formatDate, md } from '../utils';
+import { daysSinceDate, formatWeeksAndDays, formatDate, md, pluralize } from '../utils';
 
 /** Returns a YYYY-MM-DD string for N days ago in local time. */
 function localDaysAgo(n: number): string {
@@ -11,6 +11,24 @@ function localDaysAgo(n: number): string {
     const dd = String(d.getDate()).padStart(2, '0');
     return `${yyyy}-${mm}-${dd}`;
 }
+
+describe('pluralize', () => {
+    it('uses singular form for count 1', () => {
+        expect(pluralize(1, 'day')).toBe('1 day');
+        expect(pluralize(1, 'week')).toBe('1 week');
+        expect(pluralize(1, 'month')).toBe('1 month');
+    });
+
+    it('uses plural form for count 0', () => {
+        expect(pluralize(0, 'day')).toBe('0 days');
+    });
+
+    it('uses plural form for count 2+', () => {
+        expect(pluralize(2, 'day')).toBe('2 days');
+        expect(pluralize(28, 'day')).toBe('28 days');
+        expect(pluralize(3, 'week')).toBe('3 weeks');
+    });
+});
 
 describe('formatWeeksAndDays', () => {
     it('returns days only when less than 1 week', () => {
@@ -56,6 +74,23 @@ describe('daysSinceDate', () => {
         for (const n of [1, 2, 7, 14, 30, 90, 180]) {
             expect(daysSinceDate(localDaysAgo(n))).toBe(n);
         }
+    });
+
+    it('returns 0 for an empty string', () => {
+        expect(daysSinceDate('')).toBe(0);
+    });
+
+    it('returns 0 for a non-date string', () => {
+        expect(daysSinceDate('not-a-date')).toBe(0);
+    });
+
+    it('returns a negative number for a future date', () => {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const yyyy = tomorrow.getFullYear();
+        const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+        const dd = String(tomorrow.getDate()).padStart(2, '0');
+        expect(daysSinceDate(`${yyyy}-${mm}-${dd}`)).toBe(-1);
     });
 });
 

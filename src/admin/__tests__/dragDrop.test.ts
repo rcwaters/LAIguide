@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { enableDrag, refreshDragHandles } from '../forms/dragDrop';
 
 // jsdom does not implement DragEvent or DataTransfer; provide minimal polyfills.

@@ -181,7 +181,7 @@ export function collectFormData(
     formEditor: HTMLDivElement,
     currentMedData: Record<string, unknown>,
 ): Record<string, unknown> {
-    const data = JSON.parse(JSON.stringify(currentMedData)) as Record<string, unknown>;
+    const data = structuredClone(currentMedData);
 
     formEditor.querySelectorAll<HTMLInputElement>('input[data-path]').forEach((input) => {
         const val =
