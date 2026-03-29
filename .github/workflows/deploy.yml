@@ -35,6 +35,12 @@ jobs:
                   ADMIN_PAT: ${{ secrets.ADMIN_PAT }}
               run: npm run build
 
+            - name: Snapshot source HTML before deploy
+              run: |
+                  git show ${{ github.sha }}:index.html     > /tmp/index.html.src
+                  git show ${{ github.sha }}:admin.html     > /tmp/admin.html.src
+                  git show ${{ github.sha }}:changelog.html > /tmp/changelog.html.src
+
             - name: Deploy to main
               uses: JamesIves/github-pages-deploy-action@v4
               with:
@@ -49,6 +55,9 @@ jobs:
                   git config user.email "github-actions[bot]@users.noreply.github.com"
                   git fetch origin main
                   git reset --mixed origin/main
+                  cp /tmp/index.html.src     index.html
+                  cp /tmp/admin.html.src     admin.html
+                  cp /tmp/changelog.html.src changelog.html
                   git add index.html admin.html changelog.html
                   git diff --cached --quiet && echo "HTML already in source form." || {
                     git commit -m "Restore source HTML entry points [skip ci]"
