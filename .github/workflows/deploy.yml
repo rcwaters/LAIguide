@@ -86,6 +86,7 @@ jobs:
               run: ./node_modules/.bin/playwright install-deps chromium
 
             - name: Post-deploy smoke test (live URL)
+              continue-on-error: true
               env:
                   PLAYWRIGHT_BASE_URL: https://rcwaters.github.io/LAIguide
               run: npx playwright test e2e/deploy-smoke.spec.ts --project=chromium

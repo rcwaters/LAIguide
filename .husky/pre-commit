@@ -1,6 +1,8 @@
 npm test
 npm run test:e2e
 
+bash scripts/claude-pr-review.sh || true
+
 # Stage deletion of stale built assets (tracked in git but not referenced by current HTML)
 REFERENCED=$(grep -Eo 'assets/[^"]+' index.html admin.html 2>/dev/null | sort -u)
 git ls-files assets/ | while IFS= read -r f; do
