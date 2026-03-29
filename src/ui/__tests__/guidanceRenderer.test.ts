@@ -5,6 +5,7 @@ import {
     threePartGuidance,
     injectGuidanceSection,
     addictionMedicineAccordion,
+    buildNotifyBlock,
 } from '../guidanceRenderer';
 
 vi.stubGlobal('scrollTo', vi.fn());
@@ -116,5 +117,43 @@ describe('injectGuidanceSection', () => {
         `;
         injectGuidanceSection('', '<p>content</p>');
         expect(document.querySelector('.guidance-section')!.innerHTML).toContain('Start Over');
+    });
+});
+
+describe('buildNotifyBlock', () => {
+    it('wraps output in a div with class notify-box', () => {
+        const html = buildNotifyBlock([]);
+        expect(html).toContain('notify-box');
+    });
+
+    it('includes the "When to notify provider:" heading', () => {
+        const html = buildNotifyBlock([]);
+        expect(html).toContain('When to notify provider:');
+    });
+
+    it('renders a <ul> with <li> items when notifications are provided', () => {
+        const html = buildNotifyBlock(['Alert A', 'Alert B']);
+        expect(html).toContain('<ul>');
+        expect(html).toContain('<li>');
+        expect(html).toContain('Alert A');
+        expect(html).toContain('Alert B');
+        expect(html).not.toContain('No provider notification needed');
+    });
+
+    it('renders the fallback text when notifications array is empty', () => {
+        const html = buildNotifyBlock([]);
+        expect(html).toContain('No provider notification needed');
+        expect(html).not.toContain('<ul>');
+    });
+
+    it('renders a single notification as a list item', () => {
+        const html = buildNotifyBlock(['Only one alert']);
+        expect(html).toContain('<li>');
+        expect(html).toContain('Only one alert');
+    });
+
+    it('renders markdown inside notification items', () => {
+        const html = buildNotifyBlock(['**Bold alert**']);
+        expect(html).toContain('<strong>Bold alert</strong>');
     });
 });

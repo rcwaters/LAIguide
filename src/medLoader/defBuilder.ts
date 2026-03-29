@@ -107,9 +107,7 @@ export function buildStandardDef(json: any) {
         const t =
             row.format === 'days-months'
                 ? `${bareLabel}${approxMonths > 0 ? ` (approximately ${pluralize(approxMonths, 'month')})` : ''}`
-                : row.format === 'days-weeks-months'
-                  ? `${bareLabel}${weeksBreak && weeksBreak !== bareLabel ? ` (${weeksBreak})` : ''}`
-                  : `${bareLabel}${weeksBreak && weeksBreak !== bareLabel ? ` (${weeksBreak})` : ''}`;
+                : `${bareLabel}${weeksBreak && weeksBreak !== bareLabel ? ` (${weeksBreak})` : ''}`;
         return [row.label, t];
     }
 
