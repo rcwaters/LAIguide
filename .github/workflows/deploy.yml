@@ -55,7 +55,6 @@ jobs:
               run: |
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"
-                  git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
                   git fetch origin main
                   git reset --mixed origin/main
                   cp /tmp/index.html.src     index.html
@@ -64,7 +63,9 @@ jobs:
                   git add index.html admin.html changelog.html
                   git diff --cached --quiet && echo "HTML already in source form." || {
                     git commit -m "Restore source HTML entry points [skip ci]"
-                    git push origin HEAD:main
+                    git -c credential.helper= \
+                        -c http.https://github.com/.extraheader= \
+                        push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" HEAD:main
                   }
 
             - name: Wait for GitHub Pages to propagate
