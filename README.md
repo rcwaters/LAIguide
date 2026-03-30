@@ -4,9 +4,9 @@ Clinical decision support tool for early or late/overdue long-acting injectable 
 
 ## Live URL
 
-**https://rcwaters.github.io/LAIguide**  
+**https://darencet.github.io/LAIguide**  
 
-**Admin Portal:** https://darencet.github.io/LAIguide/
+**Admin Portal:** https://darencet.github.io/LAIguide/admin
 
 > If the page isn't accessible, enable GitHub Pages in the repo: **Settings → Pages → Branch: `main` → Save**
 
