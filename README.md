@@ -1,12 +1,12 @@
-# DESC LAI Medication Standing Order Tool
+# DESC LAI Med Guide
 
 Clinical decision support tool for early or late/overdue long-acting injectable (LAI) medication administration at DESC.
 
 ## Live URL
 
-**https://rcwaters.github.io/LAIguide**
+**https://darencet.github.io/LAIguide**  
 
-**Admin Portal:** https://rcwaters.github.io/LAIguide/admin.html
+**Admin Portal:** https://darencet.github.io/LAIguide/admin
 
 > If the page isn't accessible, enable GitHub Pages in the repo: **Settings → Pages → Branch: `main` → Save**
 
