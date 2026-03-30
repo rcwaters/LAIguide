@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('deployed site smoke checks', () => {
     test('custom CSS is applied', async ({ page }) => {
-        await page.goto('/');
+        await page.goto('./');
 
         const bodyBg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
         expect(bodyBg).toBe('rgb(174, 207, 204)');
@@ -14,7 +14,7 @@ test.describe('deployed site smoke checks', () => {
     });
 
     test('medication dropdown is populated', async ({ page }) => {
-        await page.goto('/');
+        await page.goto('./');
 
         const options = page.locator('#medication option');
         await expect(options).toHaveCount(12);
