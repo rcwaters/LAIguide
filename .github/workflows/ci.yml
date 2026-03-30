@@ -90,6 +90,8 @@ jobs:
 
                   PLAYWRIGHT_BASE_URL="http://127.0.0.1:$PORT" \
                     npx playwright test e2e/deploy-smoke.spec.ts --project=chromium
+              env:
+                  PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
 
             - name: Upload Playwright report
               if: failure()
