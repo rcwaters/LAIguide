@@ -1,4 +1,4 @@
-# DESC LAI Medication Standing Order Tool
+# DESC LAI Med Guide
 
 Clinical decision support tool for early or late/overdue long-acting injectable (LAI) medication administration at DESC.
 
