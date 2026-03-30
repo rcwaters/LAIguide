@@ -70,15 +70,11 @@ jobs:
                       /var/cache/apt
                   key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
-            - name: Install Playwright browsers
-              if: steps.playwright-cache.outputs.cache-hit != 'true'
-              run: ./node_modules/.bin/playwright install chromium
-
-            - name: Install Playwright system deps
-              run: ./node_modules/.bin/playwright install-deps chromium
+            - name: Install Playwright browsers + system deps
+              run: ./node_modules/.bin/playwright install --with-deps chromium
 
             - name: Post-deploy smoke test (live URL)
               continue-on-error: true
               env:
                   PLAYWRIGHT_BASE_URL: ${{ steps.deployment.outputs.page_url }}
-              run: npx playwright test e2e/deploy-smoke.spec.ts --project=chromium
+              run: ./node_modules/.bin/playwright test e2e/deploy-smoke.spec.ts --project=chromium
