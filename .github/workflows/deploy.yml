@@ -47,7 +47,7 @@ jobs:
               run: |
                   echo "Polling for Pages propagation (up to 5 min)..."
                   for i in {1..30}; do
-                    STATUS=$(curl -o /dev/null -s -w "%{http_code}" "https://rcwaters.github.io/LAIguide/")
+                    STATUS=$(curl -o /dev/null -s -w "%{http_code}" "https://darenceT.github.io/LAIguide/")
                     if [ "$STATUS" = "200" ]; then
                       echo "Pages responded 200 on attempt $i — sleeping 15s for cache flush"
                       sleep 15
@@ -74,5 +74,5 @@ jobs:
             - name: Post-deploy smoke test (live URL)
               continue-on-error: true
               env:
-                  PLAYWRIGHT_BASE_URL: https://rcwaters.github.io/LAIguide
+                  PLAYWRIGHT_BASE_URL: https://darenceT.github.io/LAIguide
               run: npx playwright test e2e/deploy-smoke.spec.ts --project=chromium
