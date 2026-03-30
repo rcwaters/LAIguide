@@ -35,12 +35,6 @@ jobs:
                   ADMIN_PAT: ${{ secrets.ADMIN_PAT }}
               run: npm run build
 
-            - name: Snapshot source HTML before deploy
-              run: |
-                  git show ${{ github.sha }}:index.html     > /tmp/index.html.src
-                  git show ${{ github.sha }}:admin.html     > /tmp/admin.html.src
-                  git show ${{ github.sha }}:changelog.html > /tmp/changelog.html.src
-
             - name: Deploy to main
               uses: JamesIves/github-pages-deploy-action@v4
               with:
@@ -50,7 +44,18 @@ jobs:
                   commit-message: 'Deploy built assets [skip ci]'
 
             - name: Wait for GitHub Pages to propagate
-              run: sleep 60
+              run: |
+                  echo "Polling for Pages propagation (up to 5 min)..."
+                  for i in {1..30}; do
+                    STATUS=$(curl -o /dev/null -s -w "%{http_code}" "https://rcwaters.github.io/LAIguide/")
+                    if [ "$STATUS" = "200" ]; then
+                      echo "Pages responded 200 on attempt $i — sleeping 15s for cache flush"
+                      sleep 15
+                      break
+                    fi
+                    echo "Attempt $i: HTTP $STATUS, retrying in 10s..."
+                    sleep 10
+                  done
 
             - name: Cache Playwright browsers
               uses: actions/cache@v4

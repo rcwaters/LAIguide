@@ -4,7 +4,7 @@ Clinical decision support tool for early or late/overdue long-acting injectable 
 
 ## Live URL
 
-**https://rcwaters.github.io/LAIguide**
+**https://rcwaters.github.io/LAIguide**  
 
 **Admin Portal:** https://rcwaters.github.io/LAIguide/admin.html
 
