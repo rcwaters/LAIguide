@@ -48,19 +48,18 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
-            - name: Cache Playwright browsers
+            - name: Cache Playwright browsers + system deps
               uses: actions/cache@v4
               id: playwright-cache
               with:
-                  path: ~/.cache/ms-playwright
-                  key: playwright-${{ hashFiles('package-lock.json') }}
+                  path: |
+                      ~/.cache/ms-playwright
+                      /var/cache/apt
+                  key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
-            - name: Install Playwright browsers
+            - name: Install Playwright browsers (with system deps)
               if: steps.playwright-cache.outputs.cache-hit != 'true'
-              run: ./node_modules/.bin/playwright install chromium
-
-            - name: Install Playwright system deps
-              run: ./node_modules/.bin/playwright install-deps chromium
+              run: ./node_modules/.bin/playwright install --with-deps chromium
 
             - name: Run E2E tests
               run: npm run test:e2e
