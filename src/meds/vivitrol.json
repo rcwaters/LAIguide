@@ -1,5 +1,5 @@
 {
-  "displayName": "Vivitrol (naltrexone)s",
+  "displayName": "Vivitrol (naltrexone)",
   "guidance": {
     "shared": {
       "providerNotifications": [
@@ -40,7 +40,7 @@
               "guidance": {
                 "idealSteps": [
                   "**If NO intentional fentanyl use reported AND \"minimal or no fentanyl dependence\" criteria met**, administer Vivitrol (no UDS needed)",
-                  "**If intentional fentanyl use IS reported:** Obtain a point-of-care UDS (document in chasers):\n\n- UDS **Negative** → Administer Vivitrol if patient meets \"minimal or no fentanyl dependence\" criteria.\n\n- UDS **Positive** → Consult provider. If history truly confirms no/minimal withdrawal and no significant fentanyl effects, may administer or consider naloxone challenge."
+                  "**If intentional fentanyl use IS reported:** Obtain a point-of-care UDS (document in chart):\n\n- UDS **Negative** → Administer Vivitrol if patient meets \"minimal or no fentanyl dependence\" criteria.\n\n- UDS **Positive** → Consult provider. If history truly confirms no/minimal withdrawal and no significant fentanyl effects, may administer or consider naloxone challenge."
                 ],
                 "providerNotifications": [
                   "Consult provider if UDS positive, or if patient does not meet \"minimal or no fentanyl dependence\" criteria."
@@ -88,7 +88,7 @@
               "maxDays": 34,
               "guidance": {
                 "idealSteps": [
-                  "Obtain a point-of-care urine drug screen not required",
+                  "Urine drug screen not required",
                   "**Administer Vivitrol 380 mg IM** as long as the patient has no intentional daily use of opioids. No UDS required at this interval.\n\nIf there is regular opioid use, do **NOT** administer — consult provider."
                 ],
                 "providerNotifications": [
@@ -100,7 +100,7 @@
               "maxDays": 41,
               "guidance": {
                 "idealSteps": [
-                  "Obtain a point-of-care urine drug screen unless you have strong confidence the patient has not used opioids (document in chasers).",
+                  "Obtain a point-of-care urine drug screen unless you have strong confidence the patient has not used opioids (document in chart).",
                   "If UDS negative AND criteria for \"minimal or no fentanyl dependence\" are met, administer Vivitrol.",
                   "If UDS positive, do NOT administer. Further discussion needed on degree of opioid dependence. Consult provider."
                 ],
