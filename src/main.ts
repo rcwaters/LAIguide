@@ -44,7 +44,11 @@ document.addEventListener('click', (e) => {
 document.querySelectorAll<HTMLInputElement>('input.date-input').forEach((input) => {
     flatpickr(input, {
         dateFormat: 'Y-m-d',
+        disableMobile: true,
         allowInput: true,
+        onOpen: () => {
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        },
         ...(input.getAttribute('min') ? { minDate: input.getAttribute('min')! } : {}),
         ...(input.getAttribute('max') ? { maxDate: input.getAttribute('max')! } : {}),
     });
