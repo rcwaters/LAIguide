@@ -46,6 +46,7 @@ document.querySelectorAll<HTMLInputElement>('input.date-input').forEach((input) 
         dateFormat: 'Y-m-d',
         disableMobile: true,
         allowInput: true,
+        static: true,
         ...(input.getAttribute('min') ? { minDate: input.getAttribute('min')! } : {}),
         ...(input.getAttribute('max') ? { maxDate: input.getAttribute('max')! } : {}),
     });
