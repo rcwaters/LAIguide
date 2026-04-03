@@ -76,6 +76,10 @@ test.describe('changelog page — authenticated', () => {
             HAS_GITHUB_TOKEN || !process.env.CI,
             'Empty state only verifiable in CI where the store is guaranteed empty',
         );
+        // Explicitly remove the changelog key and reload so this test is not
+        // sensitive to any state written between localStorage.clear() and now.
+        await page.evaluate(() => localStorage.removeItem('lai_local_changelog'));
+        await page.reload();
         await expect(page.locator('#changelog-status')).toHaveText(
             'No changes have been recorded yet.',
         );
