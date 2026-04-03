@@ -152,6 +152,7 @@ export function makeListEditor(
 
 function setNested(obj: Record<string, unknown>, path: string, value: unknown): void {
     const parts = path.split('.');
+    const parents: Array<[Record<string, unknown>, string]> = [];
     let target: Record<string, unknown> = obj;
     for (let i = 0; i < parts.length - 1; i++) {
         const key = parts[i];
@@ -166,12 +167,28 @@ function setNested(obj: Record<string, unknown>, path: string, value: unknown): 
             if (!target[key] || typeof target[key] !== 'object') {
                 target[key] = {};
             }
+            parents.push([target, key]);
             target = target[key] as Record<string, unknown>;
         }
     }
     const lastKey = parts[parts.length - 1];
     if (value === undefined) {
         delete target[lastKey];
+        // Clean up any empty plain-object ancestors left behind by the deletion.
+        for (let i = parents.length - 1; i >= 0; i--) {
+            const [parent, key] = parents[i];
+            const child = parent[key];
+            if (
+                child !== null &&
+                typeof child === 'object' &&
+                !Array.isArray(child) &&
+                Object.keys(child as object).length === 0
+            ) {
+                delete parent[key];
+            } else {
+                break;
+            }
+        }
     } else {
         target[lastKey] = value;
     }

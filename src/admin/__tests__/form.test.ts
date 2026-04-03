@@ -381,7 +381,7 @@ describe('collectFormData', () => {
         const result = collectFormData(container, med) as {
             guidance: { shared: { providerNotifications?: string[] } };
         };
-        expect(result.guidance.shared.providerNotifications).toBeUndefined();
+        expect(result.guidance.shared).toBeUndefined();
     });
 
     it('writes nested values at the correct path', () => {
