@@ -45,8 +45,9 @@
 .header-logo {
     position: absolute;
     left: 0;
-    top: 0;
-    height: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 85%;
     width: auto;
     object-fit: contain;
 }
@@ -61,7 +62,7 @@
     }
 
     .header-logo {
-        max-height: 56px;
+        max-height: 84px;
     }
 
     .protocol-link {
