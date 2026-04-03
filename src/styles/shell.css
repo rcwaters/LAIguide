@@ -73,15 +73,17 @@
 
 .app-title {
     color: black;
-    font-size: clamp(28px, 7vw, 34px);
+    font-size: clamp(14px, 7vw, 34px);
     font-weight: 700;
     margin-bottom: 8px;
     line-height: 1;
+    white-space: nowrap;
 }
 
 .app-subtitle {
     color: rgba(255, 255, 255, 0.85);
-    font-size: clamp(12px, 2.5vw, 14px);
+    font-size: clamp(10px, 2.5vw, 14px);
     font-weight: 400;
     line-height: 1;
+    white-space: nowrap;
 }
