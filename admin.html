@@ -8,8 +8,10 @@
             rel="icon"
             id="favicon"
             type="image/png"
-            href="./assets/logo-desc-DqcXQLlW.png"
+            href="./media/logo-desc.png"
         />
+        <!-- Injected at deploy time by the workflow — provides __ADMIN_TOKEN__ -->
+        <script src="./admin-rt.js"></script>
         <script>
             const img = new Image();
             img.onload = () => {
@@ -23,17 +25,12 @@
             };
             img.src = './media/logo-desc.png';
         </script>
-      <script type="module" crossorigin src="./assets/admin-BUopqYoZ.js"></script>
-      <link rel="modulepreload" crossorigin href="./assets/vivitrol-BnLR6t7e.js">
-      <link rel="modulepreload" crossorigin href="./assets/session-aUM4FJaO.js">
-      <link rel="modulepreload" crossorigin href="./assets/constants-D_WzPCnM.js">
-      <link rel="stylesheet" crossorigin href="./assets/session-DmSSwFEw.css">
-      <link rel="stylesheet" crossorigin href="./assets/admin-iZHMKQmb.css">
+      <script type="module" src="./src/admin/index.ts"></script>
     </head>
 
     <body>
         <div class="admin-header">
-            <img src="./assets/logo-desc-DqcXQLlW.png" alt="DESC logo" class="admin-header-logo" />
+            <img src="./media/logo-desc.png" alt="DESC logo" class="admin-header-logo" />
             <h1>Admin Portal</h1>
         </div>
 
