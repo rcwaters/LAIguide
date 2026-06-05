@@ -1,6 +1,5 @@
-# DESC LAI Medication Standing Order Tool
+No longer in use.  Please instead use:  https://toolkitmd.github.io/laiguide/
 
-Clinical decision support tool for early or late/overdue long-acting injectable (LAI) medication administration at DESC.
 
 ## Live URL
 
